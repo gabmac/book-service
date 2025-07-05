@@ -6,3 +6,5 @@ max-line-length = 130
 extend-ignore = E203
 docstring_style=sphinx
 max-annotations-complexity = 5
+per-file-ignores =
+    src/infrastructure/adapters/database/models/*.py:F821

@@ -53,4 +53,3 @@ A high-performance URL shortener service built with **FastAPI** and **DynamoDB**
 - **Availability**: Multi-AZ deployment
 - **Monitoring**: DataDog + OpenSearch
 - **Performance**: 1M RPM capacity
-

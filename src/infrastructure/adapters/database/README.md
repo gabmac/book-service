@@ -91,8 +91,8 @@ create_sharded_tables()
 ### Working with Sharded Data
 ```python
 from src.infrastructure.database.sharding import (
-    sharding_manager, 
-    create_sharded_record, 
+    sharding_manager,
+    create_sharded_record,
     get_sharded_models_for_branch
 )
 
@@ -233,12 +233,12 @@ def health_check():
         # Test main database
         with engine.connect() as conn:
             conn.execute("SELECT 1")
-        
+
         # Test sharded databases
         for shard_name, shard_engine in sharded_engines.items():
             with shard_engine.connect() as conn:
                 conn.execute("SELECT 1")
-        
+
         return True
     except Exception as e:
         print(f"Health check failed: {e}")
@@ -268,4 +268,4 @@ export SQL_ECHO=true
 python example.py
 ```
 
-This setup provides a scalable, performant database architecture that can handle high-volume book management operations with proper data isolation and horizontal scaling capabilities. 
+This setup provides a scalable, performant database architecture that can handle high-volume book management operations with proper data isolation and horizontal scaling capabilities.

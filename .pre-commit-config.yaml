@@ -43,7 +43,7 @@ repos:
   - id: add-trailing-comma
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.3.0
+  rev: v2.15.0
   hooks:
   - id: pretty-format-yaml
     args:
@@ -90,7 +90,7 @@ repos:
     - --ignore-paths=alembic
     - --max-line-length=240
     - --enable=unused-import,singleton-comparison,unidiomatic-typecheck,consider-using-enumerate, consider-iterating-dictionary,line-too-long,too-many-lines,trailing-whitespace,missing-final-newline, bad-whitespace,bad-continuation,wrong-import-order,ungrouped-imports,wrong-import-position,return-in-init, function-redefined,not-in-loop,return-outside-function,undefined-variable,no-staticmethod-decorator,bad-indentation, wildcard-import,unused-variable,unused-argument
-    - $(git ls-files '*.py')
+    - src/
 
   - id: mypy
     name: Validate types with MyPy
@@ -99,7 +99,7 @@ repos:
     types: [python]
     pass_filenames: false
     args:
-    - "system"
+    - "src"
     - --config=pyproject.toml
 
   - id: bandit
@@ -109,7 +109,7 @@ repos:
     types: [python]
     args:
     - -r
-    - system
+    - src
 
   - id: pip-audit
     name: Pip Audit validation

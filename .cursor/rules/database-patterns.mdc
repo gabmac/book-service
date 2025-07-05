@@ -14,7 +14,7 @@ class RepositoryPort(ABC):
     @abstractmethod
     def save(self, entity: DomainEntity) -> DomainEntity:
         pass
-    
+
     @abstractmethod
     def find_by_id(self, id: str) -> Optional[DomainEntity]:
         pass
