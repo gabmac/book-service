@@ -1,3 +1,5 @@
+# Book Management System ERD
+
 ## MODELS
 %% ====================================================
 %% TURIVIUS - BOOK MANAGEMENT SYSTEM ERD
@@ -5,6 +7,7 @@
 %% SHARDING: branch_id used in physical_exemplars and book_lending
 %% ====================================================
 
+```mermaid
 erDiagram
 
     %% RELATIONSHIPS
