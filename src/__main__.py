@@ -1,5 +1,6 @@
 """Initialize Uvicorn."""
 
+
 import uvicorn
 
 from src.infrastructure.settings.config import SystemConfig

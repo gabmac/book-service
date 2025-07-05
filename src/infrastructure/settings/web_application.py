@@ -1,14 +1,11 @@
 """Application Settings"""
 
-from typing import Any, Awaitable, Callable, List
 
 from fastapi import (
     APIRouter,
     FastAPI,
     HTTPException,
     Request,
-    Response,
-    WebSocket,
     status,
 )
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,7 +18,10 @@ from src.infrastructure.cross_cutting.middleware_logging import (
     RequestContextLogMiddleware,
 )
 from src.infrastructure.logs.logstash import LogStash
-from src.infrastructure.settings.config import LogstashConfig, SystemConfig
+from src.infrastructure.settings.config import (
+    LogstashConfig,
+    SystemConfig,
+)
 from src.infrastructure.settings.environments import Environments
 
 
@@ -33,16 +33,23 @@ class AppConfig:
         router: APIRouter,
         logstash: LogstashConfig,
         logstash_logger: LogStash,
+        # producer: Producer,
+        config: SystemConfig,
+        # db: DatabaseSettings,
     ):
         self.logstash_logger = logstash_logger
         self.api_router = router
         self.logstash = logstash
+        # self.producer = producer
+        self.config = config
+        # self.db = db
         self.app = FastAPI(
             title="Book Service",
             description="Book Service",
             openapi_url="/openapi.json",
             docs_url="/docs",
             redoc_url="/redoc",
+            # lifespan=self.lifespan,
         )
 
         self.app.add_exception_handler(
@@ -50,21 +57,12 @@ class AppConfig:
             handler=self.exception_handler,  # type: ignore[arg-type]
         )
 
-    @staticmethod
-    def startup(
-        init_applications: List[Callable[[Any], Any]],
-        app: FastAPI,
-    ) -> (
-        Callable[[Request, Exception], Response | Awaitable[Response]]
-        | Callable[[WebSocket, Exception], Awaitable[None]]
-    ):
-        """Startup Application"""
-
-        async def _startup() -> None:
-            for application in init_applications:
-                application(app)
-
-        return _startup  # type: ignore[return-value]
+    # @asynccontextmanager
+    # async def lifespan(self):
+    #     if self.config.environment != Environments.LOCAL.value:
+    #         self.db.init_db()
+    #     yield
+    #     self.producer.close()
 
     def init_cors(self) -> None:
         """Initialize CORS"""
@@ -105,13 +103,14 @@ class AppConfig:
     def start_application(self) -> FastAPI:
         """Start Application with Environment"""
         self.init_context()
-        # self.init_request_log()
         self.init_cors()
         self.init_logstash()
         self.init_routes()
         return self.app
 
 
+# producer_config = ProducerConfig()
+# producer = Producer(localhost=producer_config.localhost, queues=producer_config.queues)
 logstash_config = LogstashConfig()
 logstash_logger = LogStash(
     host=logstash_config.host,
@@ -119,8 +118,14 @@ logstash_logger = LogStash(
     loggername=logstash_config.loggername,
 )
 
+# db_config = DatabaseConfig()
+# db = DatabaseSettings(host=db_config.host, password=db_config.password, port=db_config.port, user=db_config.user, database=db_config.database)
+
 app = AppConfig(
     router=api_router,
     logstash=logstash_config,
     logstash_logger=logstash_logger,
+    # producer=producer,
+    config=SystemConfig(),
+    # db=db,
 ).start_application()

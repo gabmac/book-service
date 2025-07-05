@@ -1,3 +1,5 @@
+from ast import Set
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -14,11 +16,11 @@ class SystemConfig(BaseSettings):
 
     host: str = Field(
         description="Host of the system",
-        default="",
+        default="0.0.0.0",
     )
     port: int = Field(
         description="Port of the system",
-        default=0,
+        default=9000,
     )
 
     application_name: str = Field(
@@ -41,4 +43,42 @@ class LogstashConfig(BaseSettings):
     loggername: str = Field(
         default="book-service",
         description="Logstash logger name",
+    )
+
+
+class ProducerConfig(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="PRODUCER_")
+
+    localhost: str = Field(
+        description="Producer localhost",
+        default="",
+    )
+    queues: Set = Field(
+        description="Producer queues",
+        default_factory=set,
+    )
+
+
+class DatabaseConfig(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="DATABASE_")
+
+    host: str = Field(
+        description="Database host",
+        default="",
+    )
+    password: str = Field(
+        description="Database password",
+        default="",
+    )
+    port: int = Field(
+        description="Database port",
+        default=0,
+    )
+    user: str = Field(
+        description="Database user",
+        default="",
+    )
+    database: str = Field(
+        description="Database database",
+        default="",
     )
