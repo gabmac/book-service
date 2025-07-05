@@ -1,0 +1,77 @@
+[tool.poetry]
+name = "book-service"
+version = "0.1.0"
+description = ""
+authors = ["Gabriel"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.14"
+uvicorn = "^0.35.0"
+opensearch-py = "^3.0.0"
+coverage = {extras = ["toml"], version = "^7.9.2"}
+conventional-pre-commit = "^4.2.0"
+
+
+[tool.poetry.group.code-smells.dependencies]
+flake8 = "^7.3.0"
+mypy = "^1.16.1"
+isort = "^6.0.1"
+pre-commit = "^4.2.0"
+autoflake = "^2.3.1"
+pylint = "^3.3.7"
+black = "^25.1.0"
+pip-audit = "^2.9.0"
+bandit = {extras = ["toml"], version = "^1.8.5"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.src.infrastructure.adapters.entrypoints.api"
+
+
+[tool.coverage.run]
+branch = true
+include = [
+    "src/infrastructure/adapters/entrypoints/api/routes/*",
+    "src/application/usecase/*",
+    "src/infrastructure/adapters/database/repositories/*",
+]
+omit = ["*__.py", "*exception*", "src/application/usecase/usecase.py"]
+[tool.coverage.report]
+fail_under = 80
+sort = "-Cover"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+src_paths = ["src",]
+
+[tool.mypy]
+install_types=true
+non_interactive=true
+disable_error_code = ["abstract"]
+exclude = "common|models"
+strict = true
+ignore_missing_imports = true
+allow_subclassing_any = true
+allow_untyped_calls = true
+pretty = true
+show_error_codes = true
+implicit_reexport = true
+allow_untyped_decorators = true
+warn_return_any = false
+warn_unused_ignores = false
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore::pytest.PytestConfigWarning",
+    "ignore:.*unclosed.*:ResourceWarning",
+]
