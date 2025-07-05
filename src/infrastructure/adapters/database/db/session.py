@@ -1,7 +1,9 @@
 from typing import Any, Generator
 
 from sqlalchemy import Engine
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, create_engine
+
+from src.infrastructure.adapters.database.models.base_model import Base
 
 
 class DatabaseSettings:
@@ -12,17 +14,16 @@ class DatabaseSettings:
     password: str = ""
     port: int = 0
     user: str = ""
-    database: str
+    database: str = ""
 
     engine: Engine | None = None
 
-    def __new__(cls, host: str, password: str, port: int, user: str, database: str):
+    def __new__(cls, host: str, password: str, port: int, user: str):  # type: ignore
         if cls._instance is None:
             cls.host = host
             cls.password = password
             cls.port = port
             cls.user = user
-            cls.database = database
             cls._create_engine()
             cls._instance = cls
         return cls._instance
@@ -41,7 +42,7 @@ class DatabaseSettings:
     def init_db(cls) -> None:
         if cls.engine is None:
             raise ValueError("Engine is not initialized")
-        SQLModel.metadata.create_all(cls.engine)
+        Base.metadata.create_all(cls.engine)
 
     def get_session(self) -> Generator[Session, Any, Any]:
         if self.engine is None:

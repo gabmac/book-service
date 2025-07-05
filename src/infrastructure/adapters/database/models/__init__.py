@@ -9,7 +9,6 @@ from .book_data import BookData
 from .book_lending import BookLending
 from .branch import Branch
 from .physical_exemplar import PhysicalExemplar
-from .user import User, UserType
 from .user_configuration import UserConfiguration
 
 __all__ = [
@@ -24,6 +23,5 @@ __all__ = [
     "Branch",
     "PhysicalExemplar",
     "User",
-    "UserType",
     "UserConfiguration",
 ]

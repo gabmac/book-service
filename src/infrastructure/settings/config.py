@@ -1,4 +1,4 @@
-from ast import Set
+from typing import Set
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -16,11 +16,11 @@ class SystemConfig(BaseSettings):
 
     host: str = Field(
         description="Host of the system",
-        default="0.0.0.0",
+        default="",
     )
     port: int = Field(
         description="Port of the system",
-        default=9000,
+        default=0,
     )
 
     application_name: str = Field(
@@ -53,7 +53,15 @@ class ProducerConfig(BaseSettings):
         description="Producer localhost",
         default="",
     )
-    queues: Set = Field(
+    user: str = Field(
+        description="Producer user",
+        default="",
+    )
+    password: str = Field(
+        description="Producer password",
+        default="",
+    )
+    queues: Set[str] = Field(
         description="Producer queues",
         default_factory=set,
     )

@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import List
 from uuid import UUID
 
@@ -7,19 +6,6 @@ from sqlmodel import Field, Relationship
 from .base_model import Base
 from .book_lending import BookLending
 from .user_configuration import UserConfiguration
-
-
-class UserType(Enum):
-    """User type enum."""
-
-    ADMIN = "admin"
-    NORMAL = "normal"
-    LIBRARIAN = "librarian"
-    STUDENT = "student"
-    TEACHER = "teacher"
-
-    def __str__(self):
-        return self.value
 
 
 class User(Base, table=True):
