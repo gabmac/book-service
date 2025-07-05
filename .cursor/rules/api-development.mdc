@@ -1,0 +1,70 @@
+description:
+globs:
+alwaysApply: true
+---
+# REST API Development Patterns
+
+## API Design Principles
+- **RESTful Design**: Use HTTP methods appropriately
+- **Resource-Oriented**: Design around resources, not actions
+- **Stateless**: Each request contains all necessary information
+- **Cacheable**: Responses should be cacheable when possible
+- **Layered System**: Client can't tell if connected directly to server
+
+## Resource Organization
+Resources are organized in [system/infrastructure/adapters/entrypoints/api/routes/](mdc:system/infrastructure/adapters/entrypoints/api/routes/):
+
+### Admin Resources (`admin/`)
+- **Collection Operations**: List, create, bulk operations
+- **Individual Operations**: Read, update, delete specific resources
+- **Management Operations**: Enable/disable, configuration
+
+### Public Resources (`short_url/`)
+- **Core Operations**: Main business functionality
+- **Public Access**: No authentication required
+- **Performance Critical**: Optimized for high traffic
+
+## Controller Pattern
+Controllers (Views) handle HTTP concerns and delegate to business logic:
+
+**Responsibilities**:
+- Route requests to appropriate handlers
+- Validate and transform input data
+- Handle HTTP status codes and headers
+- Format responses consistently
+- Manage error responses
+
+**Structure**:
+```python
+class ResourceController(BaseController):
+    def __init__(
+        self,
+        use_case: Type[UseCase],
+    ) -> None:
+        self.use_case = use_case()
+```
+
+## HTTP Method Patterns
+- **GET**: Retrieve resources (safe, idempotent)
+- **POST**: Create new resources
+- **PUT**: Replace entire resource
+- **PATCH**: Update partial resource
+- **DELETE**: Remove resources
+
+## Response Patterns
+- **Success Responses**: Consistent structure with data
+- **Error Responses**: Standardized error format
+- **Validation Errors**: Detailed field-level errors
+- **Pagination**: For collection responses
+
+## Error Handling Patterns
+- **Client Errors**: 4xx status codes for invalid requests
+- **Server Errors**: 5xx status codes for internal failures
+- **Validation Errors**: 422 for semantic validation failures
+- **Not Found**: 404 for missing resources
+
+## API Documentation
+- **OpenAPI/Swagger**: Self-documenting APIs
+- **Consistent Naming**: Use clear, descriptive names
+- **Versioning**: Plan for API evolution
+- **Examples**: Provide usage examples

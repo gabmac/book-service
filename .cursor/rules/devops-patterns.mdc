@@ -1,0 +1,76 @@
+description:
+globs:
+alwaysApply: true
+---
+# Deployment and Infrastructure Patterns
+
+## Containerization Pattern
+The application is containerized for consistent deployment across environments:
+
+### Multi-Environment Strategy
+- **Development**: [docker-compose.dev.yml](mdc:docker-compose.dev.yml) for local development
+- **Production**: [docker-compose.prod.yml](mdc:docker-compose.prod.yml) for production deployment
+- **Testing**: [docker-compose.test.yml](mdc:docker-compose.test.yml) for automated testing
+
+### Container Design
+[Dockerfile](mdc:Dockerfile) follows containerization best practices:
+- Multi-stage builds for optimization
+- Minimal base images for security
+- Proper layer caching
+- Non-root user execution
+
+## Infrastructure Architecture
+The infrastructure follows scalable and resilient patterns as shown in [infrastructure.svg](mdc:infrastructure.svg):
+
+### Load Distribution
+- **Load Balancer**: Distribute traffic across multiple instances
+- **Health Checks**: Monitor service availability
+- **Auto-scaling**: Adjust capacity based on demand
+
+### Application Deployment
+- **Container Orchestration**: Manage container lifecycle
+- **Service Discovery**: Locate services dynamically
+- **Configuration Management**: Environment-specific settings
+
+### Data Layer
+- **Primary Storage**: Persistent data storage
+- **Caching Layer**: Improve read performance
+- **Backup Strategy**: Data protection and recovery
+
+## Observability Patterns
+
+### Logging Strategy
+- **Structured Logging**: Consistent log format
+- **Centralized Collection**: Aggregate logs from all services
+- **Log Processing**: Transform and enrich log data
+- **Retention Policy**: Manage log storage and archival
+
+### Monitoring Strategy
+- **Application Metrics**: Track business and technical metrics
+- **Infrastructure Metrics**: Monitor system resources
+- **Alerting**: Proactive notification of issues
+- **Dashboards**: Visualize system health and performance
+
+### Configuration Management
+- **Environment Variables**: Runtime configuration
+- **Configuration Classes**: Type-safe settings
+- **Environment Detection**: Automatic environment identification
+- **Secrets Management**: Secure credential handling
+
+## Deployment Patterns
+- **Blue-Green Deployment**: Zero-downtime deployments
+- **Rolling Updates**: Gradual service updates
+- **Canary Releases**: Risk mitigation through gradual rollout
+- **Rollback Strategy**: Quick recovery from failed deployments
+
+## Scalability Patterns
+- **Horizontal Scaling**: Add more instances
+- **Vertical Scaling**: Increase instance capacity
+- **Load Distribution**: Spread traffic across instances
+- **Database Scaling**: Handle increased data volume
+
+## Security Patterns
+- **Network Security**: Secure communication channels
+- **Access Control**: Manage user and service permissions
+- **Data Protection**: Encrypt sensitive data
+- **Audit Logging**: Track security-relevant events

@@ -1,0 +1,56 @@
+description:
+globs:
+alwaysApply: true
+---
+
+# URL Shortener Project Summary
+
+## Project Overview
+A high-performance URL shortener service built with **FastAPI** and **DynamoDB**, designed for Twitter promotion campaigns with 1M RPM capacity and 99.98% uptime.
+
+## Quick Start
+1. **Entry Point**: [system/__main__.py](mdc:system/__main__.py)
+2. **Main App**: [web_application.py](mdc:system/infrastructure/settings/web_application.py)
+3. **API Routes**: [router.py](mdc:system/infrastructure/adapters/entrypoints/api/router.py)
+4. **Configuration**: [pyproject.toml](mdc:pyproject.toml)
+
+## Core Features
+- **URL Shortening**: Create short URLs from Twitter URLs
+- **URL Management**: Enable/disable and update URLs
+- **URL Redirection**: Redirect short URLs to target URLs
+- **Admin Interface**: Manage all URLs via admin endpoints
+
+## Architecture Highlights
+- **DDD Pattern**: Clean separation of domain, application, and infrastructure layers
+- **Repository Pattern**: Abstract data access with DynamoDB implementation
+- **Use Case Pattern**: Business logic encapsulated in use cases
+- **Dependency Injection**: Container-based DI for testability
+
+## Key Endpoints
+- `POST /api/admin/create` - Create short URL
+- `GET /api/admin` - List all URLs
+- `PATCH /api/admin/{url_key}` - Update URL
+- `GET /api/{url_key}` - Redirect to target
+- `GET /api/docs` - API documentation
+
+## Technology Stack
+- **Backend**: FastAPI + Uvicorn
+- **Database**: DynamoDB (PynamoDB ORM)
+- **Logging**: Elasticsearch + Logstash
+- **Testing**: pytest + coverage
+- **Quality**: Black, MyPy, Flake8, Pylint
+- **Infrastructure**: Docker + AWS (ECS, ELB, ECR)
+
+## Development
+- **Package Manager**: Poetry
+- **Code Style**: Black + isort
+- **Type Checking**: MyPy (strict mode)
+- **Testing**: 80% coverage target
+- **Docker**: Multi-environment setup
+
+## Infrastructure
+- **Scalability**: Auto-scaling ECS cluster
+- **Availability**: Multi-AZ deployment
+- **Monitoring**: DataDog + OpenSearch
+- **Performance**: 1M RPM capacity
+

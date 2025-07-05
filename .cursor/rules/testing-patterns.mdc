@@ -1,0 +1,79 @@
+description:
+globs:
+alwaysApply: true
+---
+# Testing Patterns and Principles
+
+## Testing Pyramid
+Tests are organized following the testing pyramid principle:
+
+### Unit Tests (`tests/short_url/usecase/`)
+- **Scope**: Individual components in isolation
+- **Speed**: Fast execution
+- **Coverage**: High coverage of business logic
+- **Dependencies**: Mocked external dependencies
+
+### Integration Tests (`tests/short_url/repository/`)
+- **Scope**: Component interactions
+- **Speed**: Medium execution
+- **Coverage**: Integration points
+- **Dependencies**: Real external systems
+
+### End-to-End Tests (`tests/short_url/views/`)
+- **Scope**: Complete user workflows
+- **Speed**: Slow execution
+- **Coverage**: Critical user paths
+- **Dependencies**: Full system stack
+
+## Test Organization Principles
+- **Mirror Structure**: Test structure mirrors source structure
+- **Clear Naming**: Descriptive test names that explain behavior
+- **Isolation**: Tests don't depend on each other
+- **Fast Feedback**: Tests provide quick feedback on changes
+
+## Test Configuration
+- **Main Config**: [tests/conftest.py](mdc:tests/conftest.py) for global fixtures
+- **Module Config**: [tests/short_url/conftest.py](mdc:tests/short_url/conftest.py) for module-specific setup
+- **Fixtures**: [tests/short_url/fixtures.py](mdc:tests/short_url/fixtures.py) for reusable test data
+
+## Test Patterns
+
+### Arrange-Act-Assert (AAA)
+```python
+def test_business_operation():
+    # Arrange - Set up test data and dependencies
+    use_case = UseCase()
+    request = Request(data="test")
+    
+    # Act - Execute the operation under test
+    result = use_case.execute(request)
+    
+    # Assert - Verify the expected outcome
+    assert result.is_valid
+    assert result.data == "expected"
+```
+
+### Test Doubles
+- **Mocks**: Replace dependencies with controlled substitutes
+- **Stubs**: Provide predefined responses
+- **Fakes**: Provide working but simplified implementations
+- **Spies**: Monitor interactions without changing behavior
+
+### Test Data Patterns
+- **Builders**: Construct complex test objects
+- **Factories**: Create test data with sensible defaults
+- **Fixtures**: Reusable test data across multiple tests
+- **Random Data**: Generate varied test scenarios
+
+## Testing Principles
+- **Test Behavior**: Focus on what the code does, not how
+- **Single Assertion**: One concept per test
+- **Descriptive Names**: Test names should read like specifications
+- **Fast and Reliable**: Tests should be quick and deterministic
+- **Maintainable**: Tests should be easy to understand and modify
+
+## Coverage Strategy
+- **Business Logic**: High coverage of use cases and domain logic
+- **Integration Points**: Test repository and external service interactions
+- **Error Paths**: Test exception handling and edge cases
+- **API Contracts**: Verify request/response validation

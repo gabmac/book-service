@@ -1,0 +1,89 @@
+description:
+globs:
+alwaysApply: true
+---
+
+# Development Practices and Workflow
+
+## Project Organization
+This project follows structured development practices with clear separation of concerns:
+
+### Dependency Management
+- **Package Management**: Centralized dependency control
+- **Version Pinning**: Reproducible builds
+- **Group Organization**: Separate development and production dependencies
+- **Lock Files**: Ensure consistent installations
+
+### Code Organization
+- **Layered Architecture**: Clear separation of concerns
+- **Module Structure**: Logical grouping of related functionality
+- **Import Organization**: Consistent import patterns
+- **File Naming**: Descriptive and consistent naming
+
+## Quality Assurance Practices
+
+### Code Quality Tools
+- **Code Formatting**: Consistent code style
+- **Import Sorting**: Organized import statements
+- **Type Checking**: Static type analysis
+- **Linting**: Code quality and style enforcement
+- **Security Scanning**: Vulnerability detection
+
+### Quality Gates
+- **Pre-commit Hooks**: Automated quality checks
+- **CI/CD Integration**: Continuous quality validation
+- **Coverage Requirements**: Minimum test coverage thresholds
+- **Performance Benchmarks**: Maintain performance standards
+
+## Development Workflow
+
+### Local Development
+```bash
+# Install dependencies
+dependency-manager install
+
+# Run application
+dependency-manager run application
+
+# Run tests
+dependency-manager run test
+
+# Quality checks
+dependency-manager run quality
+```
+
+### Container Development
+```bash
+# Development environment
+container-compose -f docker-compose.dev.yml up
+
+# Testing environment
+container-compose -f docker-compose.test.yml up
+
+# Production simulation
+container-compose -f docker-compose.prod.yml up
+```
+
+## Testing Strategy
+- **Unit Testing**: Test individual components in isolation
+- **Integration Testing**: Test component interactions
+- **End-to-End Testing**: Test complete user workflows
+- **Performance Testing**: Validate system performance
+
+## Code Review Process
+- **Pull Request Workflow**: Structured review process
+- **Automated Checks**: Pre-merge validation
+- **Manual Review**: Human oversight and feedback
+- **Documentation**: Update documentation with changes
+
+## Version Control Practices
+- **Branch Strategy**: Feature-based development
+- **Commit Standards**: Conventional commit messages
+- **Merge Strategy**: Clean and traceable history
+- **Release Management**: Structured release process
+
+## Documentation Practices
+- **Code Documentation**: Inline documentation and docstrings
+- **API Documentation**: Self-documenting APIs
+- **Architecture Documentation**: System design and patterns
+- **User Documentation**: Usage guides and examples

@@ -1,0 +1,93 @@
+description:
+globs:
+alwaysApply: true
+---
+# Domain-Driven Design Patterns
+
+## Entity Pattern
+Entities represent domain objects with identity and lifecycle. They are defined in [system/domain/entities/](mdc:system/domain/entities/) and inherit from [BaseEntity](mdc:system/domain/entities/base_entity.py).
+
+**Characteristics**:
+- Have a unique identity
+- Can change over time
+- Represent core business concepts
+- Encapsulate business rules
+
+**Example Structure**:
+```python
+class DomainEntity(BaseEntity):
+    attribute1: str
+    attribute2: int
+    status: StatusEnum
+    created_at: datetime
+    updated_at: datetime
+```
+
+## Use Case Pattern
+Use cases encapsulate business logic and orchestrate domain operations. They are located in [system/application/usecase/](mdc:system/application/usecase/).
+
+**Structure**:
+- Inherit from `RequestUseCase[RequestType, ResponseType]`
+- Implement `execute()` method
+- Use dependency injection for external dependencies
+- Focus on single business operation
+
+**Responsibilities**:
+- Validate input data
+- Orchestrate domain operations
+- Handle business rules
+- Return structured responses
+
+## Repository Pattern
+Repositories abstract data access and provide a collection-like interface for domain objects.
+
+**Ports**: Define contracts in [system/domain/ports/repositories/](mdc:system/domain/ports/repositories/)
+**Implementation**: Concrete implementations in [system/infrastructure/adapters/database/repositories/](mdc:system/infrastructure/adapters/database/repositories/)
+
+**Benefits**:
+- Decouple domain from data access
+- Enable testing with mocks
+- Provide consistent data access interface
+- Hide storage implementation details
+
+## DTO Pattern
+Data Transfer Objects transfer data between layers without exposing internal structure.
+
+**Types**:
+- **Request DTOs**: Validate and structure incoming data
+- **Response DTOs**: Structure outgoing data
+- **Internal DTOs**: Transfer data between layers
+
+**Principles**:
+- Immutable when possible
+- Validation at boundaries
+- Clear separation from domain objects
+- Version-aware for API evolution
+
+## View Pattern
+Views handle external interface concerns and delegate business logic to use cases.
+
+**Responsibilities**:
+- Handle HTTP-specific concerns
+- Validate and transform requests
+- Delegate to use cases
+- Format responses
+- Handle errors appropriately
+
+## Dependency Injection Pattern
+Use dependency injection to invert dependencies and enable testing.
+
+**Implementation**:
+```python
+def __init__(
+    self,
+    repository: Type[RepositoryPort] = Container.repository,
+) -> None:
+    self.repository = repository()
+```
+
+**Benefits**:
+- Loose coupling between components
+- Easy testing with mocks
+- Configuration flexibility
+- Clear dependency graph

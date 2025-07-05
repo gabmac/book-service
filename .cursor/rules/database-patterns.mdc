@@ -1,0 +1,81 @@
+description:
+globs:
+alwaysApply: true
+---
+# Data Access Patterns
+
+## Repository Pattern
+The repository pattern abstracts data access and provides a collection-like interface for domain objects.
+
+### Repository Interface
+Ports define contracts in [system/domain/ports/repositories/](mdc:system/domain/ports/repositories/):
+```python
+class RepositoryPort(ABC):
+    @abstractmethod
+    def save(self, entity: DomainEntity) -> DomainEntity:
+        pass
+    
+    @abstractmethod
+    def find_by_id(self, id: str) -> Optional[DomainEntity]:
+        pass
+```
+
+### Repository Implementation
+Concrete implementations in [system/infrastructure/adapters/database/repositories/](mdc:system/infrastructure/adapters/database/repositories/) provide:
+- CRUD operations
+- Query methods
+- Data transformation between entities and models
+- Connection management
+
+## Data Model Pattern
+Data models represent the persistence layer structure:
+
+### Base Model
+All models inherit from [BaseModel](mdc:system/infrastructure/adapters/database/models/base_model.py) which provides:
+- Common fields (id, timestamps)
+- Configuration settings
+- Common methods and utilities
+
+### Domain Model
+Domain-specific models like [ShortUrlModel](mdc:system/infrastructure/adapters/database/models/short_url_model.py) represent:
+- Persistence structure
+- Field mappings
+- Index definitions
+- Validation rules
+
+## Data Transformation Pattern
+Transform data between domain entities and persistence models:
+
+**Entity to Model**:
+- Map domain properties to persistence fields
+- Handle type conversions
+- Apply persistence-specific logic
+
+**Model to Entity**:
+- Reconstruct domain objects
+- Apply domain logic
+- Handle missing or invalid data
+
+## Query Patterns
+- **Find by ID**: Retrieve single entity by unique identifier
+- **Find by Criteria**: Query entities based on business rules
+- **List All**: Retrieve collections with pagination
+- **Aggregate Queries**: Perform calculations and summaries
+
+## Transaction Patterns
+- **Unit of Work**: Group related operations
+- **Optimistic Locking**: Handle concurrent modifications
+- **Eventual Consistency**: Handle distributed data scenarios
+- **Compensation**: Rollback complex operations
+
+## Caching Patterns
+- **Read-Through**: Cache on read operations
+- **Write-Through**: Update cache on writes
+- **Cache-Aside**: Manual cache management
+- **Eviction Policies**: Manage cache size and freshness
+
+## Data Access Principles
+- **Abstraction**: Hide storage implementation details
+- **Consistency**: Maintain data integrity
+- **Performance**: Optimize for common access patterns
+- **Scalability**: Design for growth and distribution

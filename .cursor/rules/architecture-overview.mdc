@@ -1,0 +1,34 @@
+# Clean Architecture Overview
+
+This project follows **Clean Architecture** with **Domain-Driven Design (DDD)** principles. The main entry point is [system/__main__.py](mdc:system/__main__.py) which initializes the application.
+
+## Architecture Layers
+
+### Domain Layer (`system/domain/`)
+- **Entities**: Core business objects that represent domain concepts
+- **Enums**: Domain-specific enumerations and value objects
+- **Ports**: Abstract interfaces defining contracts for external dependencies
+
+### Application Layer (`system/application/`)
+- **Use Cases**: Business logic implementation and orchestration
+- **DTOs**: Data Transfer Objects for external communication
+- **Interfaces**: Application service contracts
+
+### Infrastructure Layer (`system/infrastructure/`)
+- **Adapters**: Concrete implementations of domain and application ports
+  - **Data Access**: Repository implementations
+  - **External Services**: Third-party integrations
+  - **Entry Points**: API controllers and views
+- **Configuration**: Application settings and dependency injection
+
+## Key Architectural Principles
+- **Dependency Inversion**: High-level modules don't depend on low-level modules
+- **Separation of Concerns**: Clear boundaries between layers
+- **Single Responsibility**: Each class has one reason to change
+- **Open/Closed**: Open for extension, closed for modification
+
+## Core Patterns
+- **Repository Pattern**: Abstract data access
+- **Use Case Pattern**: Encapsulate business logic
+- **DTO Pattern**: Transfer data between layers
+- **Dependency Injection**: Invert dependencies
