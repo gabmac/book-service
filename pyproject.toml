@@ -4,9 +4,10 @@ version = "0.1.0"
 description = ""
 authors = ["Gabriel"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 fastapi = "^0.115.14"
 uvicorn = "^0.35.0"
 opensearch-py = "^3.0.0"
@@ -17,6 +18,8 @@ psycopg2-binary = "^2.9.10"
 sqlmodel = "^0.0.24"
 pydantic-settings = "^2.10.1"
 setuptools = "^80.9.0"
+packaging = "^25.0"
+python-logstash-async = "^4.0.2"
 
 
 [tool.poetry.group.code-smells.dependencies]
@@ -29,6 +32,10 @@ pylint = "^3.3.7"
 black = "^25.1.0"
 pip-audit = "^2.9.0"
 bandit = {extras = ["toml"], version = "^1.8.5"}
+
+
+[tool.poetry.group.debugpy.dependencies]
+debugpy = "^1.8.14"
 
 [build-system]
 requires = ["poetry-core"]

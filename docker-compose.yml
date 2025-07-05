@@ -1,0 +1,131 @@
+services:
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    shm_size: 128mb
+    ports:
+    - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: book
+
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: rabbitmq
+    restart: always
+    ports:
+    - 5672:5672
+    - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: kalo
+      RABBITMQ_DEFAULT_PASS: kalo
+    volumes:
+    - rabbitmq-lib:/var/lib/rabbitmq/
+    - rabbitmq-log:/var/log/rabbitmq
+
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: debug
+    image: book-service:${TESTE_VERSION:-latest}
+    restart: always
+    volumes:
+    - .:/code
+    ports:
+    - "9000:9000"
+    - "5678:5678"
+    environment:
+    - SYSTEM_ENVIRONMENT=local
+    - SYSTEM_HOST= '0.0.0.0'
+    - SYSTEM_PORT=9000
+    - LOGSTASH_HOST=logstash
+    - LOGSTASH_PORT=5000
+    networks:
+    - os-net
+    depends_on:
+    - opensearch-node1
+    - postgres
+    - rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/api/health || exit 1"]
+      interval: 1s
+      timeout: 10s
+      retries: 3
+
+  opensearch-node1:
+    image: opensearchproject/opensearch:2.1.0
+    container_name: opensearch-node1
+    environment:
+    - cluster.name=opensearch-cluster
+    - node.name=opensearch-node1
+    - discovery.seed_hosts=opensearch-node1
+    - bootstrap.memory_lock=true   # along with the memlock settings below, disables swapping
+    - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"   # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+    - "DISABLE_INSTALL_DEMO_CONFIG=true"   # disables execution of install_demo_configuration.sh bundled with security plugin, which installs demo certificates and security configurations to OpenSearch
+    - "DISABLE_SECURITY_PLUGIN=true"   # disables security plugin entirely in OpenSearch by setting plugins.security.disabled: true in opensearch.yml
+    - "discovery.type=single-node"   # disables bootstrap checks that are enabled when network.host is set to a non-loopback address
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    # volumes:
+    # - opensearch-data1:/usr/share/opensearch/data
+    ports:
+    - 9200:9200
+    - 9600:9600
+    networks:
+    - os-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
+      interval: 1s
+      timeout: 10s
+      retries: 3
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.1.0
+    container_name: opensearch-dashboards
+    ports:
+    - 5601:5601
+    expose:
+    - "5601"
+    environment:
+    - 'OPENSEARCH_HOSTS=["http://opensearch-node1:9200"]'
+    - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"   # disables security dashboards plugin in OpenSearch Dashboards
+    networks:
+    - os-net
+
+  opensearch-logstash:
+    image: opensearchproject/logstash-oss-with-opensearch-output-plugin:latest
+    container_name: logstash
+    ports:
+    - 5044:5044
+    - 5099:5099
+    - 5000:5000/tcp
+    - 5000:5000/udp
+    - 8080:8080
+    volumes:
+    - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+    - os-net
+    depends_on:
+    - opensearch-node1
+
+volumes:
+  rabbitmq-lib:
+    driver: local
+  rabbitmq-log:
+    driver: local
+  opensearch-data1:
+  db-data:
+    name: db-data
+
+networks:
+  os-net:
+    driver: bridge

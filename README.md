@@ -1,6 +1,62 @@
-# Book Management System ERD
+# Book Service
 
-## MODELS
+A high-performance book management system built with FastAPI and PostgreSQL.
+
+## Features
+
+- Book management with authors and categories
+- Physical exemplar tracking
+- User management and lending system
+- Branch-based sharding for scalability
+- RESTful API with OpenAPI documentation
+
+## Quick Start
+
+1. Install dependencies:
+   ```bash
+   poetry install
+   ```
+
+2. Set up the database:
+   ```bash
+   # Create PostgreSQL database
+   createdb book_service
+
+   # Run migrations
+   alembic upgrade head
+   ```
+
+3. Run the application:
+   ```bash
+   poetry run uvicorn src.main:app --reload
+   ```
+
+## API Documentation
+
+Once the application is running, visit:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+## Development
+
+- **Code Quality**: `poetry run pre-commit run --all-files`
+- **Tests**: `poetry run pytest`
+- **Type Checking**: `poetry run mypy src/`
+- **Linting**: `poetry run flake8 src/`
+
+## Architecture
+
+The system follows Domain-Driven Design principles with:
+- **Domain Layer**: Business entities and logic
+- **Application Layer**: Use cases and orchestration
+- **Infrastructure Layer**: Database, external services
+- **Presentation Layer**: API endpoints and controllers
+
+## Database Schema
+
+The system uses PostgreSQL with branch-based sharding:
+- **Main Database**: Authors, books, categories, users, branches
+- **Sharded Databases**: Physical exemplars and lending transactions per branch
 
 ```mermaid
 erDiagram

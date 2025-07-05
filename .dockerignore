@@ -48,7 +48,6 @@ Thumbs.db
 .editorconfig
 .flake8
 .pre-commit-config.yaml
-README.md
 
 # Images
 *.svg
