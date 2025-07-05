@@ -11,7 +11,7 @@ class Author(Base, table=True):
     """Author entity model."""
 
     name: str = Field(nullable=False)
-    books: List["Book"] = Relationship(
+    books: List["Book"] = Relationship(  # type: ignore
         back_populates="authors",
         link_model=AuthorBookLink,
     )

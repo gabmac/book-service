@@ -10,7 +10,7 @@ from .book_lending import BookLending
 class PhysicalExemplar(Base, table=True):
     """Physical book exemplar model."""
 
-    __tablename__ = "physical_exemplar"
+    __tablename__ = "physical_exemplar"  # type: ignore
 
     available: bool = Field(nullable=False)
     room: int = Field(nullable=False)
@@ -18,7 +18,13 @@ class PhysicalExemplar(Base, table=True):
     bookshelf: int = Field(nullable=False)
 
     book_id: UUID | None = Field(default=None, foreign_key="book.id")
-    book: "Book" = Relationship(back_populates="physical_exemplars")
+    book: "Book" = Relationship(  # type: ignore
+        back_populates="physical_exemplars",
+    )
     branch_id: UUID | None = Field(default=None, foreign_key="branch.id")
-    branch: "Branch" = Relationship(back_populates="physical_exemplars")
-    lendings: List[BookLending] = Relationship(back_populates="physical_exemplar")
+    branch: "Branch" = Relationship(  # type: ignore
+        back_populates="physical_exemplars",
+    )
+    lendings: List[BookLending] = Relationship(  # type: ignore
+        back_populates="physical_exemplar",
+    )

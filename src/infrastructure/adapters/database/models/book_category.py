@@ -9,11 +9,11 @@ from .book_book_category_link import BookBookCategoryLink
 class BookCategory(Base, table=True):
     """Book category model."""
 
-    __tablename__ = "book_category"
+    __tablename__ = "book_category"  # type: ignore
 
     name: str = Field(nullable=False)
     description: str | None = Field(nullable=True)
-    books: List["Book"] = Relationship(
+    books: List["Book"] = Relationship(  # type: ignore
         back_populates="book_categories",
         link_model=BookBookCategoryLink,
     )

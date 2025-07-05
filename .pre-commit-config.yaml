@@ -89,7 +89,7 @@ repos:
     - --disable=all
     - --ignore-paths=alembic
     - --max-line-length=240
-    - --enable=unused-import,singleton-comparison,unidiomatic-typecheck,consider-using-enumerate, consider-iterating-dictionary,line-too-long,too-many-lines,trailing-whitespace,missing-final-newline, bad-whitespace,bad-continuation,wrong-import-order,ungrouped-imports,wrong-import-position,return-in-init, function-redefined,not-in-loop,return-outside-function,undefined-variable,no-staticmethod-decorator,bad-indentation, wildcard-import,unused-variable,unused-argument
+    - --enable=unused-import,singleton-comparison,unidiomatic-typecheck,consider-using-enumerate, consider-iterating-dictionary,line-too-long,too-many-lines,trailing-whitespace,missing-final-newline,wrong-import-order,ungrouped-imports,wrong-import-position,return-in-init, function-redefined,not-in-loop,return-outside-function,undefined-variable,no-staticmethod-decorator,bad-indentation, wildcard-import,unused-variable,unused-argument
     - src/
 
   - id: mypy

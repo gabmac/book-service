@@ -1,45 +1,51 @@
 from typing import Any, Generator
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import Engine
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, create_engine
+
+from src.infrastructure.adapters.database.models.base_model import Base
 
 
-class DatabaseSettings(BaseSettings):
+class DatabaseSettings:
     """Database settings."""
 
-    model_config = SettingsConfigDict(env_prefix="DATABASE_")
-    host: str
-    password: str
-    port: int
-    user: str
-    database: str
+    _instance = None
+    host: str = ""
+    password: str = ""
+    port: int = 0
+    user: str = ""
+    database: str = ""
 
     engine: Engine | None = None
 
-    def get_db_url(self) -> str:
-        return (
-            f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}"
-        )
+    def __new__(cls, host: str, password: str, port: int, user: str):  # type: ignore
+        if cls._instance is None:
+            cls.host = host
+            cls.password = password
+            cls.port = port
+            cls.user = user
+            cls._create_engine()
+            cls._instance = cls
+        return cls._instance
 
-    def __init__(self) -> None:
-        self._create_engine()
+    @classmethod
+    def get_db_url(cls) -> str:
+        return f"postgresql+psycopg2://{cls.user}:{cls.password}@{cls.host}:{cls.port}"
 
-    def _create_engine(self) -> Engine:
-        if self.engine is None:
-            self.engine = create_engine(self.get_db_url(), echo=True)
-        return self.engine
+    @classmethod
+    def _create_engine(cls) -> Engine:
+        if cls.engine is None:
+            cls.engine = create_engine(cls.get_db_url(), echo=True)
+        return cls.engine
 
-    def init_db(self) -> None:
-        if self.engine is None:
+    @classmethod
+    def init_db(cls) -> None:
+        if cls.engine is None:
             raise ValueError("Engine is not initialized")
-        SQLModel.metadata.create_all(self.engine)
+        Base.metadata.create_all(cls.engine)
 
     def get_session(self) -> Generator[Session, Any, Any]:
         if self.engine is None:
             raise ValueError("Engine is not initialized")
         with Session(self.engine) as session:
             yield session
-
-
-a = DatabaseSettings()
