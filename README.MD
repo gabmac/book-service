@@ -1,14 +1,15 @@
 # Book Management System ERD
 
 ## MODELS
+
+```mermaid
+erDiagram
 %% ====================================================
 %% TURIVIUS - BOOK MANAGEMENT SYSTEM ERD
 %% INDEXED FIELDS: books.title, books.isbn_code, authors.name, book_data.title, language, all FKs
 %% SHARDING: branch_id used in physical_exemplars and book_lending
 %% ====================================================
 
-```mermaid
-erDiagram
 
     %% RELATIONSHIPS
     authors ||--o{ authors_books : has
