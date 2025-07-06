@@ -1,8 +1,9 @@
 from datetime import datetime
-from enum import StrEnum
 from typing import List
 
 from sqlmodel import Field, Relationship
+
+from src.domain.enums.book_type import BookType
 
 from .author import Author
 from .author_book_link import AuthorBookLink
@@ -11,13 +12,6 @@ from .book_book_category_link import BookBookCategoryLink
 from .book_category import BookCategory
 from .book_data import BookData
 from .physical_exemplar import PhysicalExemplar
-
-
-class BookType(StrEnum):
-    """Book type enum."""
-
-    PHYSICAL = "physical"
-    EBOOK = "ebook"
 
 
 class Book(Base, table=True):

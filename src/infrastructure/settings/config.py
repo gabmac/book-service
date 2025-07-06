@@ -28,6 +28,11 @@ class SystemConfig(BaseSettings):
         description="Application name",
     )
 
+    executor: str = Field(
+        default="",
+        description="Executor of the system",
+    )
+
 
 class LogstashConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LOGSTASH_")
@@ -63,7 +68,7 @@ class ProducerConfig(BaseSettings):
     )
     queues: Set[str] = Field(
         description="Producer queues",
-        default_factory=set,
+        default={"book.creation"},
     )
 
 

@@ -1,5 +1,7 @@
 """Initialize Uvicorn."""
 
+import os
+
 import uvicorn
 
 from src.infrastructure.settings.config import SystemConfig
@@ -27,4 +29,5 @@ def api() -> None:
 
 
 if __name__ == "__main__":
-    api()
+    if os.getenv("SYSTEM_EXECUTOR") == "api":
+        api()

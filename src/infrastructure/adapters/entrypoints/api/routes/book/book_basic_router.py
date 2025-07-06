@@ -1,0 +1,17 @@
+from abc import ABC
+from typing import Any
+
+from fastapi import APIRouter
+
+from src.application.ports.route.basic_router import BaseRouterView
+
+
+class BookBasicRouter(BaseRouterView, ABC):
+    router: APIRouter
+
+    def __init__(
+        self,
+        use_case: Any,
+        name: str = "book",
+    ) -> None:
+        super().__init__(name, use_case)

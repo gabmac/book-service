@@ -1,6 +1,6 @@
 import logging
 
-from logstash_async.handler import SynchronousLogstashHandler
+from logstash_async.handler import AsynchronousLogstashHandler
 
 
 class LogStash:
@@ -18,11 +18,12 @@ class LogStash:
             self.logger = logging.getLogger(self.loggername)
             self.logger.setLevel(logging.INFO)
             self.logger.addHandler(
-                SynchronousLogstashHandler(
+                AsynchronousLogstashHandler(
                     host=self.host,
                     port=self.port,
                     ssl_enable=False,
                     ssl_verify=False,
+                    database_path=None,
                 ),
             )
 

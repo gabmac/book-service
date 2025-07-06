@@ -13,8 +13,8 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
-from src.infrastructure.adapters.entrypoints.api.router import api_router
-from src.infrastructure.adapters.producer.producer import Producer
+from src.infrastructure.adapters.entrypoints.api.router import Initializer
+from src.infrastructure.adapters.entrypoints.producer import Producer
 from src.infrastructure.cross_cutting.middleware_context import (
     RequestContextsMiddleware,
 )
@@ -39,14 +39,13 @@ class AppConfig:
         router: APIRouter,
         logstash: LogstashConfig,
         logstash_logger: LogStash,
-        producer: Producer,
         config: SystemConfig,
         db: DatabaseSettings,
+        producer: Producer,
     ):
         self.logstash_logger = logstash_logger
         self.api_router = router
         self.logstash = logstash
-        self.producer = producer
         self.config = config
         self.db = db
 
@@ -56,7 +55,7 @@ class AppConfig:
             if config.environment == Environments.LOCAL.value:
                 db.init_db()
             yield
-            producer.close()
+            producer.stop()
 
         # pylint: enable=unused-argument
 
@@ -119,33 +118,34 @@ class AppConfig:
         return self.app
 
 
-producer_config = ProducerConfig()
-producer = Producer(
-    localhost=producer_config.localhost,
-    queues=producer_config.queues,
-    user=producer_config.user,
-    password=producer_config.password,
-)
-logstash_config = LogstashConfig()
-logstash_logger = LogStash(
-    host=logstash_config.host,
-    port=logstash_config.port,
-    loggername=logstash_config.loggername,
-)
+def init_api() -> FastAPI:
+    logstash_config = LogstashConfig()
+    logstash_logger = LogStash(
+        host=logstash_config.host,
+        port=logstash_config.port,
+        loggername=logstash_config.loggername,
+    )
 
-db_config = DatabaseConfig()
-db = DatabaseSettings(
-    host=db_config.host,
-    password=db_config.password,
-    port=db_config.port,
-    user=db_config.user,
-)
+    db_config = DatabaseConfig()
+    db = DatabaseSettings(
+        host=db_config.host,
+        password=db_config.password,
+        port=db_config.port,
+        user=db_config.user,
+    )
 
-app = AppConfig(
-    router=api_router,
-    logstash=logstash_config,
-    logstash_logger=logstash_logger,
-    producer=producer,
-    config=SystemConfig(),
-    db=db,
-).start_application()
+    producer_config = ProducerConfig()
+    producer = Producer(config=producer_config, logstash_config=logstash_config)
+    initializer = Initializer(producer=producer)
+
+    return AppConfig(
+        router=initializer.api_router,
+        logstash=logstash_config,
+        logstash_logger=logstash_logger,
+        config=SystemConfig(),
+        db=db,
+        producer=producer,
+    ).start_application()
+
+
+app = init_api()

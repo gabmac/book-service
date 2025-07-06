@@ -25,13 +25,20 @@ COPY tests tests
 RUN poetry install --only dev
 
 # Final stage
-FROM gcr.io/distroless/python3-debian12:latest AS local
+FROM gcr.io/distroless/python3-debian12:latest AS api
 
 COPY --from=build /usr/local/lib/python3.11/site-packages /usr/lib/python3.11
 COPY --from=build /code /code
 WORKDIR /code
+ENTRYPOINT ["/usr/bin/python", "-m", "src.api"]
 
-ENTRYPOINT ["/usr/bin/python", "-m", "src"]
+# Final stage
+FROM gcr.io/distroless/python3-debian12:latest AS consumer
+
+COPY --from=build /usr/local/lib/python3.11/site-packages /usr/lib/python3.11
+COPY --from=build /code /code
+WORKDIR /code
+ENTRYPOINT ["/usr/bin/python", "-m", "src.consumer"]
 
 FROM build-test AS test
 ENTRYPOINT [ "sh", "-c" ]
@@ -40,7 +47,7 @@ CMD ["coverage run -m unittest discover -v -s ./tests -p '*test*.py';coverage re
 FROM build as debug
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
 RUN poetry install --only debugpy
-CMD ["sh", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 -m src"]
+ENTRYPOINT ["sh", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 -m src.api"]
 
 FROM build AS test-case
 

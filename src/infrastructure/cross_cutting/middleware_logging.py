@@ -66,7 +66,7 @@ class RequestContextLogMiddleware(BaseHTTPMiddleware):
         }
 
         logger = logging.getLogger(self.config.loggername)
-        logger.info("Incoming Request", extra=document)
+        logger.info(document)
 
         return Response(
             content=response_body,  # type: ignore

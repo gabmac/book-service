@@ -12,6 +12,11 @@ services:
       POSTGRES_DB: book
     networks:
     - os-net
+    healthcheck:
+      test: pg_isready -U postgres -d book
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
   rabbitmq:
     image: rabbitmq:latest
@@ -28,20 +33,24 @@ services:
     - rabbitmq-log:/var/log/rabbitmq
     networks:
     - os-net
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 10s
+      retries: 3
 
   api:
     container_name: api
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: debug
-    image: book-service:${TESTE_VERSION:-latest}
+      target: api
+    image: book-service-api:${TESTE_VERSION:-latest}
     restart: always
     volumes:
     - .:/code
     ports:
     - "9000:9000"
-    - "5678:5678"
     environment:
     - SYSTEM_ENVIRONMENT=local
     - SYSTEM_HOST=0.0.0.0
@@ -56,17 +65,61 @@ services:
     - PRODUCER_LOCALHOST=rabbitmq
     - PRODUCER_USER=kalo
     - PRODUCER_PASSWORD=kalo
+    - CONSUMER_LOCALHOST=rabbitmq
+    - CONSUMER_USER=kalo
+    - CONSUMER_PASSWORD=kalo
+    - SYSTEM_EXECUTOR=api
     networks:
     - os-net
     depends_on:
-    - opensearch-node1
-    - postgres
-    - rabbitmq
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/api/health || exit 1"]
-      interval: 1s
-      timeout: 10s
-      retries: 3
+      opensearch-node1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  consumer:
+    container_name: consumer
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: consumer
+    image: book-service-consumer:${TESTE_VERSION:-latest}
+    restart: always
+    ports:
+    - "5678:5678"
+    volumes:
+    - .:/code
+    environment:
+    - SYSTEM_ENVIRONMENT=local
+    - SYSTEM_HOST=0.0.0.0
+    - SYSTEM_PORT=9000
+    - DATABASE_HOST=postgres
+    - DATABASE_PORT=5432
+    - DATABASE_USER=postgres
+    - DATABASE_PASSWORD=123456
+    - DATABASE_NAME=book
+    - LOGSTASH_HOST=logstash
+    - LOGSTASH_PORT=5000
+    - PRODUCER_LOCALHOST=rabbitmq
+    - PRODUCER_USER=kalo
+    - PRODUCER_PASSWORD=kalo
+    - CONSUMER_LOCALHOST=rabbitmq
+    - CONSUMER_USER=kalo
+    - CONSUMER_PASSWORD=kalo
+    - SYSTEM_EXECUTOR=consumer
+    networks:
+    - os-net
+    depends_on:
+      opensearch-node1:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+
 
   opensearch-node1:
     image: opensearchproject/opensearch:2.1.0
@@ -96,8 +149,8 @@ services:
     - os-net
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
-      interval: 1s
-      timeout: 10s
+      interval: 10s
+      timeout: 30s
       retries: 3
 
   opensearch-dashboards:
