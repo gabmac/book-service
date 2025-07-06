@@ -2,10 +2,13 @@ import os
 from logging.config import fileConfig
 
 from alembic import context
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
+
+load_dotenv()
 
 # Import all models to ensure they are registered with SQLModel.metadata
 

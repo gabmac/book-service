@@ -17,7 +17,7 @@ from .physical_exemplar import PhysicalExemplar
 class Book(Base, table=True):
     """Book entity model."""
 
-    isbn_code: str = Field(nullable=False, unique=True)
+    isbn_code: str = Field(nullable=False)
     editor: str = Field(nullable=False)
     edition: int = Field(nullable=False)
     type: BookType = Field(nullable=False)

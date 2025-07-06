@@ -12,7 +12,7 @@ class BookData(Base, table=True):
 
     language: str = Field(nullable=False)
     summary: str | None = Field(nullable=True)
-    title: str = Field(nullable=False)
+    title: str = Field(nullable=False, index=True)
 
     book_id: UUID | None = Field(default=None, foreign_key="book.id")
 

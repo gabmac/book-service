@@ -15,4 +15,5 @@ class BookBookCategoryLink(Base, table=True):
         default=None,
         foreign_key="book_category.id",
         primary_key=True,
+        index=True,
     )

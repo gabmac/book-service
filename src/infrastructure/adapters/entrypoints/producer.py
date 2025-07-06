@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 
@@ -6,6 +7,7 @@ from pika.adapters.blocking_connection import BlockingChannel
 from pika.credentials import PlainCredentials
 from pika.exchange_type import ExchangeType
 
+from src.application.dto.producer import Message
 from src.infrastructure.settings.config import LogstashConfig, ProducerConfig
 
 
@@ -32,20 +34,20 @@ class Producer:
         return cls._instance
 
     @classmethod
-    def publish(cls, queue_name: str, message: str) -> None:
+    def publish(cls, message: Message) -> None:
         document = {
             "@timestamp": datetime.utcnow().isoformat(),
-            "queue_name": queue_name,
-            "message": message,
+            "queue_name": message.queue_name,
+            "message": message.message,
             "exchange": "book-service-exchange",
-            "routing_key": queue_name,
+            "routing_key": message.queue_name,
             "producer_out": True,
         }
         cls.logger.info(document)
         cls.channel.basic_publish(
             exchange="book-service-exchange",
-            routing_key=queue_name,
-            body=message,
+            routing_key=message.queue_name,
+            body=json.dumps(message.model_dump()),
         )
         cls.logger.info(
             {"producer_in": True, "@timestamp": datetime.utcnow().isoformat()},

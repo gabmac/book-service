@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 
@@ -6,6 +7,7 @@ from pika.adapters.blocking_connection import BlockingChannel
 from pika.credentials import PlainCredentials
 from pika.exchange_type import ExchangeType
 
+from src.application.dto.producer import Message
 from src.application.usecase.book.upsert_book import UpsertBook
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.repository.book import BookRepository
@@ -38,6 +40,8 @@ class Consumer:
 
         # pylint: disable=unused-argument
         def callback(ch, method, properties, body) -> None:  # type: ignore
+            dict_str = body.decode("UTF-8")
+            dict_json = json.loads(dict_str)
             cls.logger.info(
                 {
                     "consumer_in": True,
@@ -45,10 +49,10 @@ class Consumer:
                     "routing_key": method.routing_key,
                     "properties": properties,
                     "exchange": "book-service-exchange",
-                    "body": body,
+                    "body": dict_json,
                 },
             )
-            body
+            body = Message.model_validate(dict_json)
             callables[method.routing_key].execute(body)
 
         # pylint: enable=unused-argument

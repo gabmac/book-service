@@ -10,6 +10,7 @@ services:
     environment:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: book
+      POSTGRES_EXTENSIONS: pg_trgm
     networks:
     - os-net
     healthcheck:

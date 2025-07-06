@@ -17,11 +17,11 @@ class PhysicalExemplar(Base, table=True):
     floor: int = Field(nullable=False)
     bookshelf: int = Field(nullable=False)
 
-    book_id: UUID | None = Field(default=None, foreign_key="book.id")
+    book_id: UUID | None = Field(default=None, foreign_key="book.id", index=True)
     book: "Book" = Relationship(  # type: ignore
         back_populates="physical_exemplars",
     )
-    branch_id: UUID | None = Field(default=None, foreign_key="branch.id")
+    branch_id: UUID | None = Field(default=None, foreign_key="branch.id", index=True)
     branch: "Branch" = Relationship(  # type: ignore
         back_populates="physical_exemplars",
     )

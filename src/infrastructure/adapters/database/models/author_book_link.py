@@ -14,5 +14,6 @@ class AuthorBookLink(Base, table=True):
         default=None,
         foreign_key="author.id",
         primary_key=True,
+        index=True,
     )
     book_id: UUID | None = Field(default=None, foreign_key="book.id", primary_key=True)
