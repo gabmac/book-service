@@ -1,6 +1,7 @@
 import json
 
 from src.application.dto.producer import Message
+from src.application.exceptions import NotFoundException
 from src.application.ports.database.book import BookRepositoryPort
 from src.domain.entities.book import Book
 
@@ -11,4 +12,11 @@ class UpsertBook:
 
     def execute(self, payload: Message) -> None:
         book = Book.model_validate(json.loads(payload.message))
-        self.book_repository.upsert_book(book)
+        try:
+            old_book = self.book_repository.get_book_by_id(book.id)
+            book.created_at = old_book.created_at
+            book.created_by = old_book.created_by
+        except NotFoundException:
+            book = Book.model_validate(json.loads(payload.message))
+        finally:
+            self.book_repository.upsert_book(book)

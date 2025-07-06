@@ -68,7 +68,10 @@ class ProducerConfig(BaseSettings):
     )
     queues: Set[str] = Field(
         description="Producer queues",
-        default={"book.creation"},
+        default={
+            "book.creation",
+            "author.creation",
+        },
     )
 
 

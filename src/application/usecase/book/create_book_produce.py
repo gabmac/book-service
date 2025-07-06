@@ -1,18 +1,20 @@
 from src.application.dto.book_dto import Book as BookDto
-from src.application.dto.producer import Message
+from src.application.ports.producer.book_producer import BookProducerPort
 from src.domain.entities.book import Book
-from src.infrastructure.adapters.entrypoints.producer import Producer
 
 
 class CreateBookProduce:
-    def __init__(self, producer: Producer):
+    def __init__(self, producer: BookProducerPort):
         self.producer = producer
 
     async def execute(self, payload: BookDto) -> None:
-        book = Book.model_validate(payload)
-        self.producer.publish(
-            message=Message(
-                queue_name="book.creation",
-                message=book.model_dump_json(),
-            ),
+        book = Book(
+            isbn_code=payload.isbn_code,
+            editor=payload.editor,
+            edition=payload.edition,
+            type=payload.type,
+            publish_date=payload.publish_date,
+            created_by=payload.user,
+            updated_by=payload.user,
         )
+        self.producer.upsert_book(book)

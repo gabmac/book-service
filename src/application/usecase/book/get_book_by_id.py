@@ -3,8 +3,8 @@ from uuid import UUID
 from fastapi import HTTPException
 
 from src.application.dto.book_dto import BookResponse
+from src.application.exceptions import NotFoundException
 from src.application.ports.database.book import BookRepositoryPort
-from src.infrastructure.adapters.database.exceptions import NotFoundException
 
 
 class GetBookById:

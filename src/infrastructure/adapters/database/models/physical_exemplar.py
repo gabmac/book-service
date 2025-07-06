@@ -1,10 +1,8 @@
-from typing import List
 from uuid import UUID
 
 from sqlmodel import Field, Relationship
 
 from .base_model import Base
-from .book_lending import BookLending
 
 
 class PhysicalExemplar(Base, table=True):
@@ -24,7 +22,4 @@ class PhysicalExemplar(Base, table=True):
     branch_id: UUID | None = Field(default=None, foreign_key="branch.id", index=True)
     branch: "Branch" = Relationship(  # type: ignore
         back_populates="physical_exemplars",
-    )
-    lendings: List[BookLending] = Relationship(  # type: ignore
-        back_populates="physical_exemplar",
     )

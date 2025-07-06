@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 from typing import Any, Awaitable, Callable
@@ -66,7 +67,7 @@ class RequestContextLogMiddleware(BaseHTTPMiddleware):
         }
 
         logger = logging.getLogger(self.config.loggername)
-        logger.info(document)
+        logger.info(json.dumps(document))
 
         return Response(
             content=response_body,  # type: ignore

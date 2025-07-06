@@ -8,8 +8,10 @@ from pika.credentials import PlainCredentials
 from pika.exchange_type import ExchangeType
 
 from src.application.dto.producer import Message
+from src.application.usecase.author.upsert_author import UpsertAuthor
 from src.application.usecase.book.upsert_book import UpsertBook
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
+from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
 from src.infrastructure.settings.config import (
     DatabaseConfig,
@@ -29,8 +31,12 @@ db = DatabaseSettings(
     slave_port=slave_db_config.port,
 )
 book_repository = BookRepository(db=db)
+author_repository = AuthorRepository(db=db)
 
-callables = {"book.creation": UpsertBook(book_repository)}
+callables = {
+    "book.creation": UpsertBook(book_repository),
+    "author.creation": UpsertAuthor(author_repository),
+}
 
 
 class Consumer:
@@ -47,17 +53,19 @@ class Consumer:
             dict_str = body.decode("UTF-8")
             dict_json = json.loads(dict_str)
             cls.logger.info(
-                {
-                    "consumer_in": True,
-                    "@timestamp": datetime.utcnow().isoformat(),
-                    "routing_key": method.routing_key,
-                    "properties": properties,
-                    "exchange": "book-service-exchange",
-                    "body": dict_json,
-                },
+                json.dumps(
+                    {
+                        "consumer_in": True,
+                        "@timestamp": datetime.utcnow().isoformat(),
+                        "routing_key": method.routing_key,
+                        "properties": properties,
+                        "exchange": "book-service-exchange",
+                        "body": dict_json,
+                    },
+                ),
             )
             body = Message.model_validate(dict_json)
-            callables[method.routing_key].execute(body)
+            callables[method.routing_key].execute(body)  # type: ignore
 
         # pylint: enable=unused-argument
 

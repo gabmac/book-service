@@ -44,10 +44,15 @@ FROM build-test AS test
 ENTRYPOINT [ "sh", "-c" ]
 CMD ["coverage run -m unittest discover -v -s ./tests -p '*test*.py';coverage report;exit 0"]
 
-FROM build as debug
+FROM build as debug-api
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
 RUN poetry install --only debugpy
 ENTRYPOINT ["sh", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 -m src.api"]
+
+FROM build as debug-consumer
+ENV PYDEVD_DISABLE_FILE_VALIDATION=1
+RUN poetry install --only debugpy
+ENTRYPOINT ["sh", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5679 -m src.consumer"]
 
 FROM build AS test-case
 

@@ -37,20 +37,22 @@ class Producer:
     def publish(cls, message: Message) -> None:
         document = {
             "@timestamp": datetime.utcnow().isoformat(),
-            "queue_name": message.queue_name,
-            "message": message.message,
-            "exchange": "book-service-exchange",
-            "routing_key": message.queue_name,
-            "producer_out": True,
+            "@queue_name": message.queue_name,
+            "@message": message.message,
+            "@exchange": "book-service-exchange",
+            "@routing_key": message.queue_name,
+            "@producer_out": True,
         }
-        cls.logger.info(document)
+        cls.logger.info(json.dumps(document))
         cls.channel.basic_publish(
             exchange="book-service-exchange",
             routing_key=message.queue_name,
             body=json.dumps(message.model_dump()),
         )
         cls.logger.info(
-            {"producer_in": True, "@timestamp": datetime.utcnow().isoformat()},
+            json.dumps(
+                {"@producer_in": True, "@timestamp": datetime.utcnow().isoformat()},
+            ),
         )
 
     @classmethod

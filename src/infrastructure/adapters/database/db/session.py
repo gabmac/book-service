@@ -28,10 +28,10 @@ class DatabaseSettings:
             cls.password = password
             cls.port = port
             cls.user = user
-            cls._create_engine()
-            cls._instance = cls
             cls.slave_host = slave_host
             cls.slave_port = slave_port
+            cls._create_engine()
+            cls._instance = cls
         return cls._instance
 
     @classmethod

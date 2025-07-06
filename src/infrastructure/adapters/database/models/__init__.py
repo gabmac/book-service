@@ -6,11 +6,8 @@ from .book import Book
 from .book_book_category_link import BookBookCategoryLink
 from .book_category import BookCategory
 from .book_data import BookData
-from .book_lending import BookLending
 from .branch import Branch
 from .physical_exemplar import PhysicalExemplar
-from .user import User
-from .user_configuration import UserConfiguration
 
 __all__ = [
     "Base",
@@ -19,10 +16,7 @@ __all__ = [
     "BookBookCategoryLink",
     "BookCategory",
     "BookData",
-    "BookLending",
     "Book",
     "Branch",
     "PhysicalExemplar",
-    "User",
-    "UserConfiguration",
 ]
