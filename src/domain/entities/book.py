@@ -1,13 +1,13 @@
 from datetime import date, datetime
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel
 from pydantic.fields import Field
 
+from src.domain.entities.base import BaseEntity
 from src.domain.enums.book_type import BookType
 
 
-class Book(BaseModel):
+class Book(BaseEntity):
     id: UUID = Field(default_factory=uuid4, description="Book ID")
     isbn_code: str = Field(description="Book ISBN code")
     editor: str = Field(description="Book editor")

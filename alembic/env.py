@@ -1,8 +1,11 @@
+import os
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
+
+from src.infrastructure.adapters.database.db.session import DatabaseSettings
 
 # Import all models to ensure they are registered with SQLModel.metadata
 
@@ -10,7 +13,16 @@ from sqlmodel import SQLModel
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-
+config.set_section_option(
+    config.config_ini_section,
+    "sqlalchemy.url",
+    DatabaseSettings(
+        host=os.getenv("DATABASE_HOST", ""),
+        password=os.getenv("DATABASE_PASSWORD", ""),
+        port=int(os.getenv("DATABASE_PORT", 0)),
+        user=os.getenv("DATABASE_USER", ""),
+    ).get_db_url(),
+)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

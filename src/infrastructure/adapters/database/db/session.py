@@ -1,4 +1,5 @@
-from typing import Any, Generator
+from contextlib import contextmanager
+from typing import Generator
 
 from sqlalchemy import Engine
 from sqlmodel import Session, create_engine
@@ -44,8 +45,17 @@ class DatabaseSettings:
             raise ValueError("Engine is not initialized")
         Base.metadata.create_all(cls.engine)
 
-    def get_session(self) -> Generator[Session, Any, Any]:
-        if self.engine is None:
+    @classmethod
+    @contextmanager
+    def get_session(cls) -> Generator[Session, None, None]:
+        if cls.engine is None:
             raise ValueError("Engine is not initialized")
-        with Session(self.engine) as session:
-            yield session
+        with Session(cls.engine, autoflush=True) as session:
+            try:
+                yield session
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                raise e
+            finally:
+                session.close()

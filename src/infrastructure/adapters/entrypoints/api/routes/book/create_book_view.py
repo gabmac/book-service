@@ -1,12 +1,12 @@
 from fastapi import status
 
-from src.application.usecase.create_book import CreateBookProduce
+from src.application.usecase.book.create_book_produce import CreateBookProduce
 from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router import (
     BookBasicRouter,
 )
 
 
-class CreateBookView(BookBasicRouter):
+class PublishCreateBookView(BookBasicRouter):
     def __init__(self, use_case: CreateBookProduce):
         super().__init__(use_case=use_case)
 

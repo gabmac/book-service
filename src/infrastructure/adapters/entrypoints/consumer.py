@@ -6,7 +6,25 @@ from pika.adapters.blocking_connection import BlockingChannel
 from pika.credentials import PlainCredentials
 from pika.exchange_type import ExchangeType
 
-from src.infrastructure.settings.config import LogstashConfig, ProducerConfig
+from src.application.usecase.book.upsert_book import UpsertBook
+from src.infrastructure.adapters.database.db.session import DatabaseSettings
+from src.infrastructure.adapters.database.repository.book import BookRepository
+from src.infrastructure.settings.config import (
+    DatabaseConfig,
+    LogstashConfig,
+    ProducerConfig,
+)
+
+db_config = DatabaseConfig()
+db = DatabaseSettings(
+    host=db_config.host,
+    password=db_config.password,
+    port=db_config.port,
+    user=db_config.user,
+)
+book_repository = BookRepository(db=db)
+
+callables = {"book.creation": UpsertBook(book_repository)}
 
 
 class Consumer:
@@ -30,6 +48,8 @@ class Consumer:
                     "body": body,
                 },
             )
+            body
+            callables[method.routing_key].execute(body)
 
         # pylint: enable=unused-argument
 

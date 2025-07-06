@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from typing import List
 
 from sqlmodel import Field, Relationship
@@ -21,7 +21,7 @@ class Book(Base, table=True):
     editor: str = Field(nullable=False)
     edition: int = Field(nullable=False)
     type: BookType = Field(nullable=False)
-    publish_date: datetime = Field(nullable=False)
+    publish_date: date = Field(nullable=False)
 
     authors: List[Author] = Relationship(
         back_populates="books",

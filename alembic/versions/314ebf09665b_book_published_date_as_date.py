@@ -1,8 +1,8 @@
-"""init
+"""book published date as date
 
-Revision ID: 8a3e18f16f8a
+Revision ID: 314ebf09665b
 Revises:
-Create Date: 2025-07-05 11:44:31.934322
+Create Date: 2025-07-06 10:42:52.320586
 
 """
 
@@ -13,7 +13,7 @@ from alembic import op
 from sqlmodel.sql.sqltypes import AutoString
 
 # revision identifiers, used by Alembic.
-revision: str = "8a3e18f16f8a"
+revision: str = "314ebf09665b"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -47,7 +47,7 @@ def upgrade() -> None:
             sa.Enum("PHYSICAL", "EBOOK", name="booktype"),
             nullable=False,
         ),
-        sa.Column("publish_date", sa.DateTime(), nullable=False),
+        sa.Column("publish_date", sa.Date(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("isbn_code"),
     )

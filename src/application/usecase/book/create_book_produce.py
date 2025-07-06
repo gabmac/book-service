@@ -1,4 +1,5 @@
-from src.application.dto.book_dto import Book
+from src.application.dto.book_dto import Book as BookDto
+from src.domain.entities.book import Book
 from src.infrastructure.adapters.entrypoints.producer import Producer
 
 
@@ -6,8 +7,9 @@ class CreateBookProduce:
     def __init__(self, producer: Producer):
         self.producer = producer
 
-    async def execute(self, payload: Book) -> None:
+    async def execute(self, payload: BookDto) -> None:
+        book = Book.model_validate(payload)
         self.producer.publish(
             queue_name="book.creation",
-            message=payload.model_dump_json(),
+            message=book.model_dump_json(),
         )

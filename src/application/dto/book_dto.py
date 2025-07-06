@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel
 from pydantic.fields import Field
@@ -11,7 +11,7 @@ class Book(BaseModel):
     editor: str = Field(description="Book editor")
     edition: int = Field(description="Book edition")
     type: BookType = Field(description="Book type")
-    publish_date: datetime = Field(description="Book publish date")
+    publish_date: date = Field(description="Book publish date")
     created_at: datetime = Field(
         default_factory=datetime.now,
         description="Book creation date",
