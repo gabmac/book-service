@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from uuid import UUID
 
 from src.domain.entities.book import Book
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
@@ -10,4 +11,8 @@ class BookRepositoryPort(ABC):
 
     @abstractmethod
     def upsert_book(self, book: Book) -> None:
+        pass
+
+    @abstractmethod
+    def get_book_by_id(self, id: UUID) -> Book:
         pass

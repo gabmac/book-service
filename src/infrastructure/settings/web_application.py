@@ -13,6 +13,7 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
+from src.infrastructure.adapters.database.repository.book import BookRepository
 from src.infrastructure.adapters.entrypoints.api.router import Initializer
 from src.infrastructure.adapters.entrypoints.producer import Producer
 from src.infrastructure.cross_cutting.middleware_context import (
@@ -136,7 +137,10 @@ def init_api() -> FastAPI:
 
     producer_config = ProducerConfig()
     producer = Producer(config=producer_config, logstash_config=logstash_config)
-    initializer = Initializer(producer=producer)
+
+    book_repository = BookRepository(db=db)
+
+    initializer = Initializer(producer=producer, book_repository=book_repository)
 
     return AppConfig(
         router=initializer.api_router,
