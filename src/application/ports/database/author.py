@@ -11,7 +11,7 @@ class AuthorRepositoryPort(ABC):
         self.db = db
 
     @abstractmethod
-    def upsert_author(self, author: Author) -> None:
+    def upsert_author(self, author: Author) -> Author:
         pass
 
     @abstractmethod

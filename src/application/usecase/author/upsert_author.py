@@ -10,7 +10,7 @@ class UpsertAuthor:
     def __init__(self, author_repository: AuthorRepositoryPort):
         self.author_repository = author_repository
 
-    def execute(self, payload: Message) -> None:
+    def execute(self, payload: Message) -> Author:
         author = Author.model_validate(json.loads(payload.message))
         try:
             old_author = self.author_repository.get_author_by_id(author.id)
@@ -19,4 +19,6 @@ class UpsertAuthor:
         except NotFoundException:
             author = Author.model_validate(json.loads(payload.message))
         finally:
-            self.author_repository.upsert_author(author)
+            author = self.author_repository.upsert_author(author)
+
+        return author

@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 from uuid import UUID
 
-from src.application.dto.book_dto import BookFilter
-from src.domain.entities.book import Book
+from src.domain.entities.book import Book, BookFilter
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 
 
@@ -12,7 +11,7 @@ class BookRepositoryPort(ABC):
         self.db = db
 
     @abstractmethod
-    def upsert_book(self, book: Book) -> None:
+    def upsert_book(self, book: Book) -> Book:
         pass
 
     @abstractmethod

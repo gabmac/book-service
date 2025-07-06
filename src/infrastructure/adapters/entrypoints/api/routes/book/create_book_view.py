@@ -1,6 +1,9 @@
 from fastapi import status
 
+from src.application.dto.book_dto import Book as BookDto
+from src.application.dto.book_dto import BookResponse
 from src.application.usecase.book.create_book_produce import CreateBookProduce
+from src.domain.entities.book import Book
 from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router import (
     BookBasicRouter,
 )
@@ -17,8 +20,21 @@ class PublishCreateBookView(BookBasicRouter):
         if self.router is not None:
             self.router.add_api_route(
                 "/",
-                self.use_case.execute,  # type: ignore
+                self._call_use_case,  # type: ignore
                 status_code=status.HTTP_202_ACCEPTED,
                 methods=["POST"],
                 description="Create Book",
             )
+
+    async def _call_use_case(self, payload: BookDto) -> BookResponse:
+        book = Book(
+            isbn_code=payload.isbn_code,
+            editor=payload.editor,
+            edition=payload.edition,
+            type=payload.type,
+            publish_date=payload.publish_date,
+            created_by=payload.user,
+            updated_by=payload.user,
+        )
+        book = await self.use_case.execute(book)  # type: ignore
+        return BookResponse.model_validate(book)  # type: ignore

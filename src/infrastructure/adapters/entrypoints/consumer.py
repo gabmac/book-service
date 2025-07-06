@@ -58,7 +58,6 @@ class Consumer:
                         "consumer_in": True,
                         "@timestamp": datetime.utcnow().isoformat(),
                         "routing_key": method.routing_key,
-                        "properties": properties,
                         "exchange": "book-service-exchange",
                         "body": dict_json,
                     },

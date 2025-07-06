@@ -1,8 +1,7 @@
 from typing import List
 
-from src.application.dto.book_dto import BookFilter
 from src.application.ports.database.book import BookRepositoryPort
-from src.domain.entities.book import Book
+from src.domain.entities.book import Book, BookFilter
 
 
 class FilterBook:

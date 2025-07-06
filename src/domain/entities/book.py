@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
 from pydantic.fields import Field
@@ -24,3 +25,11 @@ class Book(BaseEntity):
     )
     created_by: str = Field(description="Book creator ID")
     updated_by: str = Field(description="Book updater ID")
+
+
+class BookFilter(BaseEntity):
+    isbn_code: Optional[str] = Field(description="Book ISBN code", default=None)
+    editor: Optional[str] = Field(description="Book editor", default=None)
+    edition: Optional[int] = Field(description="Book edition", default=None)
+    type: Optional[BookType] = Field(description="Book type", default=None)
+    publish_date: Optional[date] = Field(description="Book publish date", default=None)

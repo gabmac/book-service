@@ -10,7 +10,7 @@ class UpsertBook:
     def __init__(self, book_repository: BookRepositoryPort):
         self.book_repository = book_repository
 
-    def execute(self, payload: Message) -> None:
+    def execute(self, payload: Message) -> Book:
         book = Book.model_validate(json.loads(payload.message))
         try:
             old_book = self.book_repository.get_book_by_id(book.id)
@@ -19,4 +19,6 @@ class UpsertBook:
         except NotFoundException:
             book = Book.model_validate(json.loads(payload.message))
         finally:
-            self.book_repository.upsert_book(book)
+            book = self.book_repository.upsert_book(book)
+
+        return book

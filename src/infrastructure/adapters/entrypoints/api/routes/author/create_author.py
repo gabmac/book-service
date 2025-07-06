@@ -1,6 +1,8 @@
 from fastapi import status
 
+from src.application.dto.author import AuthorCreate, AuthorResponse
 from src.application.usecase.author.create_author import CreateAuthorProduce
+from src.domain.entities.author import Author
 from src.infrastructure.adapters.entrypoints.api.routes.author.author_basic_router import (
     AuthorBasicRouter,
 )
@@ -17,8 +19,17 @@ class PublishCreateAuthorView(AuthorBasicRouter):
         if self.router is not None:
             self.router.add_api_route(
                 "/",
-                self.use_case.execute,  # type: ignore
+                self._call_use_case,  # type: ignore
                 status_code=status.HTTP_202_ACCEPTED,
                 methods=["POST"],
                 description="Create Author",
             )
+
+    async def _call_use_case(self, payload: AuthorCreate) -> AuthorResponse:
+        author = Author(
+            name=payload.name,
+            created_by=payload.user,
+            updated_by=payload.user,
+        )
+        author = await self.use_case.execute(author)  # type: ignore
+        return AuthorResponse.model_validate(author)  # type: ignore

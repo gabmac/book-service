@@ -14,10 +14,13 @@ class AuthorRepository(AuthorRepositoryPort):
     def __init__(self, db: DatabaseSettings):
         super().__init__(db=db)
 
-    def upsert_author(self, author: Author) -> None:
+    def upsert_author(self, author: Author) -> Author:
         author_model = AuthorModel.model_validate(author)
         with self.db.get_session() as session:
             session.add(author_model)
+            session.commit()
+
+        return Author.model_validate(author_model)
 
     def get_author_by_id(self, id: UUID) -> Author:
         with self.db.get_session(slave=True) as session:

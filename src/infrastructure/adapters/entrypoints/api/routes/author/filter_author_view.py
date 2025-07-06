@@ -1,8 +1,9 @@
 from typing import Annotated, List
 
-from fastapi import Query, status
+from fastapi import HTTPException, Query, status
 
 from src.application.dto.author import AuthorFilter, AuthorResponse
+from src.application.exceptions import NotFoundException
 from src.application.usecase.author.filter_author import FilterAuthor
 from src.infrastructure.adapters.entrypoints.api.routes.author.author_basic_router import (
     AuthorBasicRouter,
@@ -33,4 +34,8 @@ class FilterAuthorView(AuthorBasicRouter):
         self,
         filter: Annotated[AuthorFilter, Query()],
     ) -> List[AuthorResponse]:
-        return self.use_case.execute(filter)  # type: ignore
+        authors = self.use_case.execute(filter)  # type: ignore
+        try:
+            return [AuthorResponse.model_validate(author) for author in authors]
+        except NotFoundException as e:
+            raise HTTPException(status_code=404, detail=e.message)

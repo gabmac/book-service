@@ -1,6 +1,9 @@
-from fastapi import status
+from uuid import UUID
+
+from fastapi import HTTPException, status
 
 from src.application.dto.book_dto import BookResponse
+from src.application.exceptions import NotFoundException
 from src.application.usecase.book.get_book_by_id import GetBookById
 from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router import (
     BookBasicRouter,
@@ -26,3 +29,10 @@ class GetBookView(BookBasicRouter):
                 methods=["GET"],
                 description="Get Book by ID",
             )
+
+    def _call_use_case(self, id: UUID) -> BookResponse:
+        book = self.use_case.execute(id)  # type: ignore
+        try:
+            return BookResponse.model_validate(book)
+        except NotFoundException as e:
+            raise HTTPException(status_code=404, detail=e.message)
