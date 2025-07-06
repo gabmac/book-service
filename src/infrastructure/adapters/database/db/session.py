@@ -16,10 +16,13 @@ class DatabaseSettings:
     port: int = 0
     user: str = ""
     database: str = ""
+    slave_host: str = ""
+    slave_port: int = 0
 
     engine: Engine | None = None
+    engine_slave: Engine | None = None
 
-    def __new__(cls, host: str, password: str, port: int, user: str):  # type: ignore
+    def __new__(cls, host: str, password: str, port: int, user: str, slave_host: str, slave_port: int):  # type: ignore
         if cls._instance is None:
             cls.host = host
             cls.password = password
@@ -27,6 +30,8 @@ class DatabaseSettings:
             cls.user = user
             cls._create_engine()
             cls._instance = cls
+            cls.slave_host = slave_host
+            cls.slave_port = slave_port
         return cls._instance
 
     @classmethod
@@ -34,9 +39,14 @@ class DatabaseSettings:
         return f"postgresql+psycopg2://{cls.user}:{cls.password}@{cls.host}:{cls.port}"
 
     @classmethod
+    def get_db_url_slave(cls) -> str:
+        return f"postgresql+psycopg2://{cls.user}:{cls.password}@{cls.slave_host}:{cls.slave_port}"
+
+    @classmethod
     def _create_engine(cls) -> Engine:
         if cls.engine is None:
             cls.engine = create_engine(cls.get_db_url(), echo=True)
+            cls.engine_slave = create_engine(cls.get_db_url_slave(), echo=True)
         return cls.engine
 
     @classmethod
@@ -47,10 +57,13 @@ class DatabaseSettings:
 
     @classmethod
     @contextmanager
-    def get_session(cls) -> Generator[Session, None, None]:
+    def get_session(cls, slave: bool = False) -> Generator[Session, None, None]:
         if cls.engine is None:
             raise ValueError("Engine is not initialized")
-        with Session(cls.engine, autoflush=True) as session:
+        if cls.engine_slave is None:
+            raise ValueError("Engine slave is not initialized")
+        engine = cls.engine_slave if slave else cls.engine
+        with Session(engine, autoflush=True) as session:
             try:
                 yield session
                 session.commit()

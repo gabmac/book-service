@@ -47,7 +47,7 @@ CMD ["coverage run -m unittest discover -v -s ./tests -p '*test*.py';coverage re
 FROM build as debug
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
 RUN poetry install --only debugpy
-ENTRYPOINT ["sh", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 -m src.consumer"]
+ENTRYPOINT ["sh", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 -m src.api"]
 
 FROM build AS test-case
 

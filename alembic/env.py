@@ -24,6 +24,8 @@ config.set_section_option(
         password=os.getenv("DATABASE_PASSWORD", ""),
         port=int(os.getenv("DATABASE_PORT", 0)),
         user=os.getenv("DATABASE_USER", ""),
+        slave_host=os.getenv("DATABASE_SLAVE_HOST", ""),
+        slave_port=int(os.getenv("DATABASE_SLAVE_PORT", 0)),
     ).get_db_url(),
 )
 

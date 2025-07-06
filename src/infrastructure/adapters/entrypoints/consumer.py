@@ -15,14 +15,18 @@ from src.infrastructure.settings.config import (
     DatabaseConfig,
     LogstashConfig,
     ProducerConfig,
+    SlaveDatabaseConfig,
 )
 
 db_config = DatabaseConfig()
+slave_db_config = SlaveDatabaseConfig()
 db = DatabaseSettings(
     host=db_config.host,
     password=db_config.password,
     port=db_config.port,
     user=db_config.user,
+    slave_host=slave_db_config.host,
+    slave_port=slave_db_config.port,
 )
 book_repository = BookRepository(db=db)
 

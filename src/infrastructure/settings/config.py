@@ -95,3 +95,16 @@ class DatabaseConfig(BaseSettings):
         description="Database database",
         default="",
     )
+
+
+class SlaveDatabaseConfig(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="DATABASE_SLAVE_")
+
+    host: str = Field(
+        description="Database slave host",
+        default="",
+    )
+    port: int = Field(
+        description="Database slave port",
+        default=0,
+    )

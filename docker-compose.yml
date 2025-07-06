@@ -1,16 +1,45 @@
 services:
 
   postgres:
-    image: postgres
-    container_name: postgres
+    image: bitnami/postgresql:latest
+    container_name: postgres-master
     restart: always
     shm_size: 128mb
     ports:
     - 5432:5432
     environment:
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: book
-      POSTGRES_EXTENSIONS: pg_trgm
+    - POSTGRESQL_REPLICATION_MODE=master
+    - POSTGRESQL_REPLICATION_USER=repl_user
+    - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+    - POSTGRESQL_USERNAME=postgres
+    - POSTGRESQL_PASSWORD=123456
+    - POSTGRESQL_DATABASE=book
+    - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+    - os-net
+    volumes:
+    - 'postgresql_master_data:/bitnami/postgresql'
+    healthcheck:
+      test: pg_isready -U postgres -d book
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  postgres-slave:
+    image: bitnami/postgresql:latest
+    container_name: postgres-slave
+    restart: always
+    shm_size: 128mb
+    ports:
+    - 5433:5432
+    environment:
+    - POSTGRESQL_REPLICATION_MODE=slave
+    - POSTGRESQL_REPLICATION_USER=repl_user
+    - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+    - POSTGRESQL_MASTER_HOST=postgres
+    - POSTGRESQL_PASSWORD=123456
+    - POSTGRESQL_MASTER_PORT_NUMBER=5432
+    - ALLOW_EMPTY_PASSWORD=yes
     networks:
     - os-net
     healthcheck:
@@ -18,6 +47,9 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   rabbitmq:
     image: rabbitmq:latest
@@ -45,19 +77,22 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: api
+      target: debug
     image: book-service-api:${TESTE_VERSION:-latest}
     restart: always
     volumes:
     - .:/code
     ports:
     - "9000:9000"
+    - "5678:5678"
     environment:
     - SYSTEM_ENVIRONMENT=local
     - SYSTEM_HOST=0.0.0.0
     - SYSTEM_PORT=9000
     - DATABASE_HOST=postgres
     - DATABASE_PORT=5432
+    - DATABASE_SLAVE_HOST=postgres-slave
+    - DATABASE_SLAVE_PORT=5433
     - DATABASE_USER=postgres
     - DATABASE_PASSWORD=123456
     - DATABASE_NAME=book
@@ -88,8 +123,8 @@ services:
       target: consumer
     image: book-service-consumer:${TESTE_VERSION:-latest}
     restart: always
-    ports:
-    - "5678:5678"
+    # ports:
+    # - "5678:5678"
     volumes:
     - .:/code
     environment:
@@ -191,6 +226,8 @@ volumes:
   opensearch-data1:
   db-data:
     name: db-data
+  postgresql_master_data:
+    driver: local
 
 networks:
   os-net:

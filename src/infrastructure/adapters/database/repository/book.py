@@ -17,7 +17,7 @@ class BookRepository(BookRepositoryPort):
             session.add(book_model)
 
     def get_book_by_id(self, id: UUID) -> Book:
-        with self.db.get_session() as session:
+        with self.db.get_session(slave=True) as session:
             book_model = session.get(BookModel, id)
             if book_model is None:
                 raise NotFoundException("Book not found")
