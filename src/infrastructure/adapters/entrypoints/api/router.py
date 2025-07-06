@@ -17,4 +17,4 @@ class Initializer:
 
         self.create_book_use_case = CreateBookProduce(producer=producer)
         self.create_book_view = CreateBookView(self.create_book_use_case)
-        self.api_router.include_router(self.create_book_view.router)
+        self.api_router.include_router(self.create_book_view.router)  # type: ignore

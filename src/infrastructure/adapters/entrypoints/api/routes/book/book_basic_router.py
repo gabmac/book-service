@@ -7,7 +7,7 @@ from src.application.ports.route.basic_router import BaseRouterView
 
 
 class BookBasicRouter(BaseRouterView, ABC):
-    router: APIRouter
+    router: APIRouter | None = None  # type: ignore
 
     def __init__(
         self,
