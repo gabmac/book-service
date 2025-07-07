@@ -61,6 +61,17 @@ class DatabaseSettings:
     def init_db(cls) -> None:
         if cls.engine is None:
             raise ValueError("Engine is not initialized")
+        session = Session(cls.engine)
+        session.exec(
+            text(
+                """CREATE TABLE IF NOT EXISTS branch (
+            id UUID NOT NULL,
+            name TEXT NOT NULL,
+            region TEXT NOT NULL,
+            PRIMARY KEY (id, region)
+            ) PARTITION BY LIST (id);""",
+            ),
+        )  # type: ignore
         Base.metadata.create_all(cls.engine)
 
     @classmethod
