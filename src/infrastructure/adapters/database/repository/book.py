@@ -105,3 +105,14 @@ class BookRepository(BookRepositoryPort):
             statement = statement.where(*wheres_clause)
             books = session.exec(statement).all()
             return [Book.model_validate(book) for book in books]
+
+    def delete_book(self, id: str) -> None:
+        with self.db.get_session() as session:
+            statement = select(BookModel).where(BookModel.id == id)
+            try:
+                book = session.exec(statement).one()  # type: ignore
+            except NoResultFound:
+                pass
+            else:
+                session.delete(book)
+                session.commit()

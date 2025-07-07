@@ -21,3 +21,7 @@ class BookRepositoryPort(ABC):
     @abstractmethod
     def get_book_by_filter(self, filter: BookFilter) -> List[Book]:
         pass
+
+    @abstractmethod
+    def delete_book(self, id: str) -> None:
+        pass

@@ -28,3 +28,7 @@ class AuthorRepositoryPort(ABC):
     @abstractmethod
     def get_authors_by_ids(self, ids: List[UUID]) -> List[Author]:
         pass
+
+    @abstractmethod
+    def delete_author(self, id: str) -> None:
+        pass

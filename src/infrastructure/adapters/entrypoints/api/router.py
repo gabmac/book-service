@@ -1,9 +1,11 @@
 from fastapi import APIRouter
 
 from src.application.usecase.author.create_author import CreateAuthorProduce
+from src.application.usecase.author.delete_author_publish import DeleteAuthorPublish
 from src.application.usecase.author.filter_author import FilterAuthor
 from src.application.usecase.author.get_by_id import GetAuthorById
 from src.application.usecase.book.create_book_produce import CreateBookProduce
+from src.application.usecase.book.delete_book_publish import DeleteBookPublish
 from src.application.usecase.book.filter_book import FilterBook
 from src.application.usecase.book.get_book_by_id import GetBookById
 from src.application.usecase.book.update_book_produce import UpdateBookProduce
@@ -15,6 +17,9 @@ from src.infrastructure.adapters.entrypoints.api.monitoring import (
 from src.infrastructure.adapters.entrypoints.api.routes.author.create_author import (
     PublishCreateAuthorView,
 )
+from src.infrastructure.adapters.entrypoints.api.routes.author.delete_publish_view import (
+    PublishDeleteAuthorView,
+)
 from src.infrastructure.adapters.entrypoints.api.routes.author.filter_author_view import (
     FilterAuthorView,
 )
@@ -23,6 +28,9 @@ from src.infrastructure.adapters.entrypoints.api.routes.author.get_by_id_view im
 )
 from src.infrastructure.adapters.entrypoints.api.routes.book.create_book_view import (
     PublishCreateBookView,
+)
+from src.infrastructure.adapters.entrypoints.api.routes.book.delete_publish_view import (
+    PublishDeleteBookView,
 )
 from src.infrastructure.adapters.entrypoints.api.routes.book.filter_book import (
     FilterBookView,
@@ -90,3 +98,19 @@ class Initializer:
         )
         self.publish_update_book_view = PublishUpdateBookView(self.update_book_use_case)
         self.api_router.include_router(self.publish_update_book_view.router)  # type: ignore
+
+        self.delete_author_use_case_publish = DeleteAuthorPublish(
+            author_producer=self.author_producer,
+        )
+        self.publish_delete_author_view = PublishDeleteAuthorView(
+            self.delete_author_use_case_publish,
+        )
+        self.api_router.include_router(self.publish_delete_author_view.router)  # type: ignore
+
+        self.delete_book_use_case_publish = DeleteBookPublish(
+            book_producer=self.book_producer,
+        )
+        self.publish_delete_book_view = PublishDeleteBookView(
+            self.delete_book_use_case_publish,
+        )
+        self.api_router.include_router(self.publish_delete_book_view.router)  # type: ignore

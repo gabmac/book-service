@@ -8,7 +8,9 @@ from pika.credentials import PlainCredentials
 from pika.exchange_type import ExchangeType
 
 from src.application.dto.producer import Message
+from src.application.usecase.author.delete_author import DeleteAuthor
 from src.application.usecase.author.upsert_author import UpsertAuthor
+from src.application.usecase.book.delete_book import DeleteBook
 from src.application.usecase.book.upsert_book import UpsertBook
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
@@ -36,6 +38,8 @@ author_repository = AuthorRepository(db=db)
 callables = {
     "book.creation": UpsertBook(book_repository),
     "author.creation": UpsertAuthor(author_repository),
+    "book.deletion": DeleteBook(book_repository),
+    "author.deletion": DeleteAuthor(author_repository),
 }
 
 
@@ -66,6 +70,7 @@ class Consumer:
             body = Message.model_validate(dict_json)
             try:
                 callables[method.routing_key].execute(body)  # type: ignore
+                ch.basic_ack(delivery_tag=method.delivery_tag)
             except Exception as e:
                 cls.logger.error(f"Error processing message: {e}")
                 raise e
@@ -100,7 +105,7 @@ class Consumer:
             cls.channel.basic_consume(
                 queue=queue_name,
                 on_message_callback=callback,
-                auto_ack=True,
+                auto_ack=False,
             )
             cls.reload = False
             cls._instance = cls

@@ -52,3 +52,14 @@ class AuthorRepository(AuthorRepositoryPort):
             statement = select(AuthorModel).where(AuthorModel.id.in_(ids))  # type: ignore
             authors = session.exec(statement).all()
             return [Author.model_validate(author) for author in authors]
+
+    def delete_author(self, id: str) -> None:
+        with self.db.get_session() as session:
+            statement = select(AuthorModel).where(AuthorModel.id == id)
+            try:
+                author = session.exec(statement).one()  # type: ignore
+            except NoResultFound:
+                pass
+            else:
+                session.delete(author)
+                session.commit()

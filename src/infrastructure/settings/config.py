@@ -71,6 +71,8 @@ class ProducerConfig(BaseSettings):
         default={
             "book.creation",
             "author.creation",
+            "book.deletion",
+            "author.deletion",
         },
     )
 
