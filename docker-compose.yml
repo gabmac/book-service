@@ -19,6 +19,7 @@ services:
     - os-net
     volumes:
     - 'postgresql_master_data:/bitnami/postgresql'
+    - ./scripts:/docker-entrypoint-initdb.d
     healthcheck:
       test: pg_isready -U postgres -d book
       interval: 10s
@@ -40,8 +41,11 @@ services:
     - POSTGRESQL_PASSWORD=123456
     - POSTGRESQL_MASTER_PORT_NUMBER=5432
     - ALLOW_EMPTY_PASSWORD=yes
+    - POSTGRESQL_EXTENSIONS=pg_trgm
     networks:
     - os-net
+    volumes:
+    - ./scripts:/docker-entrypoint-initdb.d
     healthcheck:
       test: pg_isready -U postgres -d book
       interval: 10s

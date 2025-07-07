@@ -10,7 +10,7 @@ from .base_model import Base
 class Author(Base, table=True):
     """Author entity model."""
 
-    name: str = Field(nullable=False)
+    name: str = Field(nullable=False, index=True)
     books: List["Book"] = Relationship(  # type: ignore
         back_populates="authors",
         link_model=AuthorBookLink,

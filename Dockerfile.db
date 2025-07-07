@@ -1,4 +1,0 @@
-FROM bitnami/postgresql:latest
-
-RUN psql -U username -d database
-RUN create extension pg_trgm;

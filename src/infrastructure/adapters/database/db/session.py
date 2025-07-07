@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from typing import Generator
 
 from sqlalchemy import Engine
-from sqlmodel import Session, create_engine
+from sqlmodel import Session, create_engine, text
 
 from src.infrastructure.adapters.database.models.base_model import Base
 
@@ -31,6 +31,7 @@ class DatabaseSettings:
             cls.slave_host = slave_host
             cls.slave_port = slave_port
             cls._create_engine()
+            cls._pg_trgm_install()
             cls._instance = cls
         return cls._instance
 
@@ -48,6 +49,13 @@ class DatabaseSettings:
             cls.engine = create_engine(cls.get_db_url(), echo=True)
             cls.engine_slave = create_engine(cls.get_db_url_slave(), echo=True)
         return cls.engine
+
+    @classmethod
+    def _pg_trgm_install(cls) -> None:
+        session = Session(cls.engine)
+        session.exec(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))  # type: ignore
+        session.commit()
+        session.close()
 
     @classmethod
     def init_db(cls) -> None:

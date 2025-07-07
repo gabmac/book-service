@@ -1,6 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 
+from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
 from sqlmodel import select
 
@@ -21,7 +22,7 @@ class AuthorRepository(AuthorRepositoryPort):
             session.add(author_model)
             session.commit()
             session.refresh(author_model)
-        return Author.model_validate(author_model)
+            return Author.model_validate(author_model)
 
     def get_author_by_id(self, id: UUID) -> Author:
         with self.db.get_session(slave=True) as session:
@@ -41,8 +42,11 @@ class AuthorRepository(AuthorRepositoryPort):
             statement = select(AuthorModel)
             if filter is not None:
                 if filter.name:
+                    # statement = statement.where(
+                    #     AuthorModel.name.ilike(f"%{filter.name}%"),  # type: ignore
+                    # )
                     statement = statement.where(
-                        AuthorModel.name.ilike(f"%{filter.name}%"),  # type: ignore
+                        func.similarity(AuthorModel.name, filter.name) > 0.2,
                     )
             authors = session.exec(statement).all()
             return [Author.model_validate(author) for author in authors]
