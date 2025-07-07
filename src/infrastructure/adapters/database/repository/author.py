@@ -19,7 +19,7 @@ class AuthorRepository(AuthorRepositoryPort):
         with self.db.get_session() as session:
             session.add(author_model)
             session.commit()
-
+            session.refresh(author_model)
         return Author.model_validate(author_model)
 
     def get_author_by_id(self, id: UUID) -> Author:
@@ -40,5 +40,11 @@ class AuthorRepository(AuthorRepositoryPort):
                     statement = statement.where(
                         AuthorModel.name.ilike(f"%{filter.name}%"),  # type: ignore
                     )
+            authors = session.exec(statement).all()
+            return [Author.model_validate(author) for author in authors]
+
+    def get_authors_by_ids(self, ids: List[UUID]) -> List[Author]:
+        with self.db.get_session(slave=True) as session:
+            statement = select(AuthorModel).where(AuthorModel.id.in_(ids))  # type: ignore
             authors = session.exec(statement).all()
             return [Author.model_validate(author) for author in authors]

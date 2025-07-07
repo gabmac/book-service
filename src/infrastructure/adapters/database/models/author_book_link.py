@@ -10,10 +10,14 @@ class AuthorBookLink(Base, table=True):
 
     __tablename__ = "author_book_link"  # type: ignore
 
-    author_id: UUID | None = Field(
-        default=None,
+    author_id: UUID = Field(
         foreign_key="author.id",
-        primary_key=True,
         index=True,
+        default=None,
     )
-    book_id: UUID | None = Field(default=None, foreign_key="book.id", primary_key=True)
+    book_id: UUID = Field(
+        default=None,
+        foreign_key="book.id",
+        index=True,
+        ondelete="CASCADE",
+    )

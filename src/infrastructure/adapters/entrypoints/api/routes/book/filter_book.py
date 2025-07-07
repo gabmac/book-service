@@ -40,6 +40,7 @@ class FilterBookView(BookBasicRouter):
             edition=filter.edition,
             type=filter.type,
             publish_date=filter.publish_date,
+            author_name=filter.author_name,
         )
         books = self.use_case.execute(filter_entity)  # type: ignore
         return [BookResponse.model_validate(book) for book in books]

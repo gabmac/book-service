@@ -15,6 +15,7 @@ if __name__ == "__main__":
     cont = 0
     while cont <= 10:
         try:
+            handler.logger.info("Starting consumer")  # type: ignore
             consumer = Consumer(
                 config=ProducerConfig(),
                 logstash_config=logstash_config,

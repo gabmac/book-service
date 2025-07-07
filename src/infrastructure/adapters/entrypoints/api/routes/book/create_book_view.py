@@ -1,7 +1,8 @@
-from fastapi import status
+from fastapi import HTTPException, status
 
 from src.application.dto.book_dto import Book as BookDto
-from src.application.dto.book_dto import BookResponse
+from src.application.dto.book_dto import BookResponse, ProcessingBook
+from src.application.exceptions import NotFoundException
 from src.application.usecase.book.create_book_produce import CreateBookProduce
 from src.domain.entities.book import Book
 from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router import (
@@ -26,15 +27,19 @@ class PublishCreateBookView(BookBasicRouter):
                 description="Create Book",
             )
 
-    async def _call_use_case(self, payload: BookDto) -> BookResponse:
+    async def _call_use_case(self, payload: BookDto) -> ProcessingBook:
         book = Book(
             isbn_code=payload.isbn_code,
             editor=payload.editor,
             edition=payload.edition,
             type=payload.type,
             publish_date=payload.publish_date,
+            author_ids=payload.author_ids,
             created_by=payload.user,
             updated_by=payload.user,
         )
-        book = await self.use_case.execute(book)  # type: ignore
-        return BookResponse.model_validate(book)  # type: ignore
+        try:
+            book = await self.use_case.execute(book)  # type: ignore
+        except NotFoundException as e:
+            raise HTTPException(status_code=404, detail=e.message)
+        return ProcessingBook(book=BookResponse.model_validate(book))  # type: ignore

@@ -7,6 +7,10 @@ from src.application.exceptions import NotFoundException
 from src.application.ports.database.book import BookRepositoryPort
 from src.domain.entities.book import Book, BookFilter
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
+from src.infrastructure.adapters.database.models.author import Author as AuthorModel
+from src.infrastructure.adapters.database.models.author_book_link import (
+    AuthorBookLink as AuthorBookLinkModel,
+)
 from src.infrastructure.adapters.database.models.book import Book as BookModel
 
 
@@ -15,11 +19,37 @@ class BookRepository(BookRepositoryPort):
         super().__init__(db=db)
 
     def upsert_book(self, book: Book) -> Book:
-        book_model = BookModel.model_validate(book)
+        book_model = BookModel(
+            id=book.id,
+            isbn_code=book.isbn_code,
+            editor=book.editor,
+            edition=book.edition,
+            type=book.type,
+            publish_date=book.publish_date,
+            created_by=book.created_by,
+            created_at=book.created_at,
+            updated_by=book.updated_by,
+            updated_at=book.updated_at,
+        )
+
+        link_models = [
+            AuthorBookLinkModel(
+                author_id=author.id,
+                book_id=book.id,
+                created_by=book.created_by,
+                created_at=book.created_at,
+                updated_by=book.updated_by,
+                updated_at=book.updated_at,
+            )
+            for author in book.authors  # type: ignore
+        ]
         with self.db.get_session() as session:
             session.add(book_model)
+            session.flush()
+            session.add_all(link_models)
             session.commit()
-        return Book.model_validate(book_model)
+            session.refresh(book_model)
+            return Book.model_validate(book_model)
 
     def get_book_by_id(self, id: UUID) -> Book:
         with self.db.get_session(slave=True) as session:
@@ -46,6 +76,14 @@ class BookRepository(BookRepositoryPort):
                         and_(  # type: ignore
                             BookModel.publish_date <= filter.publish_date,
                             BookModel.publish_date >= filter.publish_date,
+                        ),
+                    )
+                if filter.author_name:
+                    wheres_clause.append(
+                        and_(
+                            BookModel.authors.any(  # type: ignore
+                                AuthorModel.name.ilike(f"%{filter.author_name}%"),  # type: ignore
+                            ),
                         ),
                     )
             statement = statement.where(*wheres_clause)

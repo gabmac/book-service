@@ -64,7 +64,11 @@ class Consumer:
                 ),
             )
             body = Message.model_validate(dict_json)
-            callables[method.routing_key].execute(body)  # type: ignore
+            try:
+                callables[method.routing_key].execute(body)  # type: ignore
+            except Exception as e:
+                cls.logger.error(f"Error processing message: {e}")
+                raise e
 
         # pylint: enable=unused-argument
 

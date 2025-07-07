@@ -46,7 +46,10 @@ class Initializer:
 
         self.book_producer = BookProducerAdapter(producer=producer)
 
-        self.create_book_use_case = CreateBookProduce(producer=self.book_producer)
+        self.create_book_use_case = CreateBookProduce(
+            producer=self.book_producer,
+            author_repository=author_repository,
+        )
         self.publish_create_book_view = PublishCreateBookView(self.create_book_use_case)
         self.api_router.include_router(self.publish_create_book_view.router)  # type: ignore
 

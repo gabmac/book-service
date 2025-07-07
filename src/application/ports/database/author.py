@@ -24,3 +24,7 @@ class AuthorRepositoryPort(ABC):
         filter: Optional[AuthorFilter] = None,
     ) -> List[Author]:
         pass
+
+    @abstractmethod
+    def get_authors_by_ids(self, ids: List[UUID]) -> List[Author]:
+        pass

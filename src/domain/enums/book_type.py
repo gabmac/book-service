@@ -6,3 +6,4 @@ class BookType(StrEnum):
 
     PHYSICAL = "physical"
     EBOOK = "ebook"
+    BOTH = "both"

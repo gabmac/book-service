@@ -1,3 +1,4 @@
+from pydantic import Field
 from pydantic.main import BaseModel
 
 
@@ -8,3 +9,7 @@ class BaseDto(BaseModel):
         arbitrary_types_allowed = True
         validate_assignment = True
         from_attributes = True
+
+
+class ProcessingResponse(BaseDto):
+    message: str = Field(description="Message", default="Task is processing")
