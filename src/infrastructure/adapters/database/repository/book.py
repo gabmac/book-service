@@ -1,6 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 
+from sqlalchemy.exc import NoResultFound
 from sqlmodel import and_, select
 
 from src.application.exceptions import NotFoundException
@@ -44,6 +45,18 @@ class BookRepository(BookRepositoryPort):
             for author in book.authors  # type: ignore
         ]
         with self.db.get_session() as session:
+            statement = select(AuthorBookLinkModel).filter(
+                AuthorBookLinkModel.book_id == book.id,  # type: ignore
+            )
+            book_statement = select(BookModel).where(BookModel.id == book.id)
+            authors_relations = session.exec(statement).all()
+            try:
+                book = session.exec(book_statement).one()  # type: ignore
+                session.delete(book)
+            except NoResultFound:
+                pass
+            for author_relation in authors_relations:
+                session.delete(author_relation)
             session.add(book_model)
             session.flush()
             session.add_all(link_models)
@@ -53,8 +66,11 @@ class BookRepository(BookRepositoryPort):
 
     def get_book_by_id(self, id: UUID) -> Book:
         with self.db.get_session(slave=True) as session:
-            book_model = session.get(BookModel, id)
-            if book_model is None:
+            try:
+                book_model = session.exec(
+                    select(BookModel).where(BookModel.id == id),
+                ).one()
+            except NoResultFound:
                 raise NotFoundException("Book not found")
             return Book.model_validate(book_model)
 

@@ -6,6 +6,7 @@ from src.application.usecase.author.get_by_id import GetAuthorById
 from src.application.usecase.book.create_book_produce import CreateBookProduce
 from src.application.usecase.book.filter_book import FilterBook
 from src.application.usecase.book.get_book_by_id import GetBookById
+from src.application.usecase.book.update_book_produce import UpdateBookProduce
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
 from src.infrastructure.adapters.entrypoints.api.monitoring import (
@@ -28,6 +29,9 @@ from src.infrastructure.adapters.entrypoints.api.routes.book.filter_book import 
 )
 from src.infrastructure.adapters.entrypoints.api.routes.book.get_book_view import (
     GetBookView,
+)
+from src.infrastructure.adapters.entrypoints.api.routes.book.update_book_view import (
+    PublishUpdateBookView,
 )
 from src.infrastructure.adapters.entrypoints.producer import Producer
 from src.infrastructure.adapters.producer.author_producer import AuthorProducerAdapter
@@ -78,3 +82,11 @@ class Initializer:
         self.filter_author_use_case = FilterAuthor(author_repository=author_repository)
         self.filter_author_view = FilterAuthorView(self.filter_author_use_case)
         self.api_router.include_router(self.filter_author_view.router)  # type: ignore
+
+        self.update_book_use_case = UpdateBookProduce(
+            producer=self.book_producer,
+            book_repository=book_repository,
+            author_repository=author_repository,
+        )
+        self.publish_update_book_view = PublishUpdateBookView(self.update_book_use_case)
+        self.api_router.include_router(self.publish_update_book_view.router)  # type: ignore
