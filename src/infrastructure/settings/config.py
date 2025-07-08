@@ -69,10 +69,12 @@ class ProducerConfig(BaseSettings):
     queues: Set[str] = Field(
         description="Producer queues",
         default={
-            "book.creation",
-            "author.creation",
+            "book.upsert",
+            "author.upsert",
+            "book_category.upsert",
             "book.deletion",
             "author.deletion",
+            "book_category.deletion",
         },
     )
 

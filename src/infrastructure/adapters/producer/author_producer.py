@@ -1,3 +1,4 @@
+import json
 from uuid import UUID
 
 from src.application.dto.producer import Message
@@ -13,7 +14,7 @@ class AuthorProducerAdapter(AuthorProducerPort):
     def upsert_author(self, author: Author) -> None:
         self.producer.publish(
             message=Message(
-                queue_name="author.creation",
+                queue_name="author.upsert",
                 message=author.model_dump_json(),
             ),
         )
@@ -22,6 +23,6 @@ class AuthorProducerAdapter(AuthorProducerPort):
         self.producer.publish(
             message=Message(
                 queue_name="author.deletion",
-                message=str(id),
+                message=json.dumps({"id": str(id)}),
             ),
         )

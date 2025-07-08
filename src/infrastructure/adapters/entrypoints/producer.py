@@ -28,7 +28,7 @@ class Producer:
             cls.channel = cls.connection.channel()
             cls.channel.exchange_declare(
                 exchange="book-service-exchange",
-                exchange_type=ExchangeType.direct,
+                exchange_type=ExchangeType.topic,
             )
             cls._instance = cls
         return cls._instance

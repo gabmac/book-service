@@ -22,7 +22,7 @@ remove-volumes:
 	docker volume prune -f
 	docker volume rm -f $(VOLUMES)
 
-clean-volumes: clean-containers stop-containers remove-volumes
+clean-volumes: clean-containers remove-volumes
 
 build-application:
 	docker compose build --no-cache

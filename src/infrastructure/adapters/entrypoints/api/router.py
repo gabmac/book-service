@@ -9,8 +9,14 @@ from src.application.usecase.book.delete_book_publish import DeleteBookPublish
 from src.application.usecase.book.filter_book import FilterBook
 from src.application.usecase.book.get_book_by_id import GetBookById
 from src.application.usecase.book.update_book_produce import UpdateBookProduce
+from src.application.usecase.book_category.book_category_publish import (
+    CreateBookCategoryProduce,
+)
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
+from src.infrastructure.adapters.database.repository.book_category import (
+    BookCategoryRepository,
+)
 from src.infrastructure.adapters.entrypoints.api.monitoring import (
     router as monitoring_router,
 )
@@ -41,8 +47,14 @@ from src.infrastructure.adapters.entrypoints.api.routes.book.get_book_view impor
 from src.infrastructure.adapters.entrypoints.api.routes.book.update_book_view import (
     PublishUpdateBookView,
 )
+from src.infrastructure.adapters.entrypoints.api.routes.book_category.create_book_category_publish_view import (
+    UpsertBookCategoryPublishView,
+)
 from src.infrastructure.adapters.entrypoints.producer import Producer
 from src.infrastructure.adapters.producer.author_producer import AuthorProducerAdapter
+from src.infrastructure.adapters.producer.book_category_producer import (
+    BookCategoryProducerAdapter,
+)
 from src.infrastructure.adapters.producer.book_producer import BookProducerAdapter
 
 
@@ -52,6 +64,7 @@ class Initializer:
         producer: Producer,
         book_repository: BookRepository,
         author_repository: AuthorRepository,
+        book_category_repository: BookCategoryRepository,
     ):
         self.api_router = APIRouter(prefix="/api")
         self.api_router.include_router(monitoring_router)
@@ -114,3 +127,14 @@ class Initializer:
             self.delete_book_use_case_publish,
         )
         self.api_router.include_router(self.publish_delete_book_view.router)  # type: ignore
+
+        self.book_category_producer = BookCategoryProducerAdapter(producer=producer)
+
+        self.create_book_category_use_case = CreateBookCategoryProduce(
+            book_category_producer=self.book_category_producer,
+            repository=book_category_repository,
+        )
+        self.publish_create_book_category_view = UpsertBookCategoryPublishView(
+            self.create_book_category_use_case,
+        )
+        self.api_router.include_router(self.publish_create_book_category_view.router)  # type: ignore

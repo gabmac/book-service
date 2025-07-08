@@ -15,6 +15,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
+from src.infrastructure.adapters.database.repository.book_category import (
+    BookCategoryRepository,
+)
 from src.infrastructure.adapters.entrypoints.api.router import Initializer
 from src.infrastructure.adapters.entrypoints.producer import Producer
 from src.infrastructure.cross_cutting.middleware_context import (
@@ -55,8 +58,6 @@ class AppConfig:
         # pylint: disable=unused-argument
         @asynccontextmanager
         async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-            if config.environment == Environments.LOCAL.value:
-                db.init_db()
             yield
             producer.stop()
 
@@ -145,11 +146,13 @@ def init_api() -> FastAPI:
 
     book_repository = BookRepository(db=db)
     author_repository = AuthorRepository(db=db)
+    book_category_repository = BookCategoryRepository(db=db)
 
     initializer = Initializer(
         producer=producer,
         book_repository=book_repository,
         author_repository=author_repository,
+        book_category_repository=book_category_repository,
     )
 
     return AppConfig(

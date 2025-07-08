@@ -11,7 +11,11 @@ class BookCategory(Base, table=True):
 
     __tablename__ = "book_category"  # type: ignore
 
-    title: str = Field(nullable=False, index=True)
+    title: str = Field(
+        nullable=False,
+        index=True,
+        unique=True,
+    )
     description: str | None = Field(nullable=True)
     books: List["Book"] = Relationship(  # type: ignore
         back_populates="book_categories",

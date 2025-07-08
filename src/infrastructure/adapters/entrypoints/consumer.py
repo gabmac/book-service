@@ -12,9 +12,19 @@ from src.application.usecase.author.delete_author import DeleteAuthor
 from src.application.usecase.author.upsert_author import UpsertAuthor
 from src.application.usecase.book.delete_book import DeleteBook
 from src.application.usecase.book.upsert_book import UpsertBook
+from src.application.usecase.book_category.upsert_book_category import (
+    UpsertBookCategory,
+)
+from src.domain.entities.author import Author
+from src.domain.entities.base import DeletionEntity
+from src.domain.entities.book import Book
+from src.domain.entities.book_category import BookCategory
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
+from src.infrastructure.adapters.database.repository.book_category import (
+    BookCategoryRepository,
+)
 from src.infrastructure.settings.config import (
     DatabaseConfig,
     LogstashConfig,
@@ -34,12 +44,29 @@ db = DatabaseSettings(
 )
 book_repository = BookRepository(db=db)
 author_repository = AuthorRepository(db=db)
+book_category_repository = BookCategoryRepository(db=db)
 
 callables = {
-    "book.creation": UpsertBook(book_repository),
-    "author.creation": UpsertAuthor(author_repository),
-    "book.deletion": DeleteBook(book_repository),
-    "author.deletion": DeleteAuthor(author_repository),
+    "book.upsert": {
+        "usecase": UpsertBook(book_repository),
+        "entity": Book,
+    },
+    "author.upsert": {
+        "usecase": UpsertAuthor(author_repository),
+        "entity": Author,
+    },
+    "book.deletion": {
+        "usecase": DeleteBook(book_repository),
+        "entity": DeletionEntity,
+    },
+    "author.deletion": {
+        "usecase": DeleteAuthor(author_repository),
+        "entity": DeletionEntity,
+    },
+    "book_category.upsert": {
+        "usecase": UpsertBookCategory(book_category_repository),
+        "entity": BookCategory,
+    },
 }
 
 
@@ -69,7 +96,10 @@ class Consumer:
             )
             body = Message.model_validate(dict_json)
             try:
-                callables[method.routing_key].execute(body)  # type: ignore
+                entity = callables[method.routing_key]["entity"].model_validate(  # type: ignore
+                    json.loads(body.message),
+                )
+                callables[method.routing_key]["usecase"].execute(entity)  # type: ignore
                 ch.basic_ack(delivery_tag=method.delivery_tag)
             except Exception as e:
                 cls.logger.error(f"Error processing message: {e}")
@@ -87,7 +117,7 @@ class Consumer:
             cls.channel = cls.connection.channel()
             cls.channel.exchange_declare(
                 exchange="book-service-exchange",
-                exchange_type=ExchangeType.direct,
+                exchange_type=ExchangeType.topic,
             )
             result = cls.channel.queue_declare(
                 queue="book-service-queue",

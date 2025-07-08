@@ -4,8 +4,6 @@ from typing import Generator
 from sqlalchemy import Engine
 from sqlmodel import Session, create_engine, text
 
-from src.infrastructure.adapters.database.models.base_model import Base
-
 
 class DatabaseSettings:
     """Database settings."""
@@ -56,23 +54,6 @@ class DatabaseSettings:
         session.exec(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))  # type: ignore
         session.commit()
         session.close()
-
-    @classmethod
-    def init_db(cls) -> None:
-        if cls.engine is None:
-            raise ValueError("Engine is not initialized")
-        session = Session(cls.engine)
-        session.exec(
-            text(
-                """CREATE TABLE IF NOT EXISTS branch (
-            id UUID NOT NULL,
-            name TEXT NOT NULL,
-            region TEXT NOT NULL,
-            PRIMARY KEY (id, region)
-            ) PARTITION BY LIST (id);""",
-            ),
-        )  # type: ignore
-        Base.metadata.create_all(cls.engine)
 
     @classmethod
     @contextmanager
