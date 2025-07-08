@@ -42,9 +42,6 @@ class AuthorRepository(AuthorRepositoryPort):
             statement = select(AuthorModel)
             if filter is not None:
                 if filter.name:
-                    # statement = statement.where(
-                    #     AuthorModel.name.ilike(f"%{filter.name}%"),  # type: ignore
-                    # )
                     statement = statement.where(
                         func.similarity(AuthorModel.name, filter.name) > 0.2,
                     )

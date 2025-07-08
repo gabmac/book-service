@@ -30,3 +30,11 @@ class BookCategoryResponse(BaseDto):
 
 class ProcessingBookCategory(ProcessingResponse):
     book_category: BookCategoryResponse = Field(description="Book category")
+
+
+class BookCategoryFilter(BaseDto):
+    title: str | None = Field(description="Book category title", default=None)
+    description: str | None = Field(
+        description="Book category description",
+        default=None,
+    )

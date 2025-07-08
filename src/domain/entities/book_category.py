@@ -23,3 +23,11 @@ class BookCategory(BaseEntity):
         description="Book category update date",
         default_factory=datetime.now,
     )
+
+
+class BookCategoryFilter(BaseEntity):
+    title: str | None = Field(description="Book category title", default=None)
+    description: str | None = Field(
+        description="Book category description",
+        default=None,
+    )

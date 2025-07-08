@@ -34,7 +34,7 @@ setup-dev-environment:
 	poetry install
 
 alembic-upgrade:
-	alembic upgrade head
+	poetry run alembic upgrade head
 
 alembic-migrate:
 	poetry run alembic upgrade head

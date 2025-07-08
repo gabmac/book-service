@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from src.application.dto.book_dto import Book as BookDto
 from src.application.dto.book_dto import BookResponse, ProcessingBook
 from src.application.exceptions import NotFoundException
-from src.application.usecase.book.create_book_produce import CreateBookProduce
+from src.application.usecase.book.upsert_book_produce import UpsertBookProduce
 from src.domain.entities.book import Book
 from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router import (
     BookBasicRouter,
@@ -11,7 +11,7 @@ from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router i
 
 
 class PublishCreateBookView(BookBasicRouter):
-    def __init__(self, use_case: CreateBookProduce):
+    def __init__(self, use_case: UpsertBookProduce):
         super().__init__(use_case=use_case)
 
     def _add_to_router(self) -> None:
@@ -38,6 +38,7 @@ class PublishCreateBookView(BookBasicRouter):
             type=payload.type,
             publish_date=payload.publish_date,
             author_ids=payload.author_ids,
+            category_ids=payload.category_ids,
             created_by=payload.user,
             updated_by=payload.user,
         )

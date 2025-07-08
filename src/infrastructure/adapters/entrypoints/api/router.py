@@ -4,11 +4,13 @@ from src.application.usecase.author.create_author import CreateAuthorProduce
 from src.application.usecase.author.delete_author_publish import DeleteAuthorPublish
 from src.application.usecase.author.filter_author import FilterAuthor
 from src.application.usecase.author.get_by_id import GetAuthorById
-from src.application.usecase.book.create_book_produce import CreateBookProduce
 from src.application.usecase.book.delete_book_publish import DeleteBookPublish
 from src.application.usecase.book.filter_book import FilterBook
 from src.application.usecase.book.get_book_by_id import GetBookById
-from src.application.usecase.book.update_book_produce import UpdateBookProduce
+from src.application.usecase.book.upsert_book_produce import UpsertBookProduce
+from src.application.usecase.book_category.book_category_filter import (
+    FilterBookCategory,
+)
 from src.application.usecase.book_category.book_category_publish import (
     CreateBookCategoryProduce,
 )
@@ -50,6 +52,9 @@ from src.infrastructure.adapters.entrypoints.api.routes.book.update_book_view im
 from src.infrastructure.adapters.entrypoints.api.routes.book_category.create_book_category_publish_view import (
     UpsertBookCategoryPublishView,
 )
+from src.infrastructure.adapters.entrypoints.api.routes.book_category.filter_book_category_view import (
+    FilterBookCategoryView,
+)
 from src.infrastructure.adapters.entrypoints.producer import Producer
 from src.infrastructure.adapters.producer.author_producer import AuthorProducerAdapter
 from src.infrastructure.adapters.producer.book_category_producer import (
@@ -71,11 +76,12 @@ class Initializer:
 
         self.book_producer = BookProducerAdapter(producer=producer)
 
-        self.create_book_use_case = CreateBookProduce(
+        self.upsert_book_use_case = UpsertBookProduce(
             producer=self.book_producer,
             author_repository=author_repository,
+            book_category_repository=book_category_repository,
         )
-        self.publish_create_book_view = PublishCreateBookView(self.create_book_use_case)
+        self.publish_create_book_view = PublishCreateBookView(self.upsert_book_use_case)
         self.api_router.include_router(self.publish_create_book_view.router)  # type: ignore
 
         self.get_book_by_id_use_case = GetBookById(book_repository=book_repository)
@@ -104,12 +110,7 @@ class Initializer:
         self.filter_author_view = FilterAuthorView(self.filter_author_use_case)
         self.api_router.include_router(self.filter_author_view.router)  # type: ignore
 
-        self.update_book_use_case = UpdateBookProduce(
-            producer=self.book_producer,
-            book_repository=book_repository,
-            author_repository=author_repository,
-        )
-        self.publish_update_book_view = PublishUpdateBookView(self.update_book_use_case)
+        self.publish_update_book_view = PublishUpdateBookView(self.upsert_book_use_case)
         self.api_router.include_router(self.publish_update_book_view.router)  # type: ignore
 
         self.delete_author_use_case_publish = DeleteAuthorPublish(
@@ -138,3 +139,11 @@ class Initializer:
             self.create_book_category_use_case,
         )
         self.api_router.include_router(self.publish_create_book_category_view.router)  # type: ignore
+
+        self.filter_book_category_use_case = FilterBookCategory(
+            repository=book_category_repository,
+        )
+        self.filter_book_category_view = FilterBookCategoryView(
+            self.filter_book_category_use_case,
+        )
+        self.api_router.include_router(self.filter_book_category_view.router)  # type: ignore

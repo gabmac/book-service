@@ -20,6 +20,10 @@ class Book(BaseDto):
         description="Author IDs",
         min_length=1,
     )
+    category_ids: Optional[List[UUID]] = Field(
+        default=None,
+        description="Category IDs",
+    )
     user: str = Field(description="Book user")
 
 

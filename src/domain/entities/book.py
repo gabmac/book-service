@@ -6,6 +6,7 @@ from pydantic.fields import Field
 
 from src.domain.entities.author import Author
 from src.domain.entities.base import BaseEntity
+from src.domain.entities.book_category import BookCategory
 from src.domain.enums.book_type import BookType
 
 
@@ -18,6 +19,11 @@ class Book(BaseEntity):
     publish_date: date = Field(description="Book publish date")
     authors: List[Author] | None = Field(default=None, description="Authors")
     author_ids: List[UUID] | None = Field(default=None, description="Author IDs")
+    category_ids: List[UUID] | None = Field(default=None, description="Category IDs")
+    book_categories: List[BookCategory] | None = Field(
+        default=None,
+        description="Book categories",
+    )
     created_at: datetime = Field(
         default_factory=datetime.now,
         description="Book creation date",

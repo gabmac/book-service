@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from src.application.dto.book_dto import Book as BookDto
 from src.application.dto.book_dto import BookResponse, ProcessingBook
 from src.application.exceptions import NotFoundException
-from src.application.usecase.book.update_book_produce import UpdateBookProduce
+from src.application.usecase.book.upsert_book_produce import UpsertBookProduce
 from src.domain.entities.book import Book
 from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router import (
     BookBasicRouter,
@@ -13,7 +13,7 @@ from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router i
 
 
 class PublishUpdateBookView(BookBasicRouter):
-    def __init__(self, use_case: UpdateBookProduce):
+    def __init__(self, use_case: UpsertBookProduce):
         super().__init__(use_case=use_case)
 
     def _add_to_router(self) -> None:
