@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
-from sqlmodel import and_, select
+from sqlmodel import and_, delete, select
 
 from src.application.exceptions import NotFoundException
 from src.application.ports.database.book import BookRepositoryPort
@@ -19,6 +19,9 @@ from src.infrastructure.adapters.database.models.book_book_category_link import 
 )
 from src.infrastructure.adapters.database.models.book_category import (
     BookCategory as BookCategoryModel,
+)
+from src.infrastructure.adapters.database.models.book_data import (
+    BookData as BookDataModel,
 )
 
 
@@ -50,12 +53,22 @@ class BookRepository(BookRepositoryPort):
             )
             for book_category in book.book_categories  # type: ignore
         ]
-        with self.db.get_session() as session:
-            statement = select(AuthorBookLinkModel).filter(
-                AuthorBookLinkModel.book_id == book.id,  # type: ignore
+        book_data_models = [
+            BookDataModel(
+                id=book_data.id,
+                summary=book_data.summary,
+                title=book_data.title,
+                language=book_data.language,
+                book_id=book.id,
+                created_by=book.created_by,
+                created_at=book.created_at,
+                updated_by=book.updated_by,
+                updated_at=book.updated_at,
             )
+            for book_data in book.book_data  # type: ignore
+        ]
+        with self.db.get_session() as session:
             existing_book = session.get(BookModel, book.id)
-            authors_relations = session.exec(statement).all()
             if existing_book:
                 # Update fields
                 for key, value in book.model_dump(
@@ -64,6 +77,8 @@ class BookRepository(BookRepositoryPort):
                         "book_categories",
                         "book_data",
                         "physical_exemplars",
+                        "author_ids",
+                        "category_ids",
                     },
                 ).items():
                     setattr(existing_book, key, value)
@@ -83,12 +98,12 @@ class BookRepository(BookRepositoryPort):
             session.add(existing_book)
             session.flush()
 
-            for author_relation in authors_relations:
-                session.delete(author_relation)
-
+            session.exec(delete(AuthorBookLinkModel).where(AuthorBookLinkModel.book_id == book.id))  # type: ignore
+            session.exec(delete(BookDataModel).where(BookDataModel.book_id == book.id))  # type: ignore
             session.flush()
             session.add_all(author_link_models)
             session.add_all(book_category_link_models)
+            session.add_all(book_data_models)
             session.commit()
             session.refresh(existing_book)
             return Book.model_validate(existing_book)

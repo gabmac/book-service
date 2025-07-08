@@ -5,16 +5,19 @@ from fastapi import HTTPException, status
 from src.application.dto.book_dto import Book as BookDto
 from src.application.dto.book_dto import BookResponse, ProcessingBook
 from src.application.exceptions import NotFoundException
+from src.application.usecase.book.get_book_by_id import GetBookById
 from src.application.usecase.book.upsert_book_produce import UpsertBookProduce
 from src.domain.entities.book import Book
+from src.domain.entities.book_data import BookData
 from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router import (
     BookBasicRouter,
 )
 
 
 class PublishUpdateBookView(BookBasicRouter):
-    def __init__(self, use_case: UpsertBookProduce):
+    def __init__(self, use_case: UpsertBookProduce, validate_book: GetBookById):
         super().__init__(use_case=use_case)
+        self.validate_book = validate_book
 
     def _add_to_router(self) -> None:
         """
@@ -33,6 +36,21 @@ class PublishUpdateBookView(BookBasicRouter):
             )
 
     async def _call_use_case(self, payload: BookDto, id: UUID) -> ProcessingBook:
+        try:
+            self.validate_book.execute(id)
+        except NotFoundException as e:
+            raise HTTPException(status_code=404, detail=e.message)
+
+        book_data = [
+            BookData(
+                summary=book_data.summary,
+                title=book_data.title,
+                language=book_data.language,
+                created_by=payload.user,
+                updated_by=payload.user,
+            )
+            for book_data in payload.book_data
+        ]
         book = Book(
             id=id,
             isbn_code=payload.isbn_code,
@@ -41,6 +59,8 @@ class PublishUpdateBookView(BookBasicRouter):
             type=payload.type,
             publish_date=payload.publish_date,
             author_ids=payload.author_ids,
+            category_ids=payload.category_ids,
+            book_data=book_data,
             created_by=payload.user,
             updated_by=payload.user,
         )

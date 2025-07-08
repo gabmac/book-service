@@ -110,7 +110,11 @@ class Initializer:
         self.filter_author_view = FilterAuthorView(self.filter_author_use_case)
         self.api_router.include_router(self.filter_author_view.router)  # type: ignore
 
-        self.publish_update_book_view = PublishUpdateBookView(self.upsert_book_use_case)
+        self.get_book_by_id_use_case = GetBookById(book_repository=book_repository)
+        self.publish_update_book_view = PublishUpdateBookView(
+            self.upsert_book_use_case,
+            self.get_book_by_id_use_case,
+        )
         self.api_router.include_router(self.publish_update_book_view.router)  # type: ignore
 
         self.delete_author_use_case_publish = DeleteAuthorPublish(

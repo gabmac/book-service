@@ -22,8 +22,14 @@ class BookCategoryResponse(BaseDto):
         description="Book category description",
         default=None,
     )
-    created_at: datetime = Field(description="Book category creation date")
-    updated_at: datetime = Field(description="Book category update date")
+    created_at: datetime = Field(
+        description="Book category creation date",
+        default_factory=datetime.now,
+    )
+    updated_at: datetime = Field(
+        description="Book category update date",
+        default_factory=datetime.now,
+    )
     created_by: str = Field(description="Book category creator")
     updated_by: str = Field(description="Book category updater")
 

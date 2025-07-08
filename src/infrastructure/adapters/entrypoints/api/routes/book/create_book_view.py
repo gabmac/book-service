@@ -5,6 +5,7 @@ from src.application.dto.book_dto import BookResponse, ProcessingBook
 from src.application.exceptions import NotFoundException
 from src.application.usecase.book.upsert_book_produce import UpsertBookProduce
 from src.domain.entities.book import Book
+from src.domain.entities.book_data import BookData
 from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router import (
     BookBasicRouter,
 )
@@ -31,6 +32,16 @@ class PublishCreateBookView(BookBasicRouter):
             )
 
     async def _call_use_case(self, payload: BookDto) -> ProcessingBook:
+        book_data = [
+            BookData(
+                summary=book_data.summary,
+                title=book_data.title,
+                language=book_data.language,
+                created_by=payload.user,
+                updated_by=payload.user,
+            )
+            for book_data in payload.book_data
+        ]
         book = Book(
             isbn_code=payload.isbn_code,
             editor=payload.editor,
@@ -39,6 +50,7 @@ class PublishCreateBookView(BookBasicRouter):
             publish_date=payload.publish_date,
             author_ids=payload.author_ids,
             category_ids=payload.category_ids,
+            book_data=book_data,
             created_by=payload.user,
             updated_by=payload.user,
         )

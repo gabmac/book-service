@@ -25,11 +25,13 @@ class UpsertBookProduce:
         authors = self._validate_authors_exist(payload.author_ids)  # type: ignore
         book_categories = self._validate_book_categories_exist(payload.category_ids)  # type: ignore
         book = Book(
+            id=payload.id,
             isbn_code=payload.isbn_code,
             editor=payload.editor,
             edition=payload.edition,
             type=payload.type,
             publish_date=payload.publish_date,
+            book_data=payload.book_data,
             authors=authors,
             book_categories=book_categories,
             created_by=payload.created_by,
