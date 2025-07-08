@@ -20,7 +20,7 @@ class PublishCreateBookView(BookBasicRouter):
         """
         if self.router is not None:
             self.router.add_api_route(
-                "/{id}",
+                "/",
                 self._call_use_case,  # type: ignore
                 status_code=status.HTTP_202_ACCEPTED,
                 response_model=ProcessingBook,

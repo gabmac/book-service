@@ -6,6 +6,7 @@ from pydantic.fields import Field
 
 from src.application.dto.author import AuthorResponse
 from src.application.dto.base import BaseDto, ProcessingResponse
+from src.application.dto.book_category import BookCategoryResponse
 from src.domain.enums.book_type import BookType
 
 
@@ -34,6 +35,10 @@ class BookFilter(BaseDto):
     type: Optional[BookType] = Field(description="Book type", default=None)
     author_name: Optional[str] = Field(description="Author name", default=None)
     publish_date: Optional[date] = Field(description="Book publish date", default=None)
+    book_category_name: Optional[str] = Field(
+        description="Book category name",
+        default=None,
+    )
 
 
 class BookResponse(BaseDto):
@@ -46,6 +51,10 @@ class BookResponse(BaseDto):
     authors: List[AuthorResponse] | None = Field(
         default=None,
         description="Book authors",
+    )
+    book_categories: List[BookCategoryResponse] | None = Field(
+        default=None,
+        description="Book categories",
     )
 
 

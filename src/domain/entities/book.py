@@ -43,3 +43,7 @@ class BookFilter(BaseEntity):
     type: Optional[BookType] = Field(description="Book type", default=None)
     publish_date: Optional[date] = Field(description="Book publish date", default=None)
     author_name: Optional[str] = Field(description="Author name", default=None)
+    book_category_name: Optional[str] = Field(
+        description="Book category name",
+        default=None,
+    )

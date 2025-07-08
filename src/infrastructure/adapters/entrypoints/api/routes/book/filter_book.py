@@ -4,7 +4,6 @@ from fastapi import Query, status
 
 from src.application.dto.book_dto import BookFilter, BookResponse
 from src.application.usecase.book.get_book_by_id import GetBookById
-from src.domain.entities.book import BookFilter as BookFilterEntity
 from src.infrastructure.adapters.entrypoints.api.routes.book.book_basic_router import (
     BookBasicRouter,
 )
@@ -34,13 +33,6 @@ class FilterBookView(BookBasicRouter):
         self,
         filter: Annotated[BookFilter, Query()],
     ) -> List[BookResponse]:
-        filter_entity = BookFilterEntity(
-            isbn_code=filter.isbn_code,
-            editor=filter.editor,
-            edition=filter.edition,
-            type=filter.type,
-            publish_date=filter.publish_date,
-            author_name=filter.author_name,
-        )
+        filter_entity = BookFilter.model_validate(filter)
         books = self.use_case.execute(filter_entity)  # type: ignore
         return [BookResponse.model_validate(book) for book in books]
