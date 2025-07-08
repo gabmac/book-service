@@ -14,11 +14,14 @@ from src.application.usecase.book_category.book_category_filter import (
 from src.application.usecase.book_category.book_category_publish import (
     CreateBookCategoryProduce,
 )
+from src.application.usecase.branch.filter_branch import FilterBranch
+from src.application.usecase.branch.upsert_branch_produce import UpsertBranchProduce
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
 from src.infrastructure.adapters.database.repository.book_category import (
     BookCategoryRepository,
 )
+from src.infrastructure.adapters.database.repository.branch import BranchRepository
 from src.infrastructure.adapters.entrypoints.api.monitoring import (
     router as monitoring_router,
 )
@@ -55,12 +58,19 @@ from src.infrastructure.adapters.entrypoints.api.routes.book_category.create_boo
 from src.infrastructure.adapters.entrypoints.api.routes.book_category.filter_book_category_view import (
     FilterBookCategoryView,
 )
+from src.infrastructure.adapters.entrypoints.api.routes.branch.create_branch_publish_view import (
+    PublishCreateBranchView,
+)
+from src.infrastructure.adapters.entrypoints.api.routes.branch.filter_branch_view import (
+    FilterBranchView,
+)
 from src.infrastructure.adapters.entrypoints.producer import Producer
 from src.infrastructure.adapters.producer.author_producer import AuthorProducerAdapter
 from src.infrastructure.adapters.producer.book_category_producer import (
     BookCategoryProducerAdapter,
 )
 from src.infrastructure.adapters.producer.book_producer import BookProducerAdapter
+from src.infrastructure.adapters.producer.branch_producer import BranchProducerAdapter
 
 
 class Initializer:
@@ -151,3 +161,18 @@ class Initializer:
             self.filter_book_category_use_case,
         )
         self.api_router.include_router(self.filter_book_category_view.router)  # type: ignore
+
+        self.branch_repository = BranchRepository(db=book_repository.db)
+        self.filter_branch_use_case = FilterBranch(repository=self.branch_repository)
+        self.filter_branch_view = FilterBranchView(self.filter_branch_use_case)
+        self.api_router.include_router(self.filter_branch_view.router)  # type: ignore
+
+        self.branch_producer = BranchProducerAdapter(producer=producer)
+        self.upsert_branch_use_case = UpsertBranchProduce(
+            branch_producer=self.branch_producer,
+            repository=self.branch_repository,
+        )
+        self.publish_create_branch_view = PublishCreateBranchView(
+            self.upsert_branch_use_case,
+        )
+        self.api_router.include_router(self.publish_create_branch_view.router)  # type: ignore

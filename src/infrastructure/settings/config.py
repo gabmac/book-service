@@ -74,6 +74,7 @@ class ProducerConfig(BaseSettings):
             "book_category.upsert",
             "book.deletion",
             "author.deletion",
+            "branch.upsert",
         },
     )
 

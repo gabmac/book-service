@@ -154,43 +154,6 @@ def upgrade() -> None:
     CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES book(id),
     CONSTRAINT fk_branch FOREIGN KEY (branch_id) REFERENCES branch(id)
 ) PARTITION BY LIST (branch_id);
-
-
--- Create 10 partitions
-CREATE TABLE physical_exemplar_branch_1 PARTITION OF physical_exemplar
-    FOR VALUES IN ('00000000-0000-0000-0000-000000000001');
-CREATE TABLE physical_exemplar_branch_2 PARTITION OF physical_exemplar
-    FOR VALUES IN ('00000000-0000-0000-0000-000000000002');
-CREATE TABLE physical_exemplar_branch_3 PARTITION OF physical_exemplar
-    FOR VALUES IN ('00000000-0000-0000-0000-000000000003');
-CREATE TABLE physical_exemplar_branch_4 PARTITION OF physical_exemplar
-    FOR VALUES IN ('00000000-0000-0000-0000-000000000004');
-CREATE TABLE physical_exemplar_branch_5 PARTITION OF physical_exemplar
-    FOR VALUES IN ('00000000-0000-0000-0000-000000000005');
-CREATE TABLE physical_exemplar_branch_6 PARTITION OF physical_exemplar
-    FOR VALUES IN ('00000000-0000-0000-0000-000000000006');
-CREATE TABLE physical_exemplar_branch_7 PARTITION OF physical_exemplar
-    FOR VALUES IN ('00000000-0000-0000-0000-000000000007');
-CREATE TABLE physical_exemplar_branch_8 PARTITION OF physical_exemplar
-    FOR VALUES IN ('00000000-0000-0000-0000-000000000008');
-CREATE TABLE physical_exemplar_branch_9 PARTITION OF physical_exemplar
-    FOR VALUES IN ('00000000-0000-0000-0000-000000000009');
-CREATE TABLE physical_exemplar_branch_10 PARTITION OF physical_exemplar
-    FOR VALUES IN ('00000000-0000-0000-0000-000000000010');
-
--- Insert 10 branches
-INSERT INTO branch (id, name, created_at, created_by, updated_at, updated_by)
-VALUES
-('00000000-0000-0000-0000-000000000001', 'Branch 1', NOW(), 'system', NOW(), 'system'),
-('00000000-0000-0000-0000-000000000002', 'Branch 2', NOW(), 'system', NOW(), 'system'),
-('00000000-0000-0000-0000-000000000003', 'Branch 3', NOW(), 'system', NOW(), 'system'),
-('00000000-0000-0000-0000-000000000004', 'Branch 4', NOW(), 'system', NOW(), 'system'),
-('00000000-0000-0000-0000-000000000005', 'Branch 5', NOW(), 'system', NOW(), 'system'),
-('00000000-0000-0000-0000-000000000006', 'Branch 6', NOW(), 'system', NOW(), 'system'),
-('00000000-0000-0000-0000-000000000007', 'Branch 7', NOW(), 'system', NOW(), 'system'),
-('00000000-0000-0000-0000-000000000008', 'Branch 8', NOW(), 'system', NOW(), 'system'),
-('00000000-0000-0000-0000-000000000009', 'Branch 9', NOW(), 'system', NOW(), 'system'),
-('00000000-0000-0000-0000-000000000010', 'Branch 10', NOW(), 'system', NOW(), 'system');
 """,
     )
     op.create_index(op.f("ix_book_data_title"), "book_data", ["title"], unique=False)
@@ -221,7 +184,7 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_book_data_title"), table_name="book_data")
     op.drop_table("book_data")
     op.drop_index(
-        op.f("ix_book_book_category_link_book_category_id"),
+        op.f("ix_book_book_category_link_book_categorfy_id"),
         table_name="book_book_category_link",
     )
     op.drop_table("book_book_category_link")

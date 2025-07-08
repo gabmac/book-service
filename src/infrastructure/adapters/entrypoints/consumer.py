@@ -15,16 +15,19 @@ from src.application.usecase.book.upsert_book import UpsertBook
 from src.application.usecase.book_category.upsert_book_category import (
     UpsertBookCategory,
 )
+from src.application.usecase.branch.upsert_branch import UpsertBranch
 from src.domain.entities.author import Author
 from src.domain.entities.base import DeletionEntity
 from src.domain.entities.book import Book
 from src.domain.entities.book_category import BookCategory
+from src.domain.entities.branch import Branch
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
 from src.infrastructure.adapters.database.repository.book_category import (
     BookCategoryRepository,
 )
+from src.infrastructure.adapters.database.repository.branch import BranchRepository
 from src.infrastructure.settings.config import (
     DatabaseConfig,
     LogstashConfig,
@@ -45,6 +48,7 @@ db = DatabaseSettings(
 book_repository = BookRepository(db=db)
 author_repository = AuthorRepository(db=db)
 book_category_repository = BookCategoryRepository(db=db)
+branch_repository = BranchRepository(db=db)
 
 callables = {
     "book.upsert": {
@@ -66,6 +70,10 @@ callables = {
     "book_category.upsert": {
         "usecase": UpsertBookCategory(book_category_repository),
         "entity": BookCategory,
+    },
+    "branch.upsert": {
+        "usecase": UpsertBranch(branch_repository),
+        "entity": Branch,
     },
 }
 
