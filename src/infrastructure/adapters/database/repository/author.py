@@ -17,12 +17,28 @@ class AuthorRepository(AuthorRepositoryPort):
         super().__init__(db=db)
 
     def upsert_author(self, author: Author) -> Author:
-        author_model = AuthorModel.model_validate(author)
         with self.db.get_session() as session:
-            session.add(author_model)
+            # First try to find by name for idempotency
+            existing = session.exec(
+                select(AuthorModel).where(AuthorModel.name == author.name),
+            ).first()
+
+            if existing:
+                # Update existing record
+                for k, v in author.model_dump().items():
+                    if k not in [
+                        "id",
+                        "created_at",
+                        "created_by",
+                    ]:
+                        setattr(existing, k, v)
+            else:
+                existing = AuthorModel.model_validate(author)
+                session.add(existing)
             session.commit()
-            session.refresh(author_model)
-            return Author.model_validate(author_model)
+            session.flush()
+            session.refresh(existing)
+            return Author.model_validate(existing)
 
     def get_author_by_id(self, id: UUID) -> Author:
         with self.db.get_session(slave=True) as session:

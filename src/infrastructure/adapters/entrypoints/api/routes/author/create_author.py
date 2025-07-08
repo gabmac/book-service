@@ -1,6 +1,6 @@
 from fastapi import status
 
-from src.application.dto.author import AuthorCreate, AuthorResponse, ProcessingAuthor
+from src.application.dto.author import AuthorResponse, AuthorUpsert, ProcessingAuthor
 from src.application.usecase.author.create_author import CreateAuthorProduce
 from src.domain.entities.author import Author
 from src.infrastructure.adapters.entrypoints.api.routes.author.author_basic_router import (
@@ -25,7 +25,7 @@ class PublishCreateAuthorView(AuthorBasicRouter):
                 description="Create Author",
             )
 
-    async def _call_use_case(self, payload: AuthorCreate) -> ProcessingAuthor:
+    async def _call_use_case(self, payload: AuthorUpsert) -> ProcessingAuthor:
         author = Author(
             name=payload.name,
             created_by=payload.user,

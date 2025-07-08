@@ -7,7 +7,7 @@ from pydantic import Field
 from src.application.dto.base import BaseDto, ProcessingResponse
 
 
-class AuthorCreate(BaseDto):
+class AuthorUpsert(BaseDto):
     name: str = Field(description="Author name")
     user: str = Field(description="Author user")
 
