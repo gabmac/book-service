@@ -16,12 +16,18 @@ from src.application.usecase.book_category.book_category_publish import (
 )
 from src.application.usecase.branch.filter_branch import FilterBranch
 from src.application.usecase.branch.upsert_branch_produce import UpsertBranchProduce
+from src.application.usecase.physical_exemplar.upsert_physical_exemplar_produce import (
+    UpsertPhysicalExemplarProduce,
+)
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
 from src.infrastructure.adapters.database.repository.book_category import (
     BookCategoryRepository,
 )
 from src.infrastructure.adapters.database.repository.branch import BranchRepository
+from src.infrastructure.adapters.database.repository.physical_exemplar import (
+    PhysicalExemplarRepository,
+)
 from src.infrastructure.adapters.entrypoints.api.monitoring import (
     router as monitoring_router,
 )
@@ -64,6 +70,9 @@ from src.infrastructure.adapters.entrypoints.api.routes.branch.create_branch_pub
 from src.infrastructure.adapters.entrypoints.api.routes.branch.filter_branch_view import (
     FilterBranchView,
 )
+from src.infrastructure.adapters.entrypoints.api.routes.physical_exemplar.create_physical_exemplar_publish_view import (
+    PublishCreatePhysicalExemplarView,
+)
 from src.infrastructure.adapters.entrypoints.producer import Producer
 from src.infrastructure.adapters.producer.author_producer import AuthorProducerAdapter
 from src.infrastructure.adapters.producer.book_category_producer import (
@@ -71,6 +80,9 @@ from src.infrastructure.adapters.producer.book_category_producer import (
 )
 from src.infrastructure.adapters.producer.book_producer import BookProducerAdapter
 from src.infrastructure.adapters.producer.branch_producer import BranchProducerAdapter
+from src.infrastructure.adapters.producer.physical_exemplar_producer import (
+    PhysicalExemplarProducerAdapter,
+)
 
 
 class Initializer:
@@ -176,3 +188,18 @@ class Initializer:
             self.upsert_branch_use_case,
         )
         self.api_router.include_router(self.publish_create_branch_view.router)  # type: ignore
+
+        self.physical_exemplar_repository = PhysicalExemplarRepository(
+            db=book_repository.db,
+        )
+        self.physical_exemplar_producer = PhysicalExemplarProducerAdapter(
+            producer=producer,
+        )
+        self.upsert_physical_exemplar_use_case = UpsertPhysicalExemplarProduce(
+            physical_exemplar_producer=self.physical_exemplar_producer,
+            repository=self.physical_exemplar_repository,
+        )
+        self.publish_create_physical_exemplar_view = PublishCreatePhysicalExemplarView(
+            self.upsert_physical_exemplar_use_case,
+        )
+        self.api_router.include_router(self.publish_create_physical_exemplar_view.router)  # type: ignore
