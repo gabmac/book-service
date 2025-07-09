@@ -13,6 +13,5 @@ class UpsertBranchProduce:
         self.repository = repository
 
     def execute(self, branch: Branch) -> Branch:
-        # Optionally check for existing branch by name, update if exists
         self.branch_producer.upsert_branch(branch)
         return branch
