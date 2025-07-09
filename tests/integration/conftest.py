@@ -3,6 +3,7 @@ from sqlalchemy import text
 from tests.conftest import BaseConfTest
 
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
+from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book_category import (
     BookCategoryRepository,
 )
@@ -39,6 +40,7 @@ class BaseViewConfTest(BaseConfTest):
             slave_port=5433,
         )
         cls.db._pg_trgm_install()
+        cls.author_repository = AuthorRepository(db=cls.db)  # type: ignore
         cls.branch_repository = BranchRepository(db=cls.db)  # type: ignore
         cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
 
