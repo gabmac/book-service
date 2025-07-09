@@ -1,0 +1,1 @@
+# Book integration tests package

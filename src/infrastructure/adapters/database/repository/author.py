@@ -20,7 +20,7 @@ class AuthorRepository(AuthorRepositoryPort):
         with self.db.get_session() as session:
             # First try to find by name for idempotency
             existing = session.exec(
-                select(AuthorModel).where(AuthorModel.name == author.name),
+                select(AuthorModel).where(AuthorModel.id == author.id),
             ).first()
 
             if existing:

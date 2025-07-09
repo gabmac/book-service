@@ -4,6 +4,8 @@ from typing import Generator
 from sqlalchemy import Engine
 from sqlmodel import Session, create_engine, text
 
+from src.infrastructure.adapters.database.models.base_model import Base
+
 
 class DatabaseSettings:
     """Database settings."""
@@ -47,6 +49,35 @@ class DatabaseSettings:
             cls.engine = create_engine(cls.get_db_url(), echo=True)
             cls.engine_slave = create_engine(cls.get_db_url_slave(), echo=True)
         return cls.engine
+
+    @classmethod
+    def init_db(cls) -> None:
+        if cls.engine is None:
+            raise ValueError("Engine is not initialized")
+        sql = """
+            CREATE TABLE physical_exemplar (
+            id UUID NOT NULL,
+            branch_id UUID NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL,
+            created_by TEXT NOT NULL,
+            updated_at TIMESTAMPTZ NOT NULL,
+            updated_by TEXT NOT NULL,
+            available BOOLEAN NOT NULL,
+            room INTEGER NOT NULL,
+            floor INTEGER NOT NULL,
+            bookshelf INTEGER NOT NULL,
+            book_id UUID,
+
+            PRIMARY KEY (id, branch_id),
+            CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES book(id),
+            CONSTRAINT fk_branch FOREIGN KEY (branch_id) REFERENCES branch(id)
+        ) PARTITION BY LIST (branch_id);
+        """
+        session = Session(cls.engine)
+        session.exec(text(sql))  # type: ignore
+        session.commit()
+        session.close()
+        Base.metadata.create_all(cls.engine)
 
     @classmethod
     def _pg_trgm_install(cls) -> None:
