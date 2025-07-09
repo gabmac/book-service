@@ -5,10 +5,12 @@ from polyfactory.factories.pydantic_factory import ModelFactory
 
 from src.domain.entities.author import Author
 from src.domain.entities.book import Book
+from src.domain.entities.branch import Branch
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.models.base_model import Base
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
+from src.infrastructure.adapters.database.repository.branch import BranchRepository
 
 
 class BookModelFactory(ModelFactory):
@@ -19,12 +21,17 @@ class AuthorModelFactory(ModelFactory):
     __model__ = Author
 
 
+class BranchModelFactory(ModelFactory):
+    __model__ = Branch
+
+
 class BaseConfTest(IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.addClassCleanup(patch.stopall)
         cls.book_model_factory = BookModelFactory
         cls.author_model_factory = AuthorModelFactory
+        cls.branch_model_factory = BranchModelFactory
 
         super().setUpClass()
 
@@ -44,6 +51,7 @@ class BaseRepositoryConfTest(BaseConfTest):
         Base.metadata.create_all(bind=cls.db.engine)
         cls.book_repository = BookRepository(db=cls.db)
         cls.author_repository = AuthorRepository(db=cls.db)
+        cls.branch_repository = BranchRepository(db=cls.db)
 
 
 class BaseUseCaseConfTest(BaseConfTest):
