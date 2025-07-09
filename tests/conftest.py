@@ -118,9 +118,13 @@ class BaseUseCaseConfTest(BaseConfTest):
 
         # Mock the producer dependencies
         cls.mock_book_producer = Mock()
+        cls.mock_author_producer = Mock()
 
+    def tearDown(self):
+        super().tearDown()
         # Reset mocks for each test
-        cls.mock_book_repository.reset_mock()
-        cls.mock_author_repository.reset_mock()
-        cls.mock_book_category_repository.reset_mock()
-        cls.mock_book_producer.reset_mock()
+        self.mock_book_repository.reset_mock()
+        self.mock_author_repository.reset_mock()
+        self.mock_book_category_repository.reset_mock()
+        self.mock_book_producer.reset_mock()
+        self.mock_author_producer.reset_mock()

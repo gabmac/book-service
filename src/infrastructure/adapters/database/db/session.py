@@ -46,8 +46,8 @@ class DatabaseSettings:
     @classmethod
     def _create_engine(cls) -> Engine:
         if cls.engine is None:
-            cls.engine = create_engine(cls.get_db_url(), echo=True)
-            cls.engine_slave = create_engine(cls.get_db_url_slave(), echo=True)
+            cls.engine = create_engine(cls.get_db_url(), echo=False)
+            cls.engine_slave = create_engine(cls.get_db_url_slave(), echo=False)
         return cls.engine
 
     @classmethod
