@@ -24,22 +24,13 @@ class UpsertBookProduce:
     async def execute(self, payload: Book) -> Book:
         authors = self._validate_authors_exist(payload.author_ids)  # type: ignore
         book_categories = self._validate_book_categories_exist(payload.category_ids)  # type: ignore
-        book = Book(
-            id=payload.id,
-            isbn_code=payload.isbn_code,
-            editor=payload.editor,
-            edition=payload.edition,
-            type=payload.type,
-            publish_date=payload.publish_date,
-            book_data=payload.book_data,
-            authors=authors,
-            book_categories=book_categories,
-            created_by=payload.created_by,
-            updated_by=payload.updated_by,
-        )
-        self.producer.upsert_book(book)
+        payload.author_ids = None
+        payload.category_ids = None
+        payload.authors = authors
+        payload.book_categories = book_categories
+        self.producer.upsert_book(payload)
 
-        return book
+        return payload
 
     def _validate_authors_exist(self, author_ids: List[UUID]) -> List[Author]:
         authors = self.author_repository.get_authors_by_ids(author_ids)

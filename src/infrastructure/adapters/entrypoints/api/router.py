@@ -215,6 +215,8 @@ class Initializer:
         self.upsert_physical_exemplar_use_case = UpsertPhysicalExemplarProduce(
             physical_exemplar_producer=self.physical_exemplar_producer,
             repository=self.physical_exemplar_repository,
+            book_repository=book_repository,
+            branch_repository=self.branch_repository,
         )
         self.publish_create_physical_exemplar_view = PublishCreatePhysicalExemplarView(
             self.upsert_physical_exemplar_use_case,

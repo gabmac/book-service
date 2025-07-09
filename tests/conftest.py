@@ -5,7 +5,7 @@ from polyfactory.factories.pydantic_factory import ModelFactory
 from sqlmodel import text
 
 from src.domain.entities.author import Author
-from src.domain.entities.book import Book
+from src.domain.entities.book import Book, BookFilter
 from src.domain.entities.book_category import BookCategory
 from src.domain.entities.book_data import BookData
 from src.domain.entities.branch import Branch
@@ -46,12 +46,17 @@ class PhysicalExemplarModelFactory(ModelFactory):
     __model__ = PhysicalExemplar
 
 
+class BookFilterModelFactory(ModelFactory):
+    __model__ = BookFilter
+
+
 class BaseConfTest(IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.maxDiff = None
         cls.addClassCleanup(patch.stopall)
         cls.book_model_factory = BookModelFactory
+        cls.book_filter_model_factory = BookFilterModelFactory
         cls.author_model_factory = AuthorModelFactory
         cls.branch_model_factory = BranchModelFactory
         cls.book_category_model_factory = BookCategoryModelFactory
@@ -103,4 +108,19 @@ class BaseProducerConfTest(BaseConfTest):
 
 
 class BaseUseCaseConfTest(BaseConfTest):
-    pass
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        # Mock the repository dependencies
+        cls.mock_book_repository = Mock()
+        cls.mock_author_repository = Mock()
+        cls.mock_book_category_repository = Mock()
+
+        # Mock the producer dependencies
+        cls.mock_book_producer = Mock()
+
+        # Reset mocks for each test
+        cls.mock_book_repository.reset_mock()
+        cls.mock_author_repository.reset_mock()
+        cls.mock_book_category_repository.reset_mock()
+        cls.mock_book_producer.reset_mock()
