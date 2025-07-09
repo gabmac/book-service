@@ -6,9 +6,6 @@ from typing import AsyncGenerator
 from fastapi import (
     APIRouter,
     FastAPI,
-    HTTPException,
-    Request,
-    status,
 )
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -34,7 +31,6 @@ from src.infrastructure.settings.config import (
     SlaveDatabaseConfig,
     SystemConfig,
 )
-from src.infrastructure.settings.environments import Environments
 
 
 class AppConfig:
@@ -72,11 +68,6 @@ class AppConfig:
             lifespan=lifespan,
         )
 
-        self.app.add_exception_handler(
-            exc_class_or_status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            handler=self.exception_handler,  # type: ignore[arg-type]
-        )
-
     def init_cors(self) -> None:
         """Initialize CORS"""
         self.app.add_middleware(
@@ -86,16 +77,6 @@ class AppConfig:
             allow_methods=["*"],
             allow_headers=["*"],
         )
-
-    @staticmethod
-    # pylint: disable=unused-argument
-    async def exception_handler(request: Request, exc: Exception) -> None:
-        # pylint: enable=unused-argument
-        if SystemConfig().environment != Environments.LOCAL.value:
-            raise HTTPException(
-                detail="Something fail",
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
 
     def init_context(self) -> None:
         self.app.add_middleware(

@@ -48,3 +48,23 @@ class TestUpdateAuthor(AuthorViewConfTest):
         )
 
         self.assertEqual(response_body.message, "Task is processing")
+
+    def test_update_author_not_found(self):
+        # Scenario: Update a non-existent author
+
+        # Given a non-existent author
+        non_existent_id = "550e8400-e29b-41d4-a716-446655440000"
+
+        # When a request is made to update the non-existent author
+        update_body = self.author_upsert_model_factory.build(
+            name="Updated Author Name",
+        )
+        response = self.client.put(
+            f"api/author/{non_existent_id}",
+            json=update_body.model_dump(),
+        )
+
+        # Then the response is a 404 status code
+        self.assertEqual(response.status_code, 404)
+        response_data = response.json()
+        self.assertIn("detail", response_data)

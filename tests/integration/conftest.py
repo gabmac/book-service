@@ -4,6 +4,7 @@ from tests.conftest import BaseConfTest
 
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
+from src.infrastructure.adapters.database.repository.book import BookRepository
 from src.infrastructure.adapters.database.repository.book_category import (
     BookCategoryRepository,
 )
@@ -41,6 +42,7 @@ class BaseViewConfTest(BaseConfTest):
         )
         cls.db._pg_trgm_install()
         cls.author_repository = AuthorRepository(db=cls.db)  # type: ignore
+        cls.book_repository = BookRepository(db=cls.db)  # type: ignore
         cls.branch_repository = BranchRepository(db=cls.db)  # type: ignore
         cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
 

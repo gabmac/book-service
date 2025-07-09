@@ -36,8 +36,10 @@ class PublishUpdateBookView(BookBasicRouter):
             )
 
     async def _call_use_case(self, payload: BookDto, id: UUID) -> ProcessingBook:
+        user = payload.user
         try:
-            self.validate_book.execute(id)
+            old_book = self.validate_book.execute(id)
+            user = old_book.created_by
         except NotFoundException as e:
             raise HTTPException(status_code=404, detail=e.message)
 
@@ -61,8 +63,8 @@ class PublishUpdateBookView(BookBasicRouter):
             author_ids=payload.author_ids,
             category_ids=payload.category_ids,
             book_data=book_data,
-            created_by=payload.user,
             updated_by=payload.user,
+            created_by=user,
         )
         try:
             book = await self.use_case.execute(book)  # type: ignore

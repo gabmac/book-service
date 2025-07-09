@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
 
@@ -65,6 +65,10 @@ class BookResponse(BaseDto):
         default=None,
         description="Book data",
     )
+    created_at: datetime = Field(description="Book created at")
+    updated_at: datetime = Field(description="Book updated at")
+    created_by: str = Field(description="Book created by")
+    updated_by: str = Field(description="Book updated by")
 
 
 class ProcessingBook(ProcessingResponse):

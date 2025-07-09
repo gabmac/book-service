@@ -6,6 +6,7 @@ from sqlmodel import text
 
 from src.application.dto.author import AuthorUpsert
 from src.application.dto.book_category import BookCategoryUpsert
+from src.application.dto.book_dto import Book as BookDto
 from src.application.dto.branch import BranchUpsert
 from src.domain.entities.author import Author
 from src.domain.entities.book import Book, BookFilter
@@ -53,6 +54,10 @@ class BookFilterModelFactory(ModelFactory):
     __model__ = BookFilter
 
 
+class BookDtoModelFactory(ModelFactory):
+    __model__ = BookDto
+
+
 class AuthorUpsertModelFactory(ModelFactory):
     __model__ = AuthorUpsert
 
@@ -71,6 +76,7 @@ class BaseConfTest(IsolatedAsyncioTestCase):
         cls.maxDiff = None
         cls.addClassCleanup(patch.stopall)
         cls.book_model_factory = BookModelFactory
+        cls.book_dto_model_factory = BookDtoModelFactory
         cls.book_filter_model_factory = BookFilterModelFactory
         cls.author_model_factory = AuthorModelFactory
         cls.author_upsert_model_factory = AuthorUpsertModelFactory

@@ -31,8 +31,8 @@ class GetBookView(BookBasicRouter):
             )
 
     def _call_use_case(self, id: UUID) -> BookResponse:
-        book = self.use_case.execute(id)  # type: ignore
         try:
+            book = self.use_case.execute(id)  # type: ignore
             return BookResponse.model_validate(book)
         except NotFoundException as e:
             raise HTTPException(status_code=404, detail=e.message)
