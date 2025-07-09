@@ -100,6 +100,7 @@ class BookRepository(BookRepositoryPort):
 
             session.exec(delete(AuthorBookLinkModel).where(AuthorBookLinkModel.book_id == book.id))  # type: ignore
             session.exec(delete(BookDataModel).where(BookDataModel.book_id == book.id))  # type: ignore
+            session.exec(delete(BookCategoryBookLinkModel).where(BookCategoryBookLinkModel.book_id == book.id))  # type: ignore
             session.flush()
             session.add_all(author_link_models)
             session.add_all(book_category_link_models)
@@ -123,22 +124,22 @@ class BookRepository(BookRepositoryPort):
             statement = select(BookModel)
             if filter:
                 if filter.isbn_code:
-                    statement.where(BookModel.isbn_code == filter.isbn_code)
+                    statement = statement.where(BookModel.isbn_code == filter.isbn_code)
                 if filter.editor:
-                    statement.where(BookModel.editor == filter.editor)
+                    statement = statement.where(BookModel.editor == filter.editor)
                 if filter.edition:
-                    statement.where(BookModel.edition == filter.edition)
+                    statement = statement.where(BookModel.edition == filter.edition)
                 if filter.type:
-                    statement.where(BookModel.type == filter.type)
+                    statement = statement.where(BookModel.type == filter.type)
                 if filter.publish_date:
-                    statement.where(
+                    statement = statement.where(
                         and_(  # type: ignore
                             BookModel.publish_date <= filter.publish_date,
                             BookModel.publish_date >= filter.publish_date,
                         ),
                     )
                 if filter.author_name:
-                    statement.where(
+                    statement = statement.where(
                         and_(
                             BookModel.authors.any(  # type: ignore
                                 AuthorModel.name.ilike(f"%{filter.author_name}%"),  # type: ignore
@@ -146,7 +147,7 @@ class BookRepository(BookRepositoryPort):
                         ),
                     )
                 if filter.book_category_name:
-                    statement.where(
+                    statement = statement.where(
                         func.similarity(
                             BookCategoryModel.title,
                             filter.book_category_name,

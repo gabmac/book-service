@@ -2,10 +2,12 @@ from unittest import IsolatedAsyncioTestCase
 from unittest.mock import patch
 
 from polyfactory.factories.pydantic_factory import ModelFactory
+from sqlmodel import text
 
 from src.domain.entities.author import Author
 from src.domain.entities.book import Book
 from src.domain.entities.book_category import BookCategory
+from src.domain.entities.book_data import BookData
 from src.domain.entities.branch import Branch
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
@@ -32,14 +34,20 @@ class BookCategoryModelFactory(ModelFactory):
     __model__ = BookCategory
 
 
+class BookDataModelFactory(ModelFactory):
+    __model__ = BookData
+
+
 class BaseConfTest(IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        cls.maxDiff = None
         cls.addClassCleanup(patch.stopall)
         cls.book_model_factory = BookModelFactory
         cls.author_model_factory = AuthorModelFactory
         cls.branch_model_factory = BranchModelFactory
         cls.book_category_model_factory = BookCategoryModelFactory
+        cls.book_data_model_factory = BookDataModelFactory
 
         super().setUpClass()
 
@@ -62,6 +70,18 @@ class BaseRepositoryConfTest(BaseConfTest):
         cls.author_repository = AuthorRepository(db=cls.db)
         cls.branch_repository = BranchRepository(db=cls.db)
         cls.book_category_repository = BookCategoryRepository(db=cls.db)
+
+    def tearDown(self):
+        super().tearDown()
+        with self.db.get_session() as session:
+            session.exec(text("DELETE FROM author_book_link"))  # type: ignore
+            session.exec(text("DELETE FROM author"))  # type: ignore
+            session.exec(text("DELETE FROM branch"))  # type: ignore
+            session.exec(text("DELETE FROM book_book_category_link"))  # type: ignore
+            session.exec(text("DELETE FROM book_category"))  # type: ignore
+            session.exec(text("DELETE FROM book_data"))  # type: ignore
+            session.exec(text("DELETE FROM book"))  # type: ignore
+            session.commit()
 
 
 class BaseUseCaseConfTest(BaseConfTest):
