@@ -21,7 +21,7 @@ class GetBookView(BookBasicRouter):
         if self.router is not None:
             self.router.add_api_route(
                 "/{id}",
-                self.use_case.execute,  # type: ignore
+                self._call_use_case,  # type: ignore
                 status_code=status.HTTP_200_OK,
                 response_model=BookResponse,
                 response_model_exclude_unset=True,
