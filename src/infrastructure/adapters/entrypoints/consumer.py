@@ -180,7 +180,7 @@ class Consumer:
         queue_name = "book-service-queue"
 
         # Try to get one message from the queue
-        for method, _, body in cls.channel.consume(
+        for method, properties, body in cls.channel.consume(  # type: ignore
             queue=queue_name,
             auto_ack=True,
             inactivity_timeout=1,
