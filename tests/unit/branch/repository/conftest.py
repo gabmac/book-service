@@ -4,8 +4,8 @@ from tests.unit.branch.conftest import BaseBranchConfTest
 
 
 class BranchRepositoryConftest(BaseBranchConfTest, BaseRepositoryConfTest):
-    def setUp(self):
-        super().setUp()
+    def tearDown(self):
+        super().tearDown()
         with self.db.get_session() as session:
             session.exec(text("DELETE FROM branch"))  # type: ignore
             session.commit()

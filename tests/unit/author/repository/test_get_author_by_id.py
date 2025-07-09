@@ -7,7 +7,7 @@ from src.application.exceptions import NotFoundException
 
 class TestGetAuthorById(AuthorRepositoryConftest):
 
-    async def test_get_existing_author(self):
+    def test_get_existing_author(self):
         # Arrange - Create and save an author first
         author = self.author_model_factory.build()
         self.author_repository.upsert_author(author=author)
@@ -18,7 +18,7 @@ class TestGetAuthorById(AuthorRepositoryConftest):
         # Assert - Verify the author is returned correctly
         self.assertEqual(result, author)
 
-    async def test_get_non_existent_author(self):
+    def test_get_non_existent_author(self):
         # Arrange - Generate a random UUID that doesn't exist
         non_existent_id = uuid4()
 

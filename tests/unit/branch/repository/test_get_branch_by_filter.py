@@ -5,7 +5,7 @@ from src.domain.entities.branch import BranchFilter
 
 class TestGetBranchByFilter(BranchRepositoryConftest):
 
-    async def test_filter_by_name_found(self):
+    def test_filter_by_name_found(self):
         # Arrange - Create and save branches with different names
         branch1 = self.branch_model_factory.build(name="Main Branch")
         branch2 = self.branch_model_factory.build(name="Secondary Branch")
@@ -25,7 +25,7 @@ class TestGetBranchByFilter(BranchRepositoryConftest):
             [branch1, branch3].sort(key=lambda x: x.name),
         )
 
-    async def test_filter_by_name_not_found(self):
+    def test_filter_by_name_not_found(self):
         # Arrange - Create and save branches with different names
         branch1 = self.branch_model_factory.build(name="Main Branch")
         branch2 = self.branch_model_factory.build(name="Secondary Branch")
@@ -40,7 +40,7 @@ class TestGetBranchByFilter(BranchRepositoryConftest):
         # Assert - Should return empty list
         self.assertEqual(results, [])
 
-    async def test_no_filter_name_returns_all(self):
+    def test_no_filter_name_returns_all(self):
         # Arrange - Create and save multiple branches
         branch1 = self.branch_model_factory.build()
         branch2 = self.branch_model_factory.build()

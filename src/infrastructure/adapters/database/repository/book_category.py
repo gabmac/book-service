@@ -36,14 +36,17 @@ class BookCategoryRepository(BookCategoryRepositoryPort):
 
     def delete_book_category(self, id: UUID) -> None:
         with self.db.get_session() as session:
-            session.delete(id)
-            session.commit()
+            statement = select(BookCategoryModel).where(BookCategoryModel.id == id)
+            result = session.exec(statement).one_or_none()
+            if result:
+                session.delete(result)
+                session.commit()
 
     def get_book_category_by_id(self, id: UUID) -> BookCategory:
         with self.db.get_session(slave=True) as session:
             try:
                 book_category_model = session.exec(
-                    select(BookCategoryModel).where(BookCategory.id == id),
+                    select(BookCategoryModel).where(BookCategoryModel.id == id),
                 ).one()
             except NoResultFound:
                 raise NotFoundException("Book category not found")
@@ -67,11 +70,15 @@ class BookCategoryRepository(BookCategoryRepositoryPort):
             statement = select(BookCategoryModel)
             if filter.title:
                 statement = statement.where(
-                    func.similarity(BookCategoryModel.title, filter.title) > 0.2,
+                    func.similarity(BookCategoryModel.title, filter.title.lower())
+                    > 0.2,
                 )
             if filter.description:
+                string_statement = (
+                    "%" + "%".join(filter.description.lower().strip().split(" ")) + "%"
+                )
                 statement = statement.where(
-                    BookCategoryModel.description == filter.description,
+                    BookCategoryModel.description.ilike(string_statement),  # type: ignore
                 )
             return [
                 BookCategory.model_validate(book_category_model)

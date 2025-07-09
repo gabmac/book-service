@@ -33,10 +33,10 @@ run-application:
 setup-dev-environment:
 	poetry install
 
-alembic-upgrade:
-	poetry run alembic upgrade head
+alembic-generate:
+	poetry run alembic revision --autogenerate
 
 alembic-migrate:
 	poetry run alembic upgrade head
 
-build-run-application: build-application run-application alembic-upgrade
+build-run-application: build-application run-application

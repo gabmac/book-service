@@ -3,14 +3,14 @@ from tests.unit.author.repository.conftest import AuthorRepositoryConftest
 
 class TestUpsertAuthor(AuthorRepositoryConftest):
 
-    async def test_new_author(self):
+    def test_new_author(self):
         author = self.author_model_factory.build()
         self.assertEqual(
             self.author_repository.upsert_author(author=author),
             author,
         )
 
-    async def test_update_author(self):
+    def test_update_author(self):
         author = self.author_model_factory.build()
         self.author_repository.upsert_author(author=author)
         author.name = "Updated Author"

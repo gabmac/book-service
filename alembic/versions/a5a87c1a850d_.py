@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 28ad4b3e8ac4
+Revision ID: a5a87c1a850d
 Revises:
-Create Date: 2025-07-07 19:54:48.901523
+Create Date: 2025-07-08 22:10:30.694053
 
 """
 
@@ -10,10 +10,10 @@ from typing import Sequence, Union
 
 import sqlalchemy as sa
 from alembic import op
-from sqlmodel.sql.sqltypes import AutoString
+from sqlmodel import AutoString
 
 # revision identifiers, used by Alembic.
-revision: str = "28ad4b3e8ac4"
+revision: str = "a5a87c1a850d"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -65,7 +65,7 @@ def upgrade() -> None:
         op.f("ix_book_category_title"),
         "book_category",
         ["title"],
-        unique=False,
+        unique=True,
     )
     op.create_table(
         "branch",
@@ -135,28 +135,28 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["book_id"], ["book.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
+    op.create_index(op.f("ix_book_data_title"), "book_data", ["title"], unique=False)
     op.execute(
         """
-    CREATE TABLE physical_exemplar (
-    id UUID NOT NULL,
-    branch_id UUID NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL,
-    created_by TEXT NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
-    updated_by TEXT NOT NULL,
-    available BOOLEAN NOT NULL,
-    room INTEGER NOT NULL,
-    floor INTEGER NOT NULL,
-    bookshelf INTEGER NOT NULL,
-    book_id UUID,
+            CREATE TABLE physical_exemplar (
+            id UUID NOT NULL,
+            branch_id UUID NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL,
+            created_by TEXT NOT NULL,
+            updated_at TIMESTAMPTZ NOT NULL,
+            updated_by TEXT NOT NULL,
+            available BOOLEAN NOT NULL,
+            room INTEGER NOT NULL,
+            floor INTEGER NOT NULL,
+            bookshelf INTEGER NOT NULL,
+            book_id UUID,
 
-    PRIMARY KEY (id, branch_id),
-    CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES book(id),
-    CONSTRAINT fk_branch FOREIGN KEY (branch_id) REFERENCES branch(id)
-) PARTITION BY LIST (branch_id);
-""",
+            PRIMARY KEY (id, branch_id),
+            CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES book(id),
+            CONSTRAINT fk_branch FOREIGN KEY (branch_id) REFERENCES branch(id)
+        ) PARTITION BY LIST (branch_id);
+        """,
     )
-    op.create_index(op.f("ix_book_data_title"), "book_data", ["title"], unique=False)
     op.create_index(
         op.f("ix_physical_exemplar_book_id"),
         "physical_exemplar",
@@ -169,7 +169,6 @@ def upgrade() -> None:
         ["branch_id"],
         unique=False,
     )
-
     # ### end Alembic commands ###
 
 
@@ -184,7 +183,7 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_book_data_title"), table_name="book_data")
     op.drop_table("book_data")
     op.drop_index(
-        op.f("ix_book_book_category_link_book_categorfy_id"),
+        op.f("ix_book_book_category_link_book_category_id"),
         table_name="book_book_category_link",
     )
     op.drop_table("book_book_category_link")

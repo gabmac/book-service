@@ -5,7 +5,7 @@ from src.domain.entities.author import AuthorFilter
 
 class TestGetAuthorByFilter(AuthorRepositoryConftest):
 
-    async def test_filter_by_name_found(self):
+    def test_filter_by_name_found(self):
         # Arrange - Create and save authors with different names
         author1 = self.author_model_factory.build(name="John Doe")
         author2 = self.author_model_factory.build(name="Jane Smith")
@@ -24,7 +24,7 @@ class TestGetAuthorByFilter(AuthorRepositoryConftest):
             [author1, author3].sort(key=lambda x: x.name),
         )
 
-    async def test_filter_by_name_not_found(self):
+    def test_filter_by_name_not_found(self):
         # Arrange - Create and save authors with different names
         author1 = self.author_model_factory.build(name="John Doe")
         author2 = self.author_model_factory.build(name="Jane Smith")
@@ -39,7 +39,7 @@ class TestGetAuthorByFilter(AuthorRepositoryConftest):
         # Assert - Should return empty list
         self.assertEqual(results, [])
 
-    async def test_no_filter_returns_all(self):
+    def test_no_filter_returns_all(self):
         # Arrange - Create and save multiple authors
         author1 = self.author_model_factory.build()
         author2 = self.author_model_factory.build()
@@ -55,7 +55,7 @@ class TestGetAuthorByFilter(AuthorRepositoryConftest):
         # Assert - Should return all authors
         self.assertGreaterEqual(len(results), 3)
 
-    async def test_empty_filter_returns_all(self):
+    def test_empty_filter_returns_all(self):
         # Arrange - Create and save multiple authors
         author1 = self.author_model_factory.build()
         author2 = self.author_model_factory.build()

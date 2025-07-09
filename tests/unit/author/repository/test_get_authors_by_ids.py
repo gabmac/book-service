@@ -6,7 +6,7 @@ from tests.unit.author.repository.conftest import AuthorRepositoryConftest
 
 class TestGetAuthorsByIds(AuthorRepositoryConftest):
 
-    async def test_get_multiple_existing_authors(self):
+    def test_get_multiple_existing_authors(self):
         # Arrange - Create and save multiple authors
         author1 = self.author_model_factory.build()
         author2 = self.author_model_factory.build()
@@ -26,7 +26,7 @@ class TestGetAuthorsByIds(AuthorRepositoryConftest):
             [author1, author2, author3].sort(key=lambda x: x.id),
         )
 
-    async def test_get_partial_existing_authors(self):
+    def test_get_partial_existing_authors(self):
         # Arrange - Create and save some authors
         author1 = self.author_model_factory.build()
         author2 = self.author_model_factory.build()
@@ -46,7 +46,7 @@ class TestGetAuthorsByIds(AuthorRepositoryConftest):
             [author1, author2].sort(key=lambda x: x.id),
         )
 
-    async def test_get_no_existing_authors(self):
+    def test_get_no_existing_authors(self):
         # Arrange - Generate non-existent IDs
         non_existent_ids = [uuid4()]
 
@@ -56,7 +56,7 @@ class TestGetAuthorsByIds(AuthorRepositoryConftest):
         # Assert - Should return empty list
         self.assertEqual(results, [])
 
-    async def test_get_empty_ids_list(self):
+    def test_get_empty_ids_list(self):
         # Arrange - Empty list of IDs
         empty_ids: List = []
 
