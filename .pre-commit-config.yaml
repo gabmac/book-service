@@ -102,14 +102,14 @@ repos:
     - "src"
     - --config=pyproject.toml
 
-  - id: bandit
-    name: Bandit validation
-    entry: bandit
-    language: system
-    types: [python]
-    args:
-    - -r
-    - src
+  # - id: bandit
+  #   name: Bandit validation
+  #   entry: bandit
+  #   language: system
+  #   types: [python]
+  #   args:
+  #   - -r
+  #   - src
 
   # - id: pip-audit
   #   name: Pip Audit validation

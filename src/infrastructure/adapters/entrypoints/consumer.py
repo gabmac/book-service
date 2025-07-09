@@ -40,7 +40,9 @@ from src.infrastructure.settings.config import (
     LogstashConfig,
     ProducerConfig,
     SlaveDatabaseConfig,
+    SystemConfig,
 )
+from src.infrastructure.settings.environments import Environments
 
 db_config = DatabaseConfig()
 slave_db_config = SlaveDatabaseConfig()
@@ -96,7 +98,7 @@ class Consumer:
     channel: BlockingChannel
     reload: bool = False
 
-    def __new__(cls, config: ProducerConfig, logstash_config: LogstashConfig):  # type: ignore
+    def __new__(cls, config: ProducerConfig, logstash_config: LogstashConfig, system_config: SystemConfig):  # type: ignore
         cls.logger = logging.getLogger(logstash_config.loggername)
 
         # pylint: disable=unused-argument
@@ -123,6 +125,7 @@ class Consumer:
                 ch.basic_ack(delivery_tag=method.delivery_tag)
             except Exception as e:
                 cls.logger.error(f"Error processing message: {e}")
+                cls.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
                 raise e
 
         # pylint: enable=unused-argument
@@ -151,12 +154,12 @@ class Consumer:
                     queue=queue_name,
                     routing_key=queue,
                 )
-
-            cls.channel.basic_consume(
-                queue=queue_name,
-                on_message_callback=callback,
-                auto_ack=False,
-            )
+            if system_config.environment != Environments.TEST:
+                cls.channel.basic_consume(
+                    queue=queue_name,
+                    on_message_callback=callback,
+                    auto_ack=False,
+                )
             cls.reload = False
             cls._instance = cls
         return cls._instance
@@ -164,3 +167,43 @@ class Consumer:
     @classmethod
     def start_consuming(cls) -> None:
         cls.channel.start_consuming()
+
+    @classmethod
+    def stop_consuming(cls) -> None:
+        cls.channel.stop_consuming()
+
+    @classmethod
+    def consume(cls, routing_key: str) -> None:
+        """
+        Consume messages with a specific routing key from the main queue for testing.
+        """
+        queue_name = "book-service-queue"
+
+        # Try to get one message from the queue
+        for method, _, body in cls.channel.consume(
+            queue=queue_name,
+            auto_ack=True,
+            inactivity_timeout=1,
+        ):
+            if method is None:
+                cls.channel.queue_purge(queue=queue_name)
+                cls.channel.cancel()
+                return
+
+            # Check if this message has the routing key we're looking for
+            if method.routing_key == routing_key:
+                dict_str = body.decode("UTF-8")
+                dict_json = json.loads(dict_str)
+                message_body = Message.model_validate(dict_json)
+
+                try:
+                    entity = callables[routing_key]["entity"].model_validate(  # type: ignore
+                        json.loads(message_body.message),
+                    )
+                    callables[routing_key]["usecase"].execute(entity)  # type: ignore
+                except Exception as e:
+                    cls.logger.error(f"Error processing message: {e}")
+                    raise e
+            else:
+                # This message is not for us, requeue it
+                cls.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)

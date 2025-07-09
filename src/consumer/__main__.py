@@ -2,7 +2,11 @@ import time
 
 from src.infrastructure.adapters.entrypoints.consumer import Consumer
 from src.infrastructure.logs.logstash import LogStash
-from src.infrastructure.settings.config import LogstashConfig, ProducerConfig
+from src.infrastructure.settings.config import (
+    LogstashConfig,
+    ProducerConfig,
+    SystemConfig,
+)
 
 if __name__ == "__main__":
     logstash_config = LogstashConfig()
@@ -19,6 +23,7 @@ if __name__ == "__main__":
             consumer = Consumer(
                 config=ProducerConfig(),
                 logstash_config=logstash_config,
+                system_config=SystemConfig(),
             )
             break
         except Exception:

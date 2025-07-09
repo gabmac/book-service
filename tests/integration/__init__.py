@@ -1,1 +1,23 @@
 # Integration tests package
+import os
+
+os.environ["SYSTEM_ENVIRONMENT"] = "local"
+os.environ["SYSTEM_HOST"] = "0.0.0.0"
+os.environ["SYSTEM_PORT"] = "9000"
+os.environ["DATABASE_HOST"] = "localhost"
+os.environ["DATABASE_PORT"] = "5432"
+os.environ["DATABASE_SLAVE_HOST"] = "localhost"
+os.environ["DATABASE_SLAVE_PORT"] = "5433"
+os.environ["DATABASE_USER"] = "postgres"
+os.environ["DATABASE_PASSWORD"] = "123456"
+os.environ["DATABASE_NAME"] = "book"
+os.environ["LOGSTASH_HOST"] = "localhost"
+os.environ["LOGSTASH_PORT"] = "5000"
+os.environ["PRODUCER_LOCALHOST"] = "localhost"
+os.environ["PRODUCER_USER"] = "kalo"
+os.environ["PRODUCER_PASSWORD"] = "kalo"
+os.environ["CONSUMER_LOCALHOST"] = "localhost"
+os.environ["CONSUMER_USER"] = "kalo"
+os.environ["CONSUMER_PASSWORD"] = "kalo"
+os.environ["SYSTEM_EXECUTOR"] = "api"
+os.environ["SYSTEM_ENVIRONMENT"] = "test"
