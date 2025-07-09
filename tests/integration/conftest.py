@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from sqlalchemy import text
 from tests.conftest import BaseConfTest
 
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
@@ -46,6 +47,19 @@ class BaseViewConfTest(BaseConfTest):
     def tearDownClass(cls):
         super().tearDownClass()
         cls.consumer.stop_consuming()
+
+    def tearDown(self):
+        super().tearDown()
+        with self.db.get_session() as session:
+            session.exec(text("DELETE FROM author_book_link"))  # type: ignore
+            session.exec(text("DELETE FROM author"))  # type: ignore
+            session.exec(text("DELETE FROM physical_exemplar"))  # type: ignore
+            session.exec(text("DELETE FROM branch"))  # type: ignore
+            session.exec(text("DELETE FROM book_book_category_link"))  # type: ignore
+            session.exec(text("DELETE FROM book_category"))  # type: ignore
+            session.exec(text("DELETE FROM book_data"))  # type: ignore
+            session.exec(text("DELETE FROM book"))  # type: ignore
+            session.commit()
 
     @property
     def client(self) -> TestClient:
