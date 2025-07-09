@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from pydantic import Field
@@ -11,11 +11,11 @@ class BranchResponse(BaseDto):
     name: str = Field(description="Branch name")
     created_at: datetime = Field(
         description="Branch creation date",
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(timezone.utc),
     )
     updated_at: datetime = Field(
         description="Branch update date",
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(timezone.utc),
     )
     created_by: str = Field(description="Branch creator")
     updated_by: str = Field(description="Branch updater")

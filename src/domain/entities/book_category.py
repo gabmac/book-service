@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from pydantic import Field
@@ -17,11 +17,11 @@ class BookCategory(BaseEntity):
     updated_by: str = Field(description="Book category updater")
     created_at: datetime = Field(
         description="Book category creation date",
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(timezone.utc),
     )
     updated_at: datetime = Field(
         description="Book category update date",
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(timezone.utc),
     )
 
 

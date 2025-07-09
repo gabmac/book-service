@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pika import BlockingConnection, ConnectionParameters
 from pika.adapters.blocking_connection import BlockingChannel
@@ -36,7 +36,7 @@ class Producer:
     @classmethod
     def publish(cls, message: Message) -> None:
         document = {
-            "@timestamp": datetime.utcnow().isoformat(),
+            "@timestamp": datetime.now(timezone.utc).isoformat(),
             "@queue_name": message.queue_name,
             "@message": message.message,
             "@exchange": "book-service-exchange",
@@ -51,7 +51,10 @@ class Producer:
         )
         cls.logger.info(
             json.dumps(
-                {"@producer_in": True, "@timestamp": datetime.utcnow().isoformat()},
+                {
+                    "@producer_in": True,
+                    "@timestamp": datetime.now(timezone.utc).isoformat(),
+                },
             ),
         )
 

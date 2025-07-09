@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID, uuid4
 
@@ -13,11 +13,11 @@ class Author(BaseEntity):
     id: UUID = Field(description="Author ID", default_factory=uuid4)
     name: str = Field(description="Author name")
     created_at: datetime = Field(
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="Book creation date",
     )
     updated_at: datetime = Field(
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="Book update date",
     )
     created_by: str = Field(description="Book creator ID")

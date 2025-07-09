@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pika import BlockingConnection, ConnectionParameters
 from pika.adapters.blocking_connection import BlockingChannel
@@ -107,7 +107,7 @@ class Consumer:
                 json.dumps(
                     {
                         "consumer_in": True,
-                        "@timestamp": datetime.utcnow().isoformat(),
+                        "@timestamp": datetime.now(timezone.utc).isoformat(),
                         "routing_key": method.routing_key,
                         "exchange": "book-service-exchange",
                         "body": dict_json,

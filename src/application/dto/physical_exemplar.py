@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from pydantic import Field
@@ -24,11 +24,11 @@ class PhysicalExemplarResponse(BaseDto):
     branch_id: UUID = Field(description="Branch id")
     created_at: datetime = Field(
         description="Physical exemplar creation date",
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(timezone.utc),
     )
     updated_at: datetime = Field(
         description="Physical exemplar update date",
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(timezone.utc),
     )
     created_by: str = Field(description="Physical exemplar creator")
     updated_by: str = Field(description="Physical exemplar updater")

@@ -50,8 +50,9 @@ class PhysicalExemplarRepository(PhysicalExemplarRepositoryPort):
                         "id",
                         "created_at",
                         "created_by",
-                        "book-id",
                         "branch-id",
+                        "book-id",
+                        "book-id",
                         "branch",
                         "book",
                     ]:  # Preserve creation metadata

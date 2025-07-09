@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from pydantic import Field
@@ -13,11 +13,11 @@ class BookData(BaseEntity):
     language: str = Field(description="Book language")
     created_at: datetime = Field(
         description="Book data creation date",
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(timezone.utc),
     )
     updated_at: datetime = Field(
         description="Book data update date",
-        default_factory=datetime.now,
+        default_factory=lambda: datetime.now(timezone.utc),
     )
     created_by: str = Field(description="Book data creator")
     updated_by: str = Field(description="Book data updater")

@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable
 
 from fastapi import Request, Response
@@ -53,7 +53,7 @@ class RequestContextLogMiddleware(BaseHTTPMiddleware):
             body = str(request_body.decode())
 
         document = {
-            "@timestamp": datetime.utcnow().isoformat(),
+            "@timestamp": datetime.now(timezone.utc).isoformat(),
             "method": str(request.method),
             "url": str(request.url),
             "headers": str(dict(request.headers)),

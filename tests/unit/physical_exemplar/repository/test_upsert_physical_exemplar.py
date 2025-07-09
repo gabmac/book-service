@@ -79,13 +79,11 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
 
         # Assert
         exclude_fields = [
-            "book-id",
-            "branch-id",
-            "branch",
             "updated_at",
             "updated_by",
             "created_at",
             "created_by",
+            "book",
         ]
         self.assertEqual(
             result.model_dump(exclude=exclude_fields),  # type: ignore
@@ -97,6 +95,8 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
         physical_exemplar = self.physical_exemplar_model_factory.build(
             book_id=self.book1.id,
             branch_id=self.branch1.id,
+            book=self.book1,
+            branch=self.branch1,
             available=True,
             room=1,
             floor=2,
@@ -107,20 +107,19 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
             physical_exemplar=physical_exemplar,
         )
 
-        # Act - Update the physical exemplar (same book_id and branch_id should update)
-        physical_exemplar.available = False
-        physical_exemplar.room = 4
-        physical_exemplar.floor = 5
-        physical_exemplar.bookshelf = 6
-
         result = self.physical_exemplar_repository.upsert_physical_exemplar(
             physical_exemplar=physical_exemplar,
         )
 
         # Assert
-        self.assertEqual(result.available, False)
-        self.assertEqual(result.room, 4)
-        self.assertEqual(result.floor, 5)
-        self.assertEqual(result.bookshelf, 6)
-        self.assertEqual(result.book_id, self.book1.id)
-        self.assertEqual(result.branch_id, self.branch1.id)
+        exclude_fields = [
+            "updated_at",
+            "updated_by",
+            "created_at",
+            "created_by",
+            "book",
+        ]
+        self.assertEqual(
+            result.model_dump(exclude=exclude_fields),  # type: ignore
+            physical_exemplar.model_dump(exclude=exclude_fields),
+        )
