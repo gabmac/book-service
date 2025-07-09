@@ -61,7 +61,7 @@ class TestUpsertBook(BookRepositoryConftest):
             sorted(
                 (
                     book_data.model_dump(exclude=exclude_book_data)
-                    for book_data in result.book_data
+                    for book_data in result.book_data  # type: ignore
                 ),
                 key=lambda x: x["id"],
             ),  # type: ignore
@@ -121,14 +121,14 @@ class TestUpsertBook(BookRepositoryConftest):
             sorted(
                 (
                     book_data.model_dump(exclude=exclude_book_data)
-                    for book_data in result.book_data
+                    for book_data in result.book_data  # type: ignore
                 ),
                 key=lambda x: x["id"],
             ),  # type: ignore
             sorted(
                 (
                     book_data.model_dump(exclude=exclude_book_data)
-                    for book_data in book.book_data
+                    for book_data in book.book_data  # type: ignore
                 ),
                 key=lambda x: x["id"],
             ),  # type: ignore

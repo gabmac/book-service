@@ -88,7 +88,7 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
             "created_by",
         ]
         self.assertEqual(
-            result.model_dump(exclude=exclude_fields),
+            result.model_dump(exclude=exclude_fields),  # type: ignore
             physical_exemplar.model_dump(exclude=exclude_fields),
         )
 

@@ -1,5 +1,5 @@
 from unittest import IsolatedAsyncioTestCase
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from polyfactory.factories.pydantic_factory import ModelFactory
 from sqlmodel import text
@@ -75,11 +75,11 @@ class BaseRepositoryConfTest(BaseConfTest):
         )
         # cls.db.init_db()
         cls.db._pg_trgm_install()
-        cls.book_repository = BookRepository(db=cls.db)
-        cls.author_repository = AuthorRepository(db=cls.db)
-        cls.branch_repository = BranchRepository(db=cls.db)
-        cls.book_category_repository = BookCategoryRepository(db=cls.db)
-        cls.physical_exemplar_repository = PhysicalExemplarRepository(db=cls.db)
+        cls.book_repository = BookRepository(db=cls.db)  # type: ignore
+        cls.author_repository = AuthorRepository(db=cls.db)  # type: ignore
+        cls.branch_repository = BranchRepository(db=cls.db)  # type: ignore
+        cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
+        cls.physical_exemplar_repository = PhysicalExemplarRepository(db=cls.db)  # type: ignore
 
     def tearDown(self):
         super().tearDown()
@@ -93,6 +93,13 @@ class BaseRepositoryConfTest(BaseConfTest):
             session.exec(text("DELETE FROM book_data"))  # type: ignore
             session.exec(text("DELETE FROM book"))  # type: ignore
             session.commit()
+
+
+class BaseProducerConfTest(BaseConfTest):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.mock_producer = Mock()
 
 
 class BaseUseCaseConfTest(BaseConfTest):
