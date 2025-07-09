@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 from polyfactory.factories.pydantic_factory import ModelFactory
 from sqlmodel import text
 
+from src.application.dto.book_category import BookCategoryUpsert
 from src.application.dto.branch import BranchUpsert
 from src.domain.entities.author import Author
 from src.domain.entities.book import Book, BookFilter
@@ -51,6 +52,10 @@ class BookFilterModelFactory(ModelFactory):
     __model__ = BookFilter
 
 
+class BookCategoryUpsertModelFactory(ModelFactory):
+    __model__ = BookCategoryUpsert
+
+
 class BranchUpsertModelFactory(ModelFactory):
     __model__ = BranchUpsert
 
@@ -65,6 +70,7 @@ class BaseConfTest(IsolatedAsyncioTestCase):
         cls.author_model_factory = AuthorModelFactory
         cls.branch_model_factory = BranchModelFactory
         cls.book_category_model_factory = BookCategoryModelFactory
+        cls.book_category_upsert_model_factory = BookCategoryUpsertModelFactory
         cls.book_data_model_factory = BookDataModelFactory
         cls.physical_exemplar_model_factory = PhysicalExemplarModelFactory
         cls.branch_upsert_model_factory = BranchUpsertModelFactory

@@ -3,6 +3,9 @@ from sqlalchemy import text
 from tests.conftest import BaseConfTest
 
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
+from src.infrastructure.adapters.database.repository.book_category import (
+    BookCategoryRepository,
+)
 from src.infrastructure.adapters.database.repository.branch import BranchRepository
 from src.infrastructure.adapters.entrypoints.consumer import Consumer
 from src.infrastructure.settings.config import (
@@ -37,6 +40,7 @@ class BaseViewConfTest(BaseConfTest):
         )
         cls.db._pg_trgm_install()
         cls.branch_repository = BranchRepository(db=cls.db)  # type: ignore
+        cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
 
         producer_config = ProducerConfig()
         logstash_config = LogstashConfig()
