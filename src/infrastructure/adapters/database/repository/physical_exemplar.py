@@ -50,13 +50,30 @@ class PhysicalExemplarRepository(PhysicalExemplarRepositoryPort):
                         "id",
                         "created_at",
                         "created_by",
+                        "book-id",
+                        "branch-id",
+                        "branch",
+                        "book",
                     ]:  # Preserve creation metadata
                         setattr(existing, k, v)
                 physical_exemplar_model = existing
             else:
                 # Create new record
-                physical_exemplar_model = PhysicalExemplarModel.model_validate(
-                    physical_exemplar,
+                # physical_exemplar_model = PhysicalExemplarModel.model_validate(
+                #     physical_exemplar,
+                # )
+                physical_exemplar_model = PhysicalExemplarModel(
+                    id=physical_exemplar.id,
+                    available=physical_exemplar.available,
+                    room=physical_exemplar.room,
+                    floor=physical_exemplar.floor,
+                    bookshelf=physical_exemplar.bookshelf,
+                    book_id=physical_exemplar.book_id,
+                    branch_id=physical_exemplar.branch_id,
+                    created_at=physical_exemplar.created_at,
+                    created_by=physical_exemplar.created_by,
+                    updated_at=physical_exemplar.updated_at,
+                    updated_by=physical_exemplar.updated_by,
                 )
                 session.add(physical_exemplar_model)
 

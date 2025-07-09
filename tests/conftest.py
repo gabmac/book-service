@@ -9,6 +9,7 @@ from src.domain.entities.book import Book
 from src.domain.entities.book_category import BookCategory
 from src.domain.entities.book_data import BookData
 from src.domain.entities.branch import Branch
+from src.domain.entities.physical_exemplar import PhysicalExemplar
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
@@ -16,6 +17,9 @@ from src.infrastructure.adapters.database.repository.book_category import (
     BookCategoryRepository,
 )
 from src.infrastructure.adapters.database.repository.branch import BranchRepository
+from src.infrastructure.adapters.database.repository.physical_exemplar import (
+    PhysicalExemplarRepository,
+)
 
 
 class BookModelFactory(ModelFactory):
@@ -38,6 +42,10 @@ class BookDataModelFactory(ModelFactory):
     __model__ = BookData
 
 
+class PhysicalExemplarModelFactory(ModelFactory):
+    __model__ = PhysicalExemplar
+
+
 class BaseConfTest(IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -48,6 +56,7 @@ class BaseConfTest(IsolatedAsyncioTestCase):
         cls.branch_model_factory = BranchModelFactory
         cls.book_category_model_factory = BookCategoryModelFactory
         cls.book_data_model_factory = BookDataModelFactory
+        cls.physical_exemplar_model_factory = PhysicalExemplarModelFactory
 
         super().setUpClass()
 
@@ -70,12 +79,14 @@ class BaseRepositoryConfTest(BaseConfTest):
         cls.author_repository = AuthorRepository(db=cls.db)
         cls.branch_repository = BranchRepository(db=cls.db)
         cls.book_category_repository = BookCategoryRepository(db=cls.db)
+        cls.physical_exemplar_repository = PhysicalExemplarRepository(db=cls.db)
 
     def tearDown(self):
         super().tearDown()
         with self.db.get_session() as session:
             session.exec(text("DELETE FROM author_book_link"))  # type: ignore
             session.exec(text("DELETE FROM author"))  # type: ignore
+            session.exec(text("DELETE FROM physical_exemplar"))  # type: ignore
             session.exec(text("DELETE FROM branch"))  # type: ignore
             session.exec(text("DELETE FROM book_book_category_link"))  # type: ignore
             session.exec(text("DELETE FROM book_category"))  # type: ignore
