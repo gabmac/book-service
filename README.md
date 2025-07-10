@@ -350,46 +350,86 @@ Poetry automatically manages virtual environments and ensures consistent depende
 
 ### Make Commands
 
-The project includes a `Makefile` with convenient commands for development, testing, and deployment tasks.
+The project includes a comprehensive `Makefile` with convenient commands for development, testing, and deployment tasks. All Docker complexity is abstracted away through simple make commands - no need to understand the underlying infrastructure details to get started.
 
-#### Development Environment
+**🚀 Quick Help**: Run `make` without arguments to see all available commands with descriptions.
+
+#### Environment Setup
 
 ```bash
-# Set up development environment with Poetry
+# Set up development environment with Poetry dependencies
 make setup-dev-environment
-
-# Database migrations
-make alembic-generate    # Generate new migration files
-make alembic-migrate     # Apply migrations to database
 ```
 
-#### Docker Operations
+#### Database Migration
 
 ```bash
-# Build and run application
-make build-application              # Build Docker images without cache
-make run-application               # Start all services with docker-compose
-make build-run-application         # Build and run in one command
+# Generate new migration from model changes
+make alembic-generate
 
-# Testing environment
-make build-application-test        # Build test environment images
-make run-application-test-decouple # Start test services in detached mode
-make get-application-test-logs     # Follow application test logs
-make run-application-test          # Run complete test cycle (build, run, logs, stop)
-make build-run-application-test    # Build and run test environment
+# Run pending migrations
+make alembic-migrate
 ```
 
-#### System Cleanup
+#### Application Management
 
 ```bash
-# Container management
-make stop-containers      # Stop all running Docker containers
-make clean-containers     # Remove stopped containers and system cleanup
+# Build Docker containers without cache
+make build-application
 
-# Volume management
-make list-volumes-names   # Display all Docker volume names
-make remove-volumes       # Remove all Docker volumes
-make clean-volumes        # Complete cleanup (containers + volumes)
+# Start the application with docker-compose
+make run-application
+
+# Build and run the application in one command
+make build-run-application
+```
+
+#### Testing
+
+```bash
+# Build test environment containers
+make build-application-test
+
+# Run tests in detached mode and show logs
+make run-application-test
+
+# Run test containers in background
+make run-application-test-decouple
+
+# Show test application logs
+make get-application-test-logs
+
+# Build and run test environment
+make build-run-application-test
+```
+
+#### Cleanup
+
+```bash
+# Stop all running Docker containers
+make stop-containers
+
+# Remove stopped containers and prune system
+make clean-containers
+
+# List all Docker volume names
+make list-volumes-names
+
+# Remove all Docker volumes
+make remove-volumes
+
+# Clean containers and remove all volumes
+make clean-volumes
+```
+
+**Usage**: `make <command>`
+
+**Examples**:
+```bash
+# Complete development workflow
+make build-run-application          # Start the full application stack
+make build-run-application-test     # Run tests in containerized environment
+make clean-volumes                  # Clean up all resources when done
 ```
 
 ## Docker & Containerization

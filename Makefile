@@ -1,3 +1,37 @@
+# Default target - shows help information
+.DEFAULT_GOAL := help
+
+help:  ## Show this help message
+	@echo "Available commands:"
+	@echo ""
+	@echo "Environment Setup:"
+	@echo "  setup-dev-environment    Install poetry dependencies for development"
+	@echo ""
+	@echo "Database Migration:"
+	@echo "  alembic-generate         Generate new migration from model changes"
+	@echo "  alembic-migrate          Run pending migrations"
+	@echo ""
+	@echo "Application Management:"
+	@echo "  build-application        Build Docker containers without cache"
+	@echo "  run-application          Start the application with docker-compose"
+	@echo "  build-run-application    Build and run the application"
+	@echo ""
+	@echo "Testing:"
+	@echo "  build-application-test     Build test environment containers"
+	@echo "  run-application-test       Run tests in detached mode and show logs"
+	@echo "  run-application-test-decouple  Run test containers in background"
+	@echo "  get-application-test-logs  Show test application logs"
+	@echo "  build-run-application-test Build and run test environment"
+	@echo ""
+	@echo "Cleanup:"
+	@echo "  stop-containers          Stop all running Docker containers"
+	@echo "  clean-containers         Remove stopped containers and prune system"
+	@echo "  list-volumes-names       List all Docker volume names"
+	@echo "  remove-volumes           Remove all Docker volumes"
+	@echo "  clean-volumes            Clean containers and remove all volumes"
+	@echo ""
+	@echo "Usage: make <command>"
+
 # Get the list of volume names
 VOLUMES := $(shell docker volume ls -q)
 
