@@ -338,3 +338,41 @@ make list-volumes-names   # Display all Docker volume names
 make remove-volumes       # Remove all Docker volumes
 make clean-volumes        # Complete cleanup (containers + volumes)
 ```
+
+## Docker & Containerization
+
+The Book Service uses **Docker** for containerization, providing consistent environments across development, testing, and production. The application leverages a multi-stage build process with **Google's Distroless images** for enhanced security and minimal attack surface.
+
+### Multi-Stage Build Architecture
+
+The Dockerfile implements a sophisticated multi-stage build strategy:
+
+```dockerfile
+# Build Stage: python:3.11-slim
+├── Dependency installation with Poetry
+├── Application code compilation
+└── Python package preparation
+
+# Production Stages: gcr.io/distroless/python3-debian12
+├── API Service (distroless)
+├── Consumer Service (distroless)
+└── Minimal runtime environment
+```
+
+### Distroless Images
+
+The production containers use **Google's Distroless Python images** (`gcr.io/distroless/python3-debian12:latest`):
+
+#### **Security Benefits**
+- **No Shell Access**: Eliminates shell-based attacks and reduces attack surface
+- **Minimal Dependencies**: Contains only Python runtime and essential libraries
+- **No Package Managers**: Removes apt, yum, and other package management tools
+- **Reduced CVE Exposure**: Significantly fewer security vulnerabilities
+
+#### **Operational Advantages**
+- **Smaller Image Size**: Dramatically reduced container footprint
+- **Faster Startup**: Minimal overhead for container initialization
+- **Immutable Infrastructure**: No runtime modifications possible
+- **Compliance Ready**: Meets strict security requirements for production environments
+
+The distroless approach ensures that production containers contain only the necessary runtime components, making them more secure, smaller, and faster while maintaining full application functionality.
