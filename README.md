@@ -294,3 +294,47 @@ poetry show --tree
 ```
 
 Poetry automatically manages virtual environments and ensures consistent dependency versions across all environments through the `poetry.lock` file.
+
+### Make Commands
+
+The project includes a `Makefile` with convenient commands for development, testing, and deployment tasks.
+
+#### Development Environment
+
+```bash
+# Set up development environment with Poetry
+make setup-dev-environment
+
+# Database migrations
+make alembic-generate    # Generate new migration files
+make alembic-migrate     # Apply migrations to database
+```
+
+#### Docker Operations
+
+```bash
+# Build and run application
+make build-application              # Build Docker images without cache
+make run-application               # Start all services with docker-compose
+make build-run-application         # Build and run in one command
+
+# Testing environment
+make build-application-test        # Build test environment images
+make run-application-test-decouple # Start test services in detached mode
+make get-application-test-logs     # Follow application test logs
+make run-application-test          # Run complete test cycle (build, run, logs, stop)
+make build-run-application-test    # Build and run test environment
+```
+
+#### System Cleanup
+
+```bash
+# Container management
+make stop-containers      # Stop all running Docker containers
+make clean-containers     # Remove stopped containers and system cleanup
+
+# Volume management
+make list-volumes-names   # Display all Docker volume names
+make remove-volumes       # Remove all Docker volumes
+make clean-volumes        # Complete cleanup (containers + volumes)
+```
