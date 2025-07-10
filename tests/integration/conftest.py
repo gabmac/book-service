@@ -23,6 +23,7 @@ from src.infrastructure.settings.web_application import app
 
 class BaseViewConfTest(BaseConfTest):
     fastapi_app = app
+    test_client = None
 
     @classmethod
     def setUpClass(cls):
@@ -50,15 +51,29 @@ class BaseViewConfTest(BaseConfTest):
         cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
         cls.physical_exemplar_repository = PhysicalExemplarRepository(db=cls.db)  # type: ignore
 
-        producer_config = ProducerConfig()
-        logstash_config = LogstashConfig()
-        system_config = SystemConfig()
-        cls.consumer = Consumer(producer_config, logstash_config, system_config)
+        cls.producer_config = ProducerConfig()
+        cls.logstash_config = LogstashConfig()
+        cls.system_config = SystemConfig()
+        cls.consumer = Consumer(
+            cls.producer_config,
+            cls.logstash_config,
+            cls.system_config,
+        )
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
         cls.consumer.stop_consuming()
+
+    def setUp(self):
+        super().setUp()
+        if self.consumer.channel.is_closed:
+            self.consumer.reload = True
+            self.consumer = Consumer(
+                self.producer_config,
+                self.logstash_config,
+                self.system_config,
+            )
 
     def tearDown(self):
         super().tearDown()
@@ -82,15 +97,16 @@ class BaseViewConfTest(BaseConfTest):
         :yield: client for the app.
         """
 
-        test_client = TestClient(
-            app=self.fastapi_app,
-            base_url="http://localhost:9857",
-        )
+        if self.test_client is None:
+            self.test_client = TestClient(
+                app=self.fastapi_app,
+                base_url="http://localhost:9857",
+            )
 
-        test_client.headers.update(
-            {
-                "Content-Type": "application/json",
-            },
-        )
+            self.test_client.headers.update(
+                {
+                    "Content-Type": "application/json",
+                },
+            )
 
-        return test_client
+        return self.test_client

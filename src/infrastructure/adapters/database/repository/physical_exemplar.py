@@ -2,6 +2,7 @@ from typing import List
 from uuid import UUID
 
 from sqlalchemy import func
+from sqlalchemy.exc import NoResultFound
 from sqlmodel import select
 
 from src.application.exceptions import NotFoundException
@@ -162,12 +163,13 @@ class PhysicalExemplarRepository(PhysicalExemplarRepositoryPort):
         branch_id: UUID,
     ) -> PhysicalExemplar:
         with self.db.get_session(slave=True) as session:
-            physical_exemplar_model = session.exec(
-                select(PhysicalExemplarModel).where(
-                    PhysicalExemplarModel.book_id == book_id,
-                    PhysicalExemplarModel.branch_id == branch_id,
-                ),
-            ).first()
-            if not physical_exemplar_model:
+            try:
+                physical_exemplar_model = session.exec(
+                    select(PhysicalExemplarModel).where(
+                        PhysicalExemplarModel.book_id == book_id,
+                        PhysicalExemplarModel.branch_id == branch_id,
+                    ),
+                ).one()
+                return PhysicalExemplar.model_validate(physical_exemplar_model)
+            except NoResultFound:
                 raise NotFoundException("Physical exemplar not found")
-            return PhysicalExemplar.model_validate(physical_exemplar_model)

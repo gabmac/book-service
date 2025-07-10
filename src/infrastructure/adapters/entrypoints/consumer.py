@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pika import BlockingConnection, ConnectionParameters
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.credentials import PlainCredentials
+from pika.exceptions import ChannelClosedByBroker
 from pika.exchange_type import ExchangeType
 
 from src.application.dto.producer import Message
@@ -97,9 +98,16 @@ class Consumer:
     connection: BlockingConnection
     channel: BlockingChannel
     reload: bool = False
+    host: str = ""
+    config: ProducerConfig
+    logstash_config: LogstashConfig
+    system_config: SystemConfig
 
     def __new__(cls, config: ProducerConfig, logstash_config: LogstashConfig, system_config: SystemConfig):  # type: ignore
         cls.logger = logging.getLogger(logstash_config.loggername)
+        cls.config = config
+        cls.logstash_config = logstash_config
+        cls.system_config = system_config
 
         # pylint: disable=unused-argument
         def callback(ch, method, properties, body) -> None:  # type: ignore
@@ -131,21 +139,40 @@ class Consumer:
         # pylint: enable=unused-argument
 
         if cls._instance is None or cls.reload:
+            cls.host = config.localhost
             cls.connection = BlockingConnection(
                 ConnectionParameters(
                     host=config.localhost,
                     credentials=PlainCredentials(config.user, config.password),
                 ),
             )
+
             cls.channel = cls.connection.channel()
             cls.channel.exchange_declare(
                 exchange="book-service-exchange",
                 exchange_type=ExchangeType.topic,
             )
-            result = cls.channel.queue_declare(
-                queue="book-service-queue",
-                auto_delete=True,
-            )
+            try:
+                result = cls.channel.queue_declare(
+                    queue="book-service-queue",
+                    auto_delete=True,
+                    durable=True,
+                    passive=True,
+                )
+            except ChannelClosedByBroker:
+                # Recreate channel if closed
+                cls.connection = BlockingConnection(
+                    ConnectionParameters(
+                        host=cls.host,
+                        credentials=PlainCredentials(config.user, config.password),
+                    ),
+                )
+                cls.channel = cls.connection.channel()
+                result = cls.channel.queue_declare(
+                    queue="book-service-queue",
+                    durable=True,
+                    auto_delete=True,
+                )
             queue_name = result.method.queue
 
             for queue in config.queues:
@@ -207,3 +234,4 @@ class Consumer:
             else:
                 # This message is not for us, requeue it
                 cls.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+        cls.channel.cancel()
