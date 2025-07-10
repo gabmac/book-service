@@ -40,3 +40,16 @@ alembic-migrate:
 	poetry run alembic upgrade head
 
 build-run-application: build-application run-application
+
+build-run-application-test: build-application-test run-application-test
+
+build-application-test:
+	docker compose -f docker-compose.test.yml build --no-cache
+
+run-application-test-decouple:
+	docker compose -f docker-compose.test.yml up -d
+
+get-application-test-logs:
+	docker logs application-test -f
+
+run-application-test: run-application-test-decouple get-application-test-logs stop-containers

@@ -20,6 +20,8 @@ RUN poetry install --only main
 COPY src src
 
 FROM build AS build-test
+COPY alembic.ini alembic.ini
+COPY alembic alembic
 
 COPY tests tests
 RUN poetry install --only dev
@@ -42,7 +44,7 @@ ENTRYPOINT ["/usr/bin/python", "-m", "src.consumer"]
 
 FROM build-test AS test
 ENTRYPOINT [ "sh", "-c" ]
-CMD ["coverage run -m unittest discover -v -s ./tests -p '*test*.py';coverage report;exit 0"]
+CMD ["alembic upgrade head && coverage run -m unittest discover -v -s ./tests -p '*test*.py';coverage report;exit 0"]
 
 FROM build as debug-api
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
@@ -53,9 +55,3 @@ FROM build as debug-consumer
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1
 RUN poetry install --only debugpy
 ENTRYPOINT ["sh", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5679 -m src.consumer"]
-
-FROM build AS test-case
-
-COPY cases cases
-
-ENTRYPOINT [ "./cases/test_case.sh" ]

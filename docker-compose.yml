@@ -20,11 +20,14 @@ services:
     volumes:
     - 'postgresql_master_data:/bitnami/postgresql'
     - ./scripts:/docker-entrypoint-initdb.d
+    - /dev/null:/var/log/postgresql.log
     healthcheck:
       test: pg_isready -U postgres -d book
       interval: 10s
       timeout: 3s
       retries: 3
+    logging:
+      driver: none
 
   postgres-slave:
     image: bitnami/postgresql:latest
@@ -46,6 +49,7 @@ services:
     - os-net
     volumes:
     - ./scripts:/docker-entrypoint-initdb.d
+    - /dev/null:/var/log/postgresql.log
     healthcheck:
       test: pg_isready -U postgres -d book
       interval: 10s
@@ -54,6 +58,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    logging:
+      driver: none
 
   rabbitmq:
     image: rabbitmq:management-alpine
@@ -67,7 +73,7 @@ services:
       RABBITMQ_DEFAULT_PASS: kalo
     volumes:
     - rabbitmq-lib:/var/lib/rabbitmq/
-    - rabbitmq-log:/var/log/rabbitmq
+    - /dev/null:/var/log/rabbitmq
     networks:
     - os-net
     healthcheck:
@@ -75,6 +81,8 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
+    logging:
+      driver: none
 
   api:
     container_name: api
