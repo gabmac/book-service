@@ -89,7 +89,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: debug-api
+      target: api
     image: book-service-api:${TESTE_VERSION:-latest}
     restart: always
     volumes:
@@ -132,7 +132,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: debug-consumer
+      target: consumer
     image: book-service-consumer:${TESTE_VERSION:-latest}
     restart: always
     ports:
