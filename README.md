@@ -446,3 +446,60 @@ poetry run pre-commit autoupdate
 - **Documentation**: Conventional commits improve project history
 
 All hooks run automatically on commit, but can also be executed manually for batch processing or CI/CD integration.
+
+## System Design & Clean Architecture
+
+The Book Service implements **Clean Architecture** principles with **Domain-Driven Design (DDD)** patterns, ensuring clear separation of concerns, testability, and maintainability. The architecture follows the dependency inversion principle where high-level modules don't depend on low-level modules.
+
+![image](https://camo.githubusercontent.com/fe4a4a4ba2a4c93d753681088fb023244bb6111434420d041341ddb2674ea01e/68747470733a2f2f6d69726f2e6d656469756d2e636f6d2f76322f726573697a653a6669743a3732302f666f726d61743a776562702f312a30752d656b56484675374f6d375a2d565477464876672e706e67
+)
+### Architecture Layers
+
+#### **Domain Layer** (`src/domain/`)
+The innermost layer containing business logic and rules, completely independent of external concerns.
+
+- **Entities**: Core business objects with identity and lifecycle (Book, Author, Branch, BookCategory, PhysicalExemplar)
+- **Value Objects**: Immutable objects representing business concepts (BookType enum, BaseEntity)
+- **Business Rules**: Domain logic encapsulated within entities
+- **No Dependencies**: Pure business logic with no external framework dependencies
+
+#### **Application Layer** (`src/application/`)
+Orchestrates business operations and defines application-specific logic.
+
+- **Use Cases**: Single-purpose business operations (UpsertBook, FilterAuthor, DeleteBook)
+- **Ports**: Abstract interfaces defining contracts with external systems
+  - **Repository Ports**: Data access contracts (BookRepositoryPort, AuthorRepositoryPort)
+  - **Producer Ports**: Message publishing contracts (BookProducerPort, AuthorProducerPort)
+- **DTOs**: Data transfer objects for external communication
+- **Application Services**: Coordinate between use cases and external systems
+
+#### **Infrastructure Layer** (`src/infrastructure/`)
+Implements technical details and external system integrations.
+
+- **Entry Points**: External interfaces (API routes, message consumers)
+- **Repository Implementations**: Concrete data access implementations using SQLModel/PostgreSQL
+- **Producer Implementations**: Message publishing implementations using RabbitMQ
+- **External Services**: Database connections, message brokers, logging systems
+- **Configuration**: Application settings and dependency injection
+
+#### **Event-Driven Architecture**
+All modifications flow through message queues:
+- **API Layer**: Publishes events for create/update/delete operations
+- **Consumer Layer**: Processes events and executes database operations
+- **Separation**: Read operations via API, write operations via consumers
+
+### SOLID Principles Implementation
+
+- **Single Responsibility**: Each use case handles one business operation
+- **Open/Closed**: New features added through new use cases, not modifications
+- **Liskov Substitution**: Repository implementations are interchangeable
+- **Interface Segregation**: Focused, cohesive port interfaces
+- **Dependency Inversion**: High-level modules depend on abstractions
+
+### Benefits
+
+- **Testability**: Easy mocking through port interfaces
+- **Maintainability**: Clear separation of concerns and responsibilities
+- **Flexibility**: Swappable implementations without business logic changes
+- **Independence**: Domain logic isolated from external framework dependencies
+- **Scalability**: Event-driven architecture enables horizontal scaling
