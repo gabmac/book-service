@@ -376,3 +376,73 @@ The production containers use **Google's Distroless Python images** (`gcr.io/dis
 - **Compliance Ready**: Meets strict security requirements for production environments
 
 The distroless approach ensures that production containers contain only the necessary runtime components, making them more secure, smaller, and faster while maintaining full application functionality.
+
+## Code Quality & Pre-commit Hooks
+
+The project uses **Pre-commit** to enforce code quality standards and prevent common issues before code reaches the repository. Pre-commit automatically runs a series of checks and formatters on every git commit, ensuring consistent code quality across the entire codebase.
+
+### What is Pre-commit?
+
+Pre-commit is a framework for managing multi-language git pre-commit hooks. It automatically runs configured tools on your staged files before each commit, catching issues early in the development process and maintaining code quality standards.
+
+### Installation & Setup
+
+```bash
+# Install pre-commit hooks
+poetry run pre-commit install
+
+# Run hooks manually on all files
+poetry run pre-commit run --all-files
+
+# Update hooks to latest versions
+poetry run pre-commit autoupdate
+```
+
+### Configured Hooks
+
+#### **File Quality Checks**
+- **check-ast**: Validates Python syntax and AST parsing
+- **trailing-whitespace**: Removes trailing whitespace from files
+- **end-of-file-fixer**: Ensures files end with a newline
+- **mixed-line-ending**: Standardizes line endings across files
+- **check-added-large-files**: Prevents committing large files (excluding static assets)
+
+#### **Format Validation**
+- **check-toml**: Validates TOML file syntax (pyproject.toml, etc.)
+- **check-json**: Validates JSON file syntax
+- **pretty-format-json**: Formats JSON files consistently
+- **check-xml**: Validates XML file syntax
+- **check-yaml**: Validates YAML file syntax
+- **pretty-format-yaml**: Formats YAML with consistent indentation
+
+#### **Security Checks**
+- **detect-aws-credentials**: Prevents accidental AWS credential commits
+- **detect-private-key**: Detects private keys in commits
+- **bandit**: Scans Python code for security vulnerabilities
+
+#### **Python Code Quality**
+- **black**: Code formatting and style enforcement
+- **isort**: Import statement organization and sorting
+- **autoflake**: Removes unused imports and variables
+- **pyupgrade**: Upgrades Python syntax to modern standards
+
+#### **Static Analysis**
+- **flake8**: Linting and style guide enforcement (PEP 8)
+- **pylint**: Advanced code analysis and quality metrics
+- **mypy**: Static type checking and validation
+- **debug-statements**: Detects leftover debug statements
+
+#### **Commit Standards**
+- **conventional-pre-commit**: Enforces conventional commit message format
+- **add-trailing-comma**: Automatically adds trailing commas for consistency
+
+### Quality Assurance Benefits
+
+- **Automated Enforcement**: No manual intervention required for code formatting
+- **Early Issue Detection**: Catches problems before code review
+- **Consistent Standards**: Uniform code style across all contributors
+- **Security Validation**: Prevents security issues from entering the codebase
+- **Type Safety**: Static type checking reduces runtime errors
+- **Documentation**: Conventional commits improve project history
+
+All hooks run automatically on commit, but can also be executed manually for batch processing or CI/CD integration.
