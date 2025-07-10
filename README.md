@@ -23,6 +23,24 @@ make get-application-logs
 
 The Make commands handle all Docker orchestration, dependency management, and environment setup automatically - no need to understand the underlying infrastructure details to get started.
 
+### 🌐 Quick Access Endpoints
+
+Once the application is running with `make build-run-application`, you can access:
+
+- **📚 FastAPI Documentation (Swagger UI)**: [http://localhost:9000/docs](http://localhost:9000/docs)
+  - Interactive API documentation with request/response examples
+  - Test API endpoints directly from the browser
+  - View all available routes and schemas
+
+- **📊 OpenSearch Dashboard**: [http://localhost:5601](http://localhost:5601)
+  - Log analytics and monitoring interface
+  - Search and visualize application logs
+  - Create custom dashboards and alerts
+
+- **🔍 RabbitMQ Management**: [http://localhost:15672](http://localhost:15672)
+  - Message queue monitoring and management
+  - Default credentials: `guest` / `guest`
+
 ### Core Business Objectives
 
 - **Centralized Book Management**: Maintain a comprehensive catalog of books with detailed metadata including ISBN codes, editions, authors, categories, and publication information
