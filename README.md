@@ -503,3 +503,112 @@ All modifications flow through message queues:
 - **Flexibility**: Swappable implementations without business logic changes
 - **Independence**: Domain logic isolated from external framework dependencies
 - **Scalability**: Event-driven architecture enables horizontal scaling
+
+## Testing Strategy
+
+The Book Service implements a comprehensive testing strategy following the **Testing Pyramid** principles, with clear separation between **Unit Tests** and **Integration Tests**. The test suite ensures high code coverage, reliability, and maintainability across all architectural layers.
+
+### Test Organization
+
+The test suite is organized into two main categories, mirroring the source code structure:
+
+```
+tests/
+├── unit/                    # Fast, isolated tests with mocks
+│   ├── author/
+│   │   ├── usecase/        # Business logic tests
+│   │   ├── repository/     # Data access tests
+│   │   └── producer/       # Message publishing tests
+│   ├── book/
+│   ├── branch/
+│   ├── book_category/
+│   └── physical_exemplar/
+├── integration/             # Slower tests with real dependencies
+│   ├── author/             # End-to-end API tests
+│   ├── book/
+│   ├── branch/
+│   ├── book_category/
+│   └── physical_exemplar/
+└── conftest.py             # Shared test configurations
+```
+
+### Unit Tests (`tests/unit/`)
+
+Unit tests focus on testing individual components in **complete isolation** using mocks and stubs.
+
+#### **Characteristics**
+- **Fast Execution**: Run in milliseconds without external dependencies
+- **Isolated**: Use mocks for all external dependencies (database, message broker, APIs)
+- **Focused**: Test single functions/methods with specific scenarios
+- **Deterministic**: Predictable outcomes with controlled inputs
+
+#### **Test Categories**
+
+**Use Case Tests** (`usecase/`):
+- Test business logic orchestration
+- Validate use case execution flow
+- Mock all repository and producer dependencies
+- Focus on business rule validation
+
+**Repository Tests** (`repository/`):
+- Test data access layer with real database connections
+- Validate CRUD operations and queries
+- Test data transformation between entities and models
+- Database transaction and error handling
+
+**Producer Tests** (`producer/`):
+- Test message publishing functionality
+- Mock message broker dependencies
+- Validate message formatting and routing
+
+#### **Mock Strategy**
+Unit tests use `unittest.mock` for dependency isolation:
+
+### Integration Tests (`tests/integration/`)
+
+Integration tests validate **complete workflows** using real external dependencies and the full application stack.
+
+#### **Characteristics**
+- **Real Dependencies**: Uses actual PostgreSQL database, RabbitMQ, and FastAPI application
+- **End-to-End**: Tests complete request/response cycles through API
+- **Slower Execution**: Higher latency due to database and network operations
+- **Comprehensive**: Validates integration between all system components
+
+#### **Test Setup**
+- **Real Database**: PostgreSQL connection with test data isolation
+- **FastAPI TestClient**: HTTP client for API endpoint testing
+- **Message Consumer**: Real RabbitMQ consumer for event processing
+- **Data Cleanup**: Automatic test data cleanup between tests
+
+### Test Data Management
+
+#### **Factory Pattern**
+Both test types use **Polyfactory** for generating test data:
+
+#### **Data Isolation**
+- **Unit Tests**: No persistence, pure in-memory objects
+- **Integration Tests**: Database transactions with cleanup after each test
+- **Test Independence**: Each test runs in isolation without side effects
+
+### Coverage and Quality
+
+#### **Coverage Targets**
+- **Minimum Coverage**: 80% (enforced in pyproject.toml)
+- **Focus Areas**: High coverage on use cases and repositories
+- **Exclusions**: Database models, exceptions, and infrastructure configuration
+
+#### **Test Execution**
+```bash
+# Run all tests
+poetry run pytest
+
+# Run only unit tests
+poetry run pytest tests/unit/
+
+# Run only integration tests
+poetry run pytest tests/integration/
+
+# Run with coverage
+poetry run coverage run -m pytest
+poetry run coverage report
+```
