@@ -132,3 +132,108 @@ erDiagram
 - **Cascade Deletion**: Physical exemplars and book data are automatically removed when parent books are deleted
 - **Indexed Fields**: Strategic indexing on frequently queried fields (author names, book titles, foreign keys)
 - **Data Integrity**: Foreign key constraints maintain referential integrity across all relationships
+
+## Integration Architecture
+
+The Book Service implements a robust microservices architecture with comprehensive logging, monitoring, and data replication capabilities. The system is designed for high availability, scalability, and observability.
+
+```mermaid
+graph TD
+    %% External Layer
+    Client[Client Applications]
+
+    %% Application Layer
+    API[Book Service API<br/>Port: 9000]
+    Consumer[Book Service Consumer<br/>Port: 5679]
+
+    %% Message Broker
+    RabbitMQ[RabbitMQ<br/>Management: 15672<br/>AMQP: 5672]
+
+    %% Database Layer
+    PostgresMaster[(PostgreSQL Master<br/>Port: 5432)]
+    PostgresSlave[(PostgreSQL Slave<br/>Port: 5433)]
+
+    %% Logging Infrastructure
+    Logstash[Logstash<br/>TCP: 5000<br/>HTTP: 8080]
+    OpenSearch[(OpenSearch<br/>Port: 9200)]
+    Dashboard[OpenSearch Dashboards<br/>Port: 5601]
+
+    %% External Connections
+    Client -->|HTTP Requests| API
+
+    %% Application to Message Broker
+    API -->|Publish Messages| RabbitMQ
+    Consumer -->|Consume Messages| RabbitMQ
+
+    %% Application to Database
+    API -->|Read Operations| PostgresSlave
+    Consumer -->|Write Operations| PostgresMaster
+    Consumer -->|Read Operations| PostgresSlave
+
+    %% Database Replication
+    PostgresMaster -->|Streaming Replication| PostgresSlave
+
+    %% Logging Flow
+    API -->|Structured Logs<br/>TCP/JSON| Logstash
+    Consumer -->|Structured Logs<br/>TCP/JSON| Logstash
+    Logstash -->|Index Logs| OpenSearch
+
+    %% Monitoring and Visualization
+    OpenSearch -->|Data Source| Dashboard
+    Dashboard -->|Log Analytics<br/>& Monitoring| Client
+
+    %% Network
+    subgraph Docker Network [os-net]
+        API
+        Consumer
+        RabbitMQ
+        PostgresMaster
+        PostgresSlave
+        Logstash
+        OpenSearch
+        Dashboard
+    end
+
+    %% Styling
+    classDef application fill:#e1f5fe
+    classDef database fill:#f3e5f5
+    classDef messaging fill:#fff3e0
+    classDef logging fill:#e8f5e8
+    classDef external fill:#fce4ec
+
+    class API,Consumer application
+    class PostgresMaster,PostgresSlave database
+    class RabbitMQ messaging
+    class Logstash,OpenSearch,Dashboard logging
+    class Client external
+```
+
+### Architecture Components
+
+#### Application Services
+- **Book Service API**: RESTful API service handling HTTP requests and business operations
+- **Book Service Consumer**: Background service processing asynchronous messages from RabbitMQ
+- **Event-Driven Communication**: All create, update, and delete operations are processed via RabbitMQ messages
+
+#### Data Layer
+- **PostgreSQL Master**: Primary database for all write operations and data consistency
+- **PostgreSQL Slave**: Read replica for load distribution and improved read performance
+- **Streaming Replication**: Real-time data synchronization between master and slave
+
+#### Message Broker
+- **RabbitMQ**: AMQP message broker handling asynchronous communication between services
+
+#### Logging & Monitoring Stack
+- **Logstash**: Log aggregation and processing engine receiving structured logs via TCP/JSON
+- **OpenSearch**: Search and analytics engine for log storage and indexing
+- **OpenSearch Dashboards**: Visualization platform for log analytics, monitoring, and alerting
+
+### Key Integration Features
+
+- **High Availability**: Master-slave database configuration ensures data redundancy
+- **Scalability**: Read operations distributed across slave databases
+- **Event-Driven Architecture**: Asynchronous processing for improved performance and reliability
+- **Centralized Logging**: Structured log aggregation for comprehensive system monitoring
+- **Real-time Analytics**: Live dashboard for system health and performance metrics
+- **Containerized Deployment**: Docker-based infrastructure for consistent environments
+- **Network Isolation**: Dedicated Docker network for secure service communication
