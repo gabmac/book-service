@@ -228,12 +228,69 @@ graph TD
 - **OpenSearch**: Search and analytics engine for log storage and indexing
 - **OpenSearch Dashboards**: Visualization platform for log analytics, monitoring, and alerting
 
-### Key Integration Features
+## Package Management
 
-- **High Availability**: Master-slave database configuration ensures data redundancy
-- **Scalability**: Read operations distributed across slave databases
-- **Event-Driven Architecture**: Asynchronous processing for improved performance and reliability
-- **Centralized Logging**: Structured log aggregation for comprehensive system monitoring
-- **Real-time Analytics**: Live dashboard for system health and performance metrics
-- **Containerized Deployment**: Docker-based infrastructure for consistent environments
-- **Network Isolation**: Dedicated Docker network for secure service communication
+This project uses **Poetry** as the dependency manager and build tool. Poetry provides deterministic dependency resolution, virtual environment management, and simplified package publishing.
+
+### Prerequisites
+
+- Python 3.11 or higher
+- Poetry (latest version recommended)
+
+### Installation
+
+#### Install Poetry
+
+```bash
+# Using pip
+pip install poetry
+
+# Or using the official installer (recommended)
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+#### Install Project Dependencies
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd book-service
+
+# Install all dependencies (including dev dependencies)
+poetry install
+
+# Install only production dependencies
+poetry install --only=main
+```
+
+### Development Setup
+
+```bash
+# Activate virtual environment
+poetry shell
+
+# Run the API service
+poetry run python -m src.api
+
+# Run the consumer service
+poetry run python -m src.consumer
+
+```
+
+### Dependency Management
+
+```bash
+# Add new dependency
+poetry add <package-name>
+
+# Add development dependency
+poetry add --group dev <package-name>
+
+# Update dependencies
+poetry update
+
+# Show dependency tree
+poetry show --tree
+```
+
+Poetry automatically manages virtual environments and ensures consistent dependency versions across all environments through the `poetry.lock` file.
