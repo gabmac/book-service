@@ -155,7 +155,6 @@ class Consumer:
             try:
                 result = cls.channel.queue_declare(
                     queue="book-service-queue",
-                    auto_delete=True,
                     durable=True,
                     passive=True,
                 )
@@ -171,7 +170,6 @@ class Consumer:
                 result = cls.channel.queue_declare(
                     queue="book-service-queue",
                     durable=True,
-                    auto_delete=True,
                 )
             queue_name = result.method.queue
 
