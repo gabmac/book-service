@@ -4,6 +4,25 @@
 
 **Book Service** is a comprehensive library management system designed to streamline book catalog operations and physical inventory management across multiple library branches. The system serves as the backbone for library operations, enabling librarians and administrators to efficiently manage their book collections, track physical inventory, and maintain detailed catalog information.
 
+## Quick Start
+
+**🚀 Want to run the application and tests quickly?**
+
+Jump directly to the **[Make Commands](#make-commands)** section! All Docker complexity is abstracted away through simple make commands:
+
+```bash
+# Run the complete application stack
+make build-run-application
+
+# Run tests in containerized environment
+make build-run-test
+
+# View application logs
+make get-application-logs
+```
+
+The Make commands handle all Docker orchestration, dependency management, and environment setup automatically - no need to understand the underlying infrastructure details to get started.
+
 ### Core Business Objectives
 
 - **Centralized Book Management**: Maintain a comprehensive catalog of books with detailed metadata including ISBN codes, editions, authors, categories, and publication information
