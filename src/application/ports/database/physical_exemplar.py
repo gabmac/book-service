@@ -21,3 +21,12 @@ class PhysicalExemplarRepositoryPort(ABC):
         book_filter: BookFilter,
     ) -> List[PhysicalExemplar]:
         pass
+
+    # TODO: Remove unit test
+    @abstractmethod
+    def get_physical_exemplar_by_book_and_branch(
+        self,
+        book_id: UUID,
+        branch_id: UUID,
+    ) -> PhysicalExemplar:
+        pass

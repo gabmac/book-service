@@ -1,7 +1,10 @@
 from typing import List
+from uuid import UUID
 
+from sqlalchemy.exc import NoResultFound
 from sqlmodel import select, text
 
+from src.application.exceptions import NotFoundException
 from src.application.ports.database.branch import BranchRepositoryPort
 from src.domain.entities.branch import Branch, BranchFilter
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
@@ -47,4 +50,14 @@ class BranchRepository(BranchRepositoryPort):
             """
             session.exec(text(sql))  # type: ignore
             session.commit()
+            return Branch.model_validate(branch_model)
+
+    def get_branch_by_id(self, id: UUID) -> Branch:
+        with self.db.get_session(slave=True) as session:
+            try:
+                branch_model = session.exec(
+                    select(BranchModel).where(BranchModel.id == id),
+                ).one()
+            except NoResultFound:
+                raise NotFoundException("Branch not found")
             return Branch.model_validate(branch_model)

@@ -8,6 +8,7 @@ from src.application.dto.author import AuthorUpsert
 from src.application.dto.book_category import BookCategoryUpsert
 from src.application.dto.book_dto import Book as BookDto
 from src.application.dto.branch import BranchUpsert
+from src.application.dto.physical_exemplar import PhysicalExemplarCreate
 from src.domain.entities.author import Author
 from src.domain.entities.book import Book, BookFilter
 from src.domain.entities.book_category import BookCategory
@@ -70,6 +71,10 @@ class BranchUpsertModelFactory(ModelFactory):
     __model__ = BranchUpsert
 
 
+class PhysicalExemplarCreateModelFactory(ModelFactory):
+    __model__ = PhysicalExemplarCreate
+
+
 class BaseConfTest(IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -86,6 +91,7 @@ class BaseConfTest(IsolatedAsyncioTestCase):
         cls.book_data_model_factory = BookDataModelFactory
         cls.physical_exemplar_model_factory = PhysicalExemplarModelFactory
         cls.branch_upsert_model_factory = BranchUpsertModelFactory
+        cls.physical_exemplar_create_model_factory = PhysicalExemplarCreateModelFactory
 
         super().setUpClass()
 

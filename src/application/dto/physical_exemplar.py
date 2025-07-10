@@ -4,6 +4,8 @@ from uuid import UUID
 from pydantic import Field
 
 from src.application.dto.base import BaseDto, ProcessingResponse
+from src.application.dto.book_dto import BookResponse
+from src.application.dto.branch import BranchResponse
 
 
 class PhysicalExemplarCreate(BaseDto):
@@ -22,6 +24,8 @@ class PhysicalExemplarResponse(BaseDto):
     bookshelf: int = Field(description="Physical exemplar bookshelf")
     book_id: UUID = Field(description="Book id")
     branch_id: UUID = Field(description="Branch id")
+    book: BookResponse = Field(description="Book")
+    branch: BranchResponse = Field(description="Branch")
     created_at: datetime = Field(
         description="Physical exemplar creation date",
         default_factory=lambda: datetime.now(timezone.utc),

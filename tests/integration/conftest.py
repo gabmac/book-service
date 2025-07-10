@@ -9,6 +9,9 @@ from src.infrastructure.adapters.database.repository.book_category import (
     BookCategoryRepository,
 )
 from src.infrastructure.adapters.database.repository.branch import BranchRepository
+from src.infrastructure.adapters.database.repository.physical_exemplar import (
+    PhysicalExemplarRepository,
+)
 from src.infrastructure.adapters.entrypoints.consumer import Consumer
 from src.infrastructure.settings.config import (
     LogstashConfig,
@@ -45,6 +48,7 @@ class BaseViewConfTest(BaseConfTest):
         cls.book_repository = BookRepository(db=cls.db)  # type: ignore
         cls.branch_repository = BranchRepository(db=cls.db)  # type: ignore
         cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
+        cls.physical_exemplar_repository = PhysicalExemplarRepository(db=cls.db)  # type: ignore
 
         producer_config = ProducerConfig()
         logstash_config = LogstashConfig()

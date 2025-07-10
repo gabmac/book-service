@@ -1,11 +1,12 @@
 from uuid import UUID
 
-from fastapi import status
+from fastapi import HTTPException, status
 
 from src.application.dto.physical_exemplar import (
     PhysicalExemplarCreate,
     ProcessingPhysicalExemplar,
 )
+from src.application.exceptions import NotFoundException
 from src.application.usecase.physical_exemplar.upsert_physical_exemplar_produce import (
     UpsertPhysicalExemplarProduce,
 )
@@ -48,5 +49,8 @@ class PublishCreatePhysicalExemplarView(PhysicalExemplarBasicRouter):
             created_by=payload.user,
             updated_by=payload.user,
         )
-        physical_exemplar = self.use_case.execute(physical_exemplar)  # type: ignore
+        try:
+            physical_exemplar = self.use_case.execute(physical_exemplar)  # type: ignore
+        except NotFoundException as e:
+            raise HTTPException(status_code=404, detail=e.message)
         return ProcessingPhysicalExemplar(physical_exemplar=physical_exemplar)

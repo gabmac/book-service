@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy import func
 from sqlmodel import select
 
+from src.application.exceptions import NotFoundException
 from src.application.ports.database.physical_exemplar import (
     PhysicalExemplarRepositoryPort,
 )
@@ -76,7 +77,8 @@ class PhysicalExemplarRepository(PhysicalExemplarRepositoryPort):
                     updated_at=physical_exemplar.updated_at,
                     updated_by=physical_exemplar.updated_by,
                 )
-                session.add(physical_exemplar_model)
+
+            session.add(physical_exemplar_model)
 
             session.flush()
             session.commit()
@@ -142,3 +144,30 @@ class PhysicalExemplarRepository(PhysicalExemplarRepositoryPort):
                 PhysicalExemplar.model_validate(exemplar)
                 for exemplar in physical_exemplars
             ]
+
+    def get_physical_exemplar_by_id(self, id: UUID) -> PhysicalExemplar:
+        with self.db.get_session(slave=True) as session:
+            physical_exemplar_model = session.exec(
+                select(PhysicalExemplarModel).where(
+                    PhysicalExemplarModel.id == id,
+                ),
+            ).first()
+            if not physical_exemplar_model:
+                raise NotFoundException("Physical exemplar not found")
+            return PhysicalExemplar.model_validate(physical_exemplar_model)
+
+    def get_physical_exemplar_by_book_and_branch(
+        self,
+        book_id: UUID,
+        branch_id: UUID,
+    ) -> PhysicalExemplar:
+        with self.db.get_session(slave=True) as session:
+            physical_exemplar_model = session.exec(
+                select(PhysicalExemplarModel).where(
+                    PhysicalExemplarModel.book_id == book_id,
+                    PhysicalExemplarModel.branch_id == branch_id,
+                ),
+            ).first()
+            if not physical_exemplar_model:
+                raise NotFoundException("Physical exemplar not found")
+            return PhysicalExemplar.model_validate(physical_exemplar_model)
