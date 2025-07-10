@@ -9,6 +9,40 @@
 - **Centralized Book Management**: Maintain a comprehensive catalog of books with detailed metadata including ISBN codes, editions, authors, categories, and publication information
 - **Multi-Branch Inventory Tracking**: Track physical book exemplars across different library branches with precise location information (room, floor, bookshelf)
 
+## Technology Stack
+
+The Book Service is built on a modern Python technology stack that emphasizes **type safety**, **performance**, and **developer experience**. The core foundation consists of three complementary technologies that work seamlessly together.
+
+### FastAPI Framework
+
+**FastAPI** serves as the high-performance web framework providing:
+
+- **Automatic API Documentation**: Self-generating OpenAPI/Swagger documentation with interactive testing interface
+- **Type-Based Validation**: Automatic request/response validation using Python type hints
+- **Async Support**: Native asynchronous programming support for high-concurrency operations
+- **Performance**: One of the fastest Python frameworks, comparable to Node.js and Go
+- **Modern Python**: Built on Python 3.7+ with full type hint support and modern async/await patterns
+
+### SQLModel (Data Layer)
+
+**SQLModel** combines the best of SQLAlchemy and Pydantic for database operations:
+
+- **Unified Models**: Single model definition for both database schema and API serialization
+- **Type Safety**: Full type checking support with automatic IDE completion
+- **SQLAlchemy Core**: Built on SQLAlchemy's proven ORM with relationship management
+- **Pydantic Integration**: Seamless data validation and serialization using Pydantic models
+- **Migration Support**: Alembic integration for database schema versioning and migrations
+
+### Pydantic (Data Validation)
+
+**Pydantic** provides robust data validation and serialization:
+
+- **Automatic Validation**: Type-based validation with detailed error messages
+- **Data Transformation**: Automatic type conversion and data cleaning
+- **Serialization**: JSON serialization/deserialization with custom encoders
+- **Settings Management**: Environment-based configuration with validation
+- **Documentation Generation**: Automatic schema generation for API documentation
+
 ## Database Schema
 
 The system uses a PostgreSQL database with a well-structured relational schema designed for scalability and data integrity. All entities inherit from a base model with common audit fields (id, created_at, updated_at, created_by, updated_by).
