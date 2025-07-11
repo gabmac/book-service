@@ -38,14 +38,59 @@ class Book(BaseEntity):
     updated_by: str = Field(description="Book updater ID")
 
 
-class BookFilter(BaseEntity):
+class BookSearchFilter(BaseEntity):
+    """Enhanced search filter for Elasticsearch book queries"""
+
+    # Basic book fields
     isbn_code: Optional[str] = Field(description="Book ISBN code", default=None)
     editor: Optional[str] = Field(description="Book editor", default=None)
     edition: Optional[int] = Field(description="Book edition", default=None)
     type: Optional[BookType] = Field(description="Book type", default=None)
-    publish_date: Optional[date] = Field(description="Book publish date", default=None)
-    author_name: Optional[str] = Field(description="Author name", default=None)
-    book_category_name: Optional[str] = Field(
-        description="Book category name",
+    publish_date_from: Optional[date] = Field(
+        description="Publish date from",
         default=None,
     )
+    publish_date_to: Optional[date] = Field(description="Publish date to", default=None)
+
+    # Full-text search
+    text_query: Optional[str] = Field(
+        description="Full-text search query",
+        default=None,
+    )
+    title_query: Optional[str] = Field(
+        description="Search in book titles",
+        default=None,
+    )
+    summary_query: Optional[str] = Field(
+        description="Search in book summaries",
+        default=None,
+    )
+
+    # Author filters
+    author_name: Optional[str] = Field(description="Author name", default=None)
+
+    # Category filters
+    category_title: Optional[str] = Field(description="Category title", default=None)
+
+    # Language filters
+    languages: Optional[List[str]] = Field(description="Book languages", default=None)
+
+    # Pagination
+    page: int = Field(description="Page number", default=1)
+    size: int = Field(description="Page size", default=10)
+
+    # Sorting
+    sort_by: Optional[str] = Field(description="Sort field", default=None)
+    sort_order: Optional[str] = Field(
+        description="Sort order (asc/desc)",
+        default="asc",
+    )
+
+    # Advanced options
+    fuzzy_search: bool = Field(description="Enable fuzzy matching", default=False)
+    highlight_fields: Optional[List[str]] = Field(
+        description="Fields to highlight",
+        default=None,
+    )
+
+    _basic_filters = {"isbn_code", "editor", "edition", "type"}

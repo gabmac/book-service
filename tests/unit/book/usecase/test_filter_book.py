@@ -1,7 +1,7 @@
 from tests.unit.book.usecase.conftest import BookUseCaseConftest
 
 from src.application.usecase.book.filter_book import FilterBook
-from src.domain.entities.book import BookFilter
+from src.domain.entities.book import BookSearchFilter
 
 
 class TestFilterBook(BookUseCaseConftest):
@@ -45,7 +45,7 @@ class TestFilterBook(BookUseCaseConftest):
         book3 = self.book_model_factory.build()
         all_books = [book1, book2, book3]
 
-        empty_filter = BookFilter()
+        empty_filter = BookSearchFilter()
 
         # Mock repository response
         self.mock_book_repository.get_book_by_filter.return_value = all_books
@@ -76,7 +76,7 @@ class TestFilterBook(BookUseCaseConftest):
 
     def test_execute_no_results(self):
         # Arrange
-        filter_criteria = BookFilter(isbn_code="nonexistent")
+        filter_criteria = BookSearchFilter(isbn_code="nonexistent")
 
         # Mock repository response - no books found
         self.mock_book_repository.get_book_by_filter.return_value = []

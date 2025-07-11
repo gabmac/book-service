@@ -1,0 +1,262 @@
+{
+  "books": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1,
+      "max_result_window": 10000,
+      "refresh_interval": "1s",
+      "analysis": {
+        "analyzer": {
+          "standard": {
+            "type": "standard",
+            "stopwords": "_english_"
+          }
+        }
+      }
+    },
+    "mappings": {
+      "properties": {
+        "id": {
+          "type": "keyword",
+          "index": true
+        },
+        "isbn_code": {
+          "type": "keyword"
+        },
+        "editor": {
+          "type": "text",
+          "analyzer": "standard",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "edition": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "keyword"
+        },
+        "publish_date": {
+          "type": "date"
+        },
+        "created_at": {
+          "type": "date",
+          "format": "strict_date_time"
+        },
+        "updated_at": {
+          "type": "date",
+          "format": "strict_date_time"
+        },
+        "created_by": {
+          "type": "keyword"
+        },
+        "updated_by": {
+          "type": "keyword"
+        },
+        "authors": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "text",
+              "analyzer": "standard",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "created_at": {
+              "type": "date",
+              "format": "strict_date_time"
+            },
+            "updated_at": {
+              "type": "date",
+              "format": "strict_date_time"
+            },
+            "created_by": {
+              "type": "keyword"
+            },
+            "updated_by": {
+              "type": "keyword"
+            }
+          }
+        },
+        "book_data": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "summary": {
+              "type": "text",
+              "analyzer": "standard"
+            },
+            "title": {
+              "type": "text",
+              "analyzer": "standard",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "language": {
+              "type": "keyword"
+            },
+            "created_at": {
+              "type": "date",
+              "format": "strict_date_time"
+            },
+            "updated_at": {
+              "type": "date",
+              "format": "strict_date_time"
+            },
+            "created_by": {
+              "type": "keyword"
+            },
+            "updated_by": {
+              "type": "keyword"
+            }
+          }
+        },
+        "book_categories": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "title": {
+              "type": "text",
+              "analyzer": "standard",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "description": {
+              "type": "text",
+              "analyzer": "standard"
+            },
+            "created_at": {
+              "type": "date",
+              "format": "strict_date_time"
+            },
+            "updated_at": {
+              "type": "date",
+              "format": "strict_date_time"
+            },
+            "created_by": {
+              "type": "keyword"
+            },
+            "updated_by": {
+              "type": "keyword"
+            }
+          }
+        },
+        "author_ids": {
+          "type": "keyword"
+        },
+        "category_ids": {
+          "type": "keyword"
+        },
+        "physical_exemplars": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "available": {
+              "type": "boolean"
+            },
+            "room": {
+              "type": "integer"
+            },
+            "floor": {
+              "type": "integer"
+            },
+            "bookshelf": {
+              "type": "integer"
+            },
+            "branch_id": {
+              "type": "keyword"
+            },
+            "branch": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "keyword"
+                },
+                "name": {
+                  "type": "text",
+                  "analyzer": "standard",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "created_at": {
+                  "type": "date",
+                  "format": "strict_date_time"
+                },
+                "updated_at": {
+                  "type": "date",
+                  "format": "strict_date_time"
+                },
+                "created_by": {
+                  "type": "keyword"
+                },
+                "updated_by": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "created_by": {
+              "type": "keyword"
+            },
+            "updated_by": {
+              "type": "keyword"
+            },
+            "created_at": {
+              "type": "date",
+              "format": "strict_date_time"
+            },
+            "updated_at": {
+              "type": "date",
+              "format": "strict_date_time"
+            },
+            "location": {
+              "type": "object",
+              "properties": {
+                "floor": {
+                  "type": "integer"
+                },
+                "room": {
+                  "type": "integer"
+                },
+                "bookshelf": {
+                  "type": "integer"
+                },
+                "full_location": {
+                  "type": "text",
+                  "analyzer": "standard"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -81,86 +81,86 @@ services:
     logging:
       driver: none
 
-  api:
-    container_name: api
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: api
-    image: book-service-api:${TESTE_VERSION:-latest}
-    restart: always
-    volumes:
-    - .:/code
-    ports:
-    - "9000:9000"
-    - "5678:5678"
-    environment:
-    - SYSTEM_ENVIRONMENT=local
-    - SYSTEM_HOST=0.0.0.0
-    - SYSTEM_PORT=9000
-    - DATABASE_HOST=postgres
-    - DATABASE_PORT=5432
-    - DATABASE_SLAVE_HOST=postgres-slave
-    - DATABASE_SLAVE_PORT=5432
-    - DATABASE_USER=postgres
-    - DATABASE_PASSWORD=123456
-    - DATABASE_NAME=book
-    - LOGSTASH_HOST=logstash
-    - LOGSTASH_PORT=5000
-    - PRODUCER_LOCALHOST=rabbitmq
-    - PRODUCER_USER=kalo
-    - PRODUCER_PASSWORD=kalo
-    - CONSUMER_LOCALHOST=rabbitmq
-    - CONSUMER_USER=kalo
-    - CONSUMER_PASSWORD=kalo
-    - SYSTEM_EXECUTOR=api
-    networks:
-    - os-net
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+  # api:
+  #   container_name: api
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #     target: api
+  #   image: book-service-api:${TESTE_VERSION:-latest}
+  #   restart: always
+  #   volumes:
+  #   - .:/code
+  #   ports:
+  #   - "9000:9000"
+  #   - "5678:5678"
+  #   environment:
+  #   - SYSTEM_ENVIRONMENT=local
+  #   - SYSTEM_HOST=0.0.0.0
+  #   - SYSTEM_PORT=9000
+  #   - DATABASE_HOST=postgres
+  #   - DATABASE_PORT=5432
+  #   - DATABASE_SLAVE_HOST=postgres-slave
+  #   - DATABASE_SLAVE_PORT=5432
+  #   - DATABASE_USER=postgres
+  #   - DATABASE_PASSWORD=123456
+  #   - DATABASE_NAME=book
+  #   - LOGSTASH_HOST=logstash
+  #   - LOGSTASH_PORT=5000
+  #   - PRODUCER_LOCALHOST=rabbitmq
+  #   - PRODUCER_USER=kalo
+  #   - PRODUCER_PASSWORD=kalo
+  #   - CONSUMER_LOCALHOST=rabbitmq
+  #   - CONSUMER_USER=kalo
+  #   - CONSUMER_PASSWORD=kalo
+  #   - SYSTEM_EXECUTOR=api
+  #   networks:
+  #   - os-net
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
 
-  consumer:
-    container_name: consumer
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: consumer
-    image: book-service-consumer:${TESTE_VERSION:-latest}
-    restart: always
-    ports:
-    - "5679:5679"
-    volumes:
-    - .:/code
-    environment:
-    - SYSTEM_ENVIRONMENT=local
-    - SYSTEM_HOST=0.0.0.0
-    - SYSTEM_PORT=9000
-    - DATABASE_HOST=postgres
-    - DATABASE_PORT=5432
-    - DATABASE_SLAVE_HOST=postgres-slave
-    - DATABASE_SLAVE_PORT=5432
-    - DATABASE_USER=postgres
-    - DATABASE_PASSWORD=123456
-    - DATABASE_NAME=book
-    - LOGSTASH_HOST=logstash
-    - LOGSTASH_PORT=5000
-    - PRODUCER_LOCALHOST=rabbitmq
-    - PRODUCER_USER=kalo
-    - PRODUCER_PASSWORD=kalo
-    - CONSUMER_LOCALHOST=rabbitmq
-    - CONSUMER_USER=kalo
-    - CONSUMER_PASSWORD=kalo
-    - SYSTEM_EXECUTOR=api
-    networks:
-    - os-net
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+  # consumer:
+  #   container_name: consumer
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #     target: consumer
+  #   image: book-service-consumer:${TESTE_VERSION:-latest}
+  #   restart: always
+  #   ports:
+  #   - "5679:5679"
+  #   volumes:
+  #   - .:/code
+  #   environment:
+  #   - SYSTEM_ENVIRONMENT=local
+  #   - SYSTEM_HOST=0.0.0.0
+  #   - SYSTEM_PORT=9000
+  #   - DATABASE_HOST=postgres
+  #   - DATABASE_PORT=5432
+  #   - DATABASE_SLAVE_HOST=postgres-slave
+  #   - DATABASE_SLAVE_PORT=5432
+  #   - DATABASE_USER=postgres
+  #   - DATABASE_PASSWORD=123456
+  #   - DATABASE_NAME=book
+  #   - LOGSTASH_HOST=logstash
+  #   - LOGSTASH_PORT=5000
+  #   - PRODUCER_LOCALHOST=rabbitmq
+  #   - PRODUCER_USER=kalo
+  #   - PRODUCER_PASSWORD=kalo
+  #   - CONSUMER_LOCALHOST=rabbitmq
+  #   - CONSUMER_USER=kalo
+  #   - CONSUMER_PASSWORD=kalo
+  #   - SYSTEM_EXECUTOR=api
+  #   networks:
+  #   - os-net
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
 
 
 
@@ -224,6 +224,39 @@ services:
     - os-net
     depends_on:
     - opensearch-node1
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: elasticsearch
+    environment:
+    - node.name=elasticsearch
+    - cluster.name=elasticsearch-cluster
+    - discovery.type=single-node
+    - bootstrap.memory_lock=true
+    - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    - xpack.security.enabled=false
+    - xpack.security.enrollment.enabled=false
+    - xpack.security.http.ssl.enabled=false
+    - xpack.security.transport.ssl.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+    - 9201:9200    # Using different port to avoid conflict with OpenSearch
+    - 9301:9300
+    networks:
+    - os-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    logging:
+      driver: none
 
 volumes:
   rabbitmq-lib:

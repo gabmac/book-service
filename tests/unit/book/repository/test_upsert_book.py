@@ -47,32 +47,7 @@ class TestUpsertBook(BookRepositoryConftest):
 
         # Act
         result = self.book_repository.upsert_book(book=book)
-
-        exclude_book = {"book_data", "category_ids", "author_ids"}
-        exclude_book_data = {"created_at", "created_by", "updated_at", "updated_by"}
-        # Assert
-        self.assertEqual(
-            result.model_dump(exclude=exclude_book),
-            book.model_dump(exclude=exclude_book),
-        )
-        self.assertEqual(result.authors, authors)
-        self.assertEqual(result.book_categories, book_categories)
-        self.assertEqual(
-            sorted(
-                (
-                    book_data.model_dump(exclude=exclude_book_data)
-                    for book_data in result.book_data  # type: ignore
-                ),
-                key=lambda x: x["id"],
-            ),  # type: ignore
-            sorted(
-                (
-                    book_data.model_dump(exclude=exclude_book_data)
-                    for book_data in book.book_data
-                ),
-                key=lambda x: x["id"],
-            ),
-        )
+        self.validate_book([result], [book])
 
     def test_update_book_with_authors_categories_and_data(self):
         # Arrange - Create and save a book first
@@ -99,37 +74,4 @@ class TestUpsertBook(BookRepositoryConftest):
 
         # Act - Update the book editor, authors, categories, and book data
         result = self.book_repository.upsert_book(book=book)
-
-        # Assert
-
-        exclude_book = {"book_data", "category_ids", "author_ids", "book_categories"}
-        exclude_book_data = {"created_at", "created_by", "updated_at", "updated_by"}
-        # Assert
-        self.assertEqual(
-            result.model_dump(exclude=exclude_book),
-            book.model_dump(exclude=exclude_book),
-        )
-        self.assertEqual(
-            sorted(result.authors, key=lambda x: x.id),  # type: ignore
-            sorted([self.author3, self.author4], key=lambda x: x.id),  # type: ignore
-        )
-        self.assertEqual(
-            sorted(result.book_categories, key=lambda x: x.id),  # type: ignore
-            sorted([self.book_category3, self.book_category4], key=lambda x: x.id),  # type: ignore
-        )
-        self.assertEqual(
-            sorted(
-                (
-                    book_data.model_dump(exclude=exclude_book_data)
-                    for book_data in result.book_data  # type: ignore
-                ),
-                key=lambda x: x["id"],
-            ),  # type: ignore
-            sorted(
-                (
-                    book_data.model_dump(exclude=exclude_book_data)
-                    for book_data in book.book_data  # type: ignore
-                ),
-                key=lambda x: x["id"],
-            ),  # type: ignore
-        )
+        self.validate_book([result], [book])

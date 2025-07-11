@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
-from src.domain.entities.book import Book, BookFilter
+from src.domain.entities.book import Book, BookSearchFilter
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 
 
@@ -19,7 +19,10 @@ class BookRepositoryPort(ABC):
         pass
 
     @abstractmethod
-    def get_book_by_filter(self, filter: BookFilter) -> List[Book]:
+    def get_book_by_filter(
+        self,
+        filter: Optional[BookSearchFilter] = None,
+    ) -> List[Book]:
         pass
 
     @abstractmethod

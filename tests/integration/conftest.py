@@ -3,6 +3,9 @@ from sqlalchemy import text
 from tests.conftest import BaseConfTest
 
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
+from src.infrastructure.adapters.database.elasticsearch.client import (
+    ElasticsearchClient,
+)
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
 from src.infrastructure.adapters.database.repository.book_category import (
@@ -14,6 +17,8 @@ from src.infrastructure.adapters.database.repository.physical_exemplar import (
 )
 from src.infrastructure.adapters.entrypoints.consumer import Consumer
 from src.infrastructure.settings.config import (
+    ElasticsearchConfig,
+    ElasticsearchIndexConfig,
     LogstashConfig,
     ProducerConfig,
     SystemConfig,
@@ -45,8 +50,30 @@ class BaseViewConfTest(BaseConfTest):
             slave_port=5433,
         )
         cls.db._pg_trgm_install()
+        cls.elasticsearch_config = ElasticsearchConfig(
+            host="localhost",
+            port=9201,  # Using port 9201 to avoid conflict with OpenSearch on 9200
+            username="",
+            password="",
+            use_ssl=False,
+            verify_certs=False,
+            timeout=30,
+            max_retries=3,
+            retry_on_timeout=True,
+        )
+        cls.elasticsearch_index_config = ElasticsearchIndexConfig(
+            books_index="test_books",
+            mappings_file_path="src/infrastructure/settings/elasticsearch_mappings.json",
+            number_of_shards=1,
+            number_of_replicas=0,  # No replicas for testing
+            max_result_window=10000,
+            refresh_interval="1s",
+        )
+
+        # Create real Elasticsearch client for tests
+        cls.elasticsearch_client = ElasticsearchClient(cls.elasticsearch_config)
         cls.author_repository = AuthorRepository(db=cls.db)  # type: ignore
-        cls.book_repository = BookRepository(db=cls.db)  # type: ignore
+        cls.book_repository = BookRepository(db=cls.db, elasticsearch_client=cls.elasticsearch_client)  # type: ignore
         cls.branch_repository = BranchRepository(db=cls.db)  # type: ignore
         cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
         cls.physical_exemplar_repository = PhysicalExemplarRepository(db=cls.db)  # type: ignore
@@ -59,6 +86,8 @@ class BaseViewConfTest(BaseConfTest):
             cls.logstash_config,
             cls.system_config,
         )
+
+        # Create real Elasticsearch client for tests
 
     @classmethod
     def tearDownClass(cls):
@@ -77,6 +106,8 @@ class BaseViewConfTest(BaseConfTest):
 
     def tearDown(self):
         super().tearDown()
+        # Clean up Elasticsearch test data
+        # Delete test index if it exists
         with self.db.get_session() as session:
             session.exec(text("DELETE FROM author_book_link"))  # type: ignore
             session.exec(text("DELETE FROM author"))  # type: ignore
@@ -87,6 +118,10 @@ class BaseViewConfTest(BaseConfTest):
             session.exec(text("DELETE FROM book_data"))  # type: ignore
             session.exec(text("DELETE FROM book"))  # type: ignore
             session.commit()
+
+        test_index = self.elasticsearch_index_config.books_index
+        if self.elasticsearch_client.client.indices.exists(index=test_index):
+            self.elasticsearch_client.client.indices.delete(index=test_index)
 
     @property
     def client(self) -> TestClient:

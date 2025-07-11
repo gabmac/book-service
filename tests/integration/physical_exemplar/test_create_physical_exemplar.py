@@ -3,7 +3,6 @@ import json
 from tests.integration.physical_exemplar.conftest import PhysicalExemplarViewConfTest
 
 from src.application.dto.physical_exemplar import ProcessingPhysicalExemplar
-from src.domain.entities.book import BookFilter
 from src.domain.entities.physical_exemplar import PhysicalExemplar
 
 
@@ -94,11 +93,11 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
         self.consumer.consume("physical_exemplar.upsert")
 
         # And the physical exemplar is stored in the database
-        stored_physical_exemplars = (
-            self.physical_exemplar_repository.filter_by_branch_and_book_filter(
+        stored_physical_exemplar = (
+            self.physical_exemplar_repository.get_physical_exemplar_by_book_and_branch(
+                book_id=self.stored_book.id,
                 branch_id=self.stored_branch.id,
-                book_filter=BookFilter(),
-            )[0]
+            )
         )
 
         physical_exemplar = PhysicalExemplar(
@@ -118,7 +117,7 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
 
         self.assertDictEqual(
             json.loads(
-                stored_physical_exemplars.model_dump_json(
+                stored_physical_exemplar.model_dump_json(
                     exclude_none=True,
                     exclude_unset=True,
                     exclude=exclude_fields,
@@ -177,11 +176,11 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
         self.consumer.consume("physical_exemplar.upsert")
 
         # And only one physical exemplar exists in the database
-        stored_physical_exemplars = (
-            self.physical_exemplar_repository.filter_by_branch_and_book_filter(
+        stored_physical_exemplar = (
+            self.physical_exemplar_repository.get_physical_exemplar_by_book_and_branch(
+                book_id=self.stored_book.id,
                 branch_id=self.stored_branch.id,
-                book_filter=BookFilter(),
-            )[0]
+            )
         )
 
         physical_exemplar = PhysicalExemplar(
@@ -201,7 +200,7 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
 
         self.assertDictEqual(
             json.loads(
-                stored_physical_exemplars.model_dump_json(
+                stored_physical_exemplar.model_dump_json(
                     exclude_none=True,
                     exclude_unset=True,
                     exclude=exclude_fields,

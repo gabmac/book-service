@@ -39,7 +39,7 @@ Once the application is running with `make build-run-application`, you can acces
 
 - **🔍 RabbitMQ Management**: [http://localhost:15672](http://localhost:15672)
   - Message queue monitoring and management
-  - Default credentials: `guest` / `guest`
+  - Default credentials: `kalo` / `kalo`
 
 ### Core Business Objectives
 

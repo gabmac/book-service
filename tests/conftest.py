@@ -1,3 +1,5 @@
+import json
+from typing import List
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock, patch
 
@@ -10,12 +12,15 @@ from src.application.dto.book_dto import Book as BookDto
 from src.application.dto.branch import BranchUpsert
 from src.application.dto.physical_exemplar import PhysicalExemplarCreate
 from src.domain.entities.author import Author
-from src.domain.entities.book import Book, BookFilter
+from src.domain.entities.book import Book, BookSearchFilter
 from src.domain.entities.book_category import BookCategory
 from src.domain.entities.book_data import BookData
 from src.domain.entities.branch import Branch
 from src.domain.entities.physical_exemplar import PhysicalExemplar
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
+from src.infrastructure.adapters.database.elasticsearch.client import (
+    ElasticsearchClient,
+)
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
 from src.infrastructure.adapters.database.repository.book_category import (
@@ -24,6 +29,10 @@ from src.infrastructure.adapters.database.repository.book_category import (
 from src.infrastructure.adapters.database.repository.branch import BranchRepository
 from src.infrastructure.adapters.database.repository.physical_exemplar import (
     PhysicalExemplarRepository,
+)
+from src.infrastructure.settings.config import (
+    ElasticsearchConfig,
+    ElasticsearchIndexConfig,
 )
 
 
@@ -52,7 +61,7 @@ class PhysicalExemplarModelFactory(ModelFactory):
 
 
 class BookFilterModelFactory(ModelFactory):
-    __model__ = BookFilter
+    __model__ = BookSearchFilter
 
 
 class BookDtoModelFactory(ModelFactory):
@@ -95,8 +104,99 @@ class BaseConfTest(IsolatedAsyncioTestCase):
 
         super().setUpClass()
 
+    def validate_book(self, books: List[Book], expected_book: List[Book]) -> None:
+        exclude_book = {
+            "book_data",
+            "authors",
+            "book_categories",
+            "created_at",
+            "updated_at",
+            "author_ids",
+            "category_ids",
+            "created_by",
+            "updated_by",
+        }
+        results = sorted(expected_book, key=lambda x: x.id)
+        books = sorted(books, key=lambda x: x.id)
 
-class BaseRepositoryConfTest(BaseConfTest):
+        for result, book in zip(results, books):
+            self.assertDictEqual(
+                result.model_dump(
+                    mode="json",
+                    exclude_none=True,
+                    exclude_unset=True,
+                    exclude=exclude_book,
+                ),
+                book.model_dump(
+                    mode="json",
+                    exclude_none=True,
+                    exclude_unset=True,
+                    exclude=exclude_book,
+                ),
+            )
+
+            exclude_book_data = {"created_at", "created_by", "updated_at", "updated_by"}
+
+            self.assertListEqual(
+                sorted(
+                    (
+                        book_data.model_dump(exclude=exclude_book_data, mode="json")  # type: ignore
+                        for book_data in result.book_data  # type: ignore
+                    ),
+                    key=lambda x: x["id"],
+                ),  # type: ignore
+                sorted(
+                    (
+                        book_data.model_dump(exclude=exclude_book_data, mode="json")  # type: ignore
+                        for book_data in book.book_data
+                    ),
+                    key=lambda x: x["id"],
+                ),
+            )
+
+            exclude_book_category = {
+                "created_at",
+                "created_by",
+                "updated_at",
+                "updated_by",
+            }
+            self.assertListEqual(
+                sorted(
+                    (
+                        book_category.model_dump(exclude=exclude_book_category, mode="json")  # type: ignore
+                        for book_category in result.book_categories  # type: ignore
+                    ),
+                    key=lambda x: x["id"],
+                ),
+                sorted(
+                    (
+                        book_category.model_dump(exclude=exclude_book_category, mode="json")  # type: ignore
+                        for book_category in book.book_categories
+                    ),
+                    key=lambda x: x["id"],
+                ),
+            )
+
+            exclude_author = {"created_at", "created_by", "updated_at", "updated_by"}
+            self.assertListEqual(
+                sorted(
+                    (
+                        author.model_dump(exclude=exclude_author, mode="json")  # type: ignore
+                        for author in result.authors  # type: ignore
+                    ),
+                    key=lambda x: x["id"],
+                ),
+                sorted(
+                    (
+                        author.model_dump(exclude=exclude_author, mode="json")  # type: ignore
+                        for author in book.authors
+                    ),
+                    key=lambda x: x["id"],
+                ),
+            )
+
+
+class BasePostgresRepositoryConfTest(BaseConfTest):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -110,11 +210,6 @@ class BaseRepositoryConfTest(BaseConfTest):
         )
         # cls.db.init_db()
         cls.db._pg_trgm_install()
-        cls.book_repository = BookRepository(db=cls.db)  # type: ignore
-        cls.author_repository = AuthorRepository(db=cls.db)  # type: ignore
-        cls.branch_repository = BranchRepository(db=cls.db)  # type: ignore
-        cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
-        cls.physical_exemplar_repository = PhysicalExemplarRepository(db=cls.db)  # type: ignore
 
     def tearDown(self):
         super().tearDown()
@@ -135,6 +230,87 @@ class BaseProducerConfTest(BaseConfTest):
     def setUpClass(cls) -> None:
         super().setUpClass()
         cls.mock_producer = Mock()
+
+
+class BaseElasticsearchConfTest(BaseConfTest):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        # Test Elasticsearch configuration
+        cls.elasticsearch_config = ElasticsearchConfig(
+            host="localhost",
+            port=9201,  # Using port 9201 to avoid conflict with OpenSearch on 9200
+            username="",
+            password="",
+            use_ssl=False,
+            verify_certs=False,
+            timeout=30,
+            max_retries=3,
+            retry_on_timeout=True,
+        )
+        cls.elasticsearch_index_config = ElasticsearchIndexConfig(
+            books_index="test_books",
+            mappings_file_path="src/infrastructure/settings/elasticsearch_mappings.json",
+            number_of_shards=1,
+            number_of_replicas=0,  # No replicas for testing
+            max_result_window=10000,
+            refresh_interval="1s",
+        )
+
+        # Create real Elasticsearch client for tests
+        cls.elasticsearch_client = ElasticsearchClient(cls.elasticsearch_config)
+
+    def setUp(self):
+        super().setUp()
+        # Set up test index if using real Elasticsearch
+        test_index = self.elasticsearch_index_config.books_index
+        if not self.elasticsearch_client.client.indices.exists(index=test_index):
+            # Load mappings from file and create index with proper mappings
+            with open(self.elasticsearch_index_config.mappings_file_path) as f:
+                mappings_data = json.load(f)
+
+            # Extract the books index configuration
+            books_config = mappings_data.get("books", {})
+
+            # Create test index with proper mappings
+            self.elasticsearch_client.client.indices.create(
+                index=test_index,
+                body={
+                    "settings": books_config.get(
+                        "settings",
+                        {
+                            "number_of_shards": self.elasticsearch_index_config.number_of_shards,
+                            "number_of_replicas": self.elasticsearch_index_config.number_of_replicas,
+                            "refresh_interval": self.elasticsearch_index_config.refresh_interval,
+                        },
+                    ),
+                    "mappings": books_config.get("mappings", {}),
+                },
+            )
+
+    def tearDown(self):
+        super().tearDown()
+        # Clean up Elasticsearch test data
+        # Delete test index if it exists
+        test_index = self.elasticsearch_index_config.books_index
+        if self.elasticsearch_client.client.indices.exists(index=test_index):
+            self.elasticsearch_client.client.indices.delete(index=test_index)
+
+
+class BaseRepositoryConfTest(BasePostgresRepositoryConfTest, BaseElasticsearchConfTest):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+
+        # Initialize repositories with both PostgreSQL and Elasticsearch
+        cls.book_repository = BookRepository(db=cls.db, elasticsearch_client=cls.elasticsearch_client)  # type: ignore
+        # Override the Elasticsearch index name for tests
+        cls.book_repository.es_index = cls.elasticsearch_index_config.books_index
+
+        cls.author_repository = AuthorRepository(db=cls.db)  # type: ignore
+        cls.branch_repository = BranchRepository(db=cls.db)  # type: ignore
+        cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
+        cls.physical_exemplar_repository = PhysicalExemplarRepository(db=cls.db)  # type: ignore
 
 
 class BaseUseCaseConfTest(BaseConfTest):

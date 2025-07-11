@@ -1,6 +1,6 @@
 from tests.unit.book.repository.conftest import BookRepositoryConftest
 
-from src.domain.entities.book import BookFilter
+from src.domain.entities.book import BookSearchFilter
 
 
 class TestGetBookByFilter(BookRepositoryConftest):
@@ -82,9 +82,26 @@ class TestGetBookByFilter(BookRepositoryConftest):
         self.book_repository.upsert_book(book=self.book2)
         self.book_repository.upsert_book(book=self.book3)
 
+    def test_comprehensive_search_filter(self):
+        """Test BookSearchFilter with multiple filter criteria using both PostgreSQL and Elasticsearch"""
+
+        # Arrange - Create a comprehensive search filter
+        search_filter = BookSearchFilter(
+            isbn_code=self.book1.isbn_code,
+            editor=self.book1.editor,
+            text_query="programming",  # Elasticsearch-specific
+            author_name=self.author1.name,
+            page=1,
+            size=10,
+            sort_by="created_at",
+            sort_order="desc",
+        )
+        results = self.book_repository.get_book_by_filter(filter=search_filter)
+        self.validate_book([self.book1], results)
+
     def test_filter_not_found(self):
         # Act - Filter by non-existent ISBN
-        filter_criteria = BookFilter(isbn_code="978-0-000000-00-0")
+        filter_criteria = BookSearchFilter(isbn_code="978-0-000000-00-0")
         results = self.book_repository.get_book_by_filter(filter=filter_criteria)
 
         # Assert - Should return empty list
@@ -95,18 +112,12 @@ class TestGetBookByFilter(BookRepositoryConftest):
         results = self.book_repository.get_book_by_filter(filter=None)
 
         # Assert - Should return all books
-        self.assertEqual(
-            results.sort(key=lambda x: x.id),
-            [self.book1, self.book2, self.book3].sort(key=lambda x: x.id),
-        )
+        self.validate_book([self.book1, self.book2, self.book3], results)
 
     def test_empty_filter_returns_all(self):
         # Act - Call with empty filter
-        empty_filter = BookFilter()
+        empty_filter = BookSearchFilter()
         results = self.book_repository.get_book_by_filter(filter=empty_filter)
 
         # Assert - Should return all books
-        self.assertEqual(
-            results.sort(key=lambda x: x.id),
-            [self.book1, self.book2, self.book3].sort(key=lambda x: x.id),
-        )
+        self.validate_book([self.book1, self.book2, self.book3], results)

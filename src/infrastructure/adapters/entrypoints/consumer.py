@@ -27,6 +27,9 @@ from src.domain.entities.book_category import BookCategory
 from src.domain.entities.branch import Branch
 from src.domain.entities.physical_exemplar import PhysicalExemplar
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
+from src.infrastructure.adapters.database.elasticsearch.client import (
+    ElasticsearchClient,
+)
 from src.infrastructure.adapters.database.repository.author import AuthorRepository
 from src.infrastructure.adapters.database.repository.book import BookRepository
 from src.infrastructure.adapters.database.repository.book_category import (
@@ -38,6 +41,7 @@ from src.infrastructure.adapters.database.repository.physical_exemplar import (
 )
 from src.infrastructure.settings.config import (
     DatabaseConfig,
+    ElasticsearchConfig,
     LogstashConfig,
     ProducerConfig,
     SlaveDatabaseConfig,
@@ -55,7 +59,12 @@ db = DatabaseSettings(
     slave_host=slave_db_config.host,
     slave_port=slave_db_config.port,
 )
-book_repository = BookRepository(db=db)
+
+# Initialize Elasticsearch client
+elasticsearch_config = ElasticsearchConfig()
+elasticsearch_client = ElasticsearchClient(elasticsearch_config)
+
+book_repository = BookRepository(db=db, elasticsearch_client=elasticsearch_client)
 author_repository = AuthorRepository(db=db)
 book_category_repository = BookCategoryRepository(db=db)
 branch_repository = BranchRepository(db=db)
