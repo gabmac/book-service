@@ -192,6 +192,8 @@ volumes:
     driver: local
   postgresql_master_data:
     driver: local
+  elasticsearch-data:
+    driver: local
 
 networks:
   os-net:
