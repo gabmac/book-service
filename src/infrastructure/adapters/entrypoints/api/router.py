@@ -17,6 +17,9 @@ from src.application.usecase.book_category.book_category_publish import (
 )
 from src.application.usecase.branch.filter_branch import FilterBranch
 from src.application.usecase.branch.upsert_branch_produce import UpsertBranchProduce
+from src.application.usecase.physical_exemplar.get_physical_exemplar_by_book_and_branch import (
+    GetPhysicalExemplarByBookAndBranch,
+)
 from src.application.usecase.physical_exemplar.upsert_physical_exemplar_produce import (
     UpsertPhysicalExemplarProduce,
 )
@@ -76,6 +79,9 @@ from src.infrastructure.adapters.entrypoints.api.routes.branch.filter_branch_vie
 )
 from src.infrastructure.adapters.entrypoints.api.routes.physical_exemplar.create_physical_exemplar_publish_view import (
     PublishCreatePhysicalExemplarView,
+)
+from src.infrastructure.adapters.entrypoints.api.routes.physical_exemplar.get_physical_exemplar_view import (
+    GetPhysicalExemplarView,
 )
 from src.infrastructure.adapters.entrypoints.producer import Producer
 from src.infrastructure.adapters.producer.author_producer import AuthorProducerAdapter
@@ -216,3 +222,11 @@ class Initializer:
             self.upsert_physical_exemplar_use_case,
         )
         self.api_router.include_router(self.publish_create_physical_exemplar_view.router)  # type: ignore
+
+        self.get_physical_exemplar_use_case = GetPhysicalExemplarByBookAndBranch(
+            repository=self.physical_exemplar_repository,
+        )
+        self.get_physical_exemplar_view = GetPhysicalExemplarView(
+            self.get_physical_exemplar_use_case,
+        )
+        self.api_router.include_router(self.get_physical_exemplar_view.router)  # type: ignore
