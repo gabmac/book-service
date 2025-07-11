@@ -44,7 +44,7 @@ ENTRYPOINT ["/usr/bin/python", "-m", "src.consumer"]
 
 FROM build-test AS test
 ENTRYPOINT [ "sh", "-c" ]
-CMD ["alembic upgrade head && coverage run -m unittest discover -v -s ./tests -p '*test*.py';coverage report;exit 0"]
+CMD ["coverage run -m unittest discover -v -s ./tests -p '*test*.py';coverage report;exit 0"]
 
 FROM build as debug-api
 ENV PYDEVD_DISABLE_FILE_VALIDATION=1

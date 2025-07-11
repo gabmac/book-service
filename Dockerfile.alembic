@@ -1,0 +1,24 @@
+# Build stage
+FROM python:3.11-slim as build
+
+WORKDIR /code
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Install Poetry
+RUN pip install poetry
+RUN poetry config virtualenvs.create false
+
+# Copy your application code and install dependencies
+COPY poetry.lock pyproject.toml ./
+
+# Install only main dependencies
+RUN poetry install --only main
+COPY src src
+
+COPY alembic.ini alembic.ini
+COPY alembic alembic
+
+CMD ["python", "-m", "alembic", "upgrade", "head"]

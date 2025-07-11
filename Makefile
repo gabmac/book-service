@@ -75,13 +75,13 @@ alembic-migrate:
 
 build-run-application: build-application run-application
 
-build-run-application-test: build-application-test run-application-test
-
 build-application-test:
 	docker compose -f docker-compose.test.yml build --no-cache
 
 run-application-test-decouple:
-	docker compose -f docker-compose.test.yml up -d
+	docker compose -f docker-compose.test.yml up
+
+build-run-application-test: build-application-test run-application-test
 
 get-application-test-logs:
 	docker logs application-test -f
