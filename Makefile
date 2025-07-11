@@ -79,7 +79,7 @@ build-application-test:
 	docker compose -f docker-compose.test.yml build --no-cache
 
 run-application-test-decouple:
-	docker compose -f docker-compose.test.yml up
+	docker compose -f docker-compose.test.yml up -d
 
 build-run-application-test: build-application-test run-application-test
 

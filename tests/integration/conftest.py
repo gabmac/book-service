@@ -17,10 +17,12 @@ from src.infrastructure.adapters.database.repository.physical_exemplar import (
 )
 from src.infrastructure.adapters.entrypoints.consumer import Consumer
 from src.infrastructure.settings.config import (
+    DatabaseConfig,
     ElasticsearchConfig,
     ElasticsearchIndexConfig,
     LogstashConfig,
     ProducerConfig,
+    SlaveDatabaseConfig,
     SystemConfig,
 )
 from src.infrastructure.settings.web_application import app
@@ -33,21 +35,15 @@ class BaseViewConfTest(BaseConfTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        # cls.db = DatabaseSettings(
-        #     host=DatabaseConfig.host,
-        #     password=DatabaseConfig.password,
-        #     port=DatabaseConfig.port,
-        #     user=DatabaseConfig.user,
-        #     slave_host=SlaveDatabaseConfig.host,
-        #     slave_port=SlaveDatabaseConfig.port,
-        # )
+        db_config = DatabaseConfig()
+        slave_db_config = SlaveDatabaseConfig()
         cls.db = DatabaseSettings(
-            host="localhost",
-            password="123456",
-            port=5432,
-            user="postgres",
-            slave_host="localhost",
-            slave_port=5433,
+            host=db_config.host,
+            password=db_config.password,
+            port=db_config.port,
+            user=db_config.user,
+            slave_host=slave_db_config.host,
+            slave_port=slave_db_config.port,
         )
         cls.db._pg_trgm_install()
         cls.elasticsearch_config = ElasticsearchConfig()

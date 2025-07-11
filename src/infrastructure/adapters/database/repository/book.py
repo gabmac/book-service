@@ -183,26 +183,20 @@ class BookRepository(BookRepositoryPort):
         # Full-text search queries
 
         if filter.isbn_code:
-            # Use case-insensitive match for isbn_code (like ILIKE in SQL)
+            # Use match_phrase query for isbn_code (exact phrase matching)
             query["bool"]["must"].append(
                 {
-                    "wildcard": {
-                        "isbn_code": {
-                            "value": f"*{filter.isbn_code}*",
-                            "case_insensitive": True,
-                        },
+                    "match_phrase": {
+                        "isbn_code": filter.isbn_code,
                     },
                 },
             )
         if filter.editor:
-            # Use case-insensitive match for editor (like ILIKE in SQL)
+            # Use match_phrase query for editor (exact phrase matching)
             query["bool"]["must"].append(
                 {
-                    "wildcard": {
-                        "editor": {
-                            "value": f"*{filter.editor}*",
-                            "case_insensitive": True,
-                        },
+                    "match_phrase": {
+                        "editor": filter.editor,
                     },
                 },
             )
@@ -409,6 +403,7 @@ class BookRepository(BookRepositoryPort):
         """Index book in Elasticsearch"""
 
         es_document = self._book_to_elasticsearch_document(book)
+
         self.es_client.client.index(  # type: ignore
             index=self.es_index,
             id=str(book.id),
@@ -430,8 +425,11 @@ class BookRepository(BookRepositoryPort):
         self,
         filter: BookSearchFilter,
     ) -> List[Book]:
-
-        return self._search_books_elasticsearch(filter)
+        try:
+            return self._search_books_elasticsearch(filter)
+        except (ESConnectionError, Exception):
+            # Fallback to PostgreSQL if Elasticsearch is not available or fails
+            return self._search_books_postgresql(filter)
 
     def _search_books_elasticsearch(self, filter: BookSearchFilter) -> List[Book]:
         """Search books using Elasticsearch"""

@@ -148,7 +148,7 @@ class BaseConfTest(IsolatedAsyncioTestCase):
                 sorted(
                     (
                         book_data.model_dump(exclude=exclude_book_data, mode="json")  # type: ignore
-                        for book_data in book.book_data
+                        for book_data in book.book_data  # type: ignore
                     ),
                     key=lambda x: x["id"],
                 ),
@@ -237,25 +237,8 @@ class BaseElasticsearchConfTest(BaseConfTest):
     def setUpClass(cls) -> None:
         super().setUpClass()
         # Test Elasticsearch configuration
-        cls.elasticsearch_config = ElasticsearchConfig(
-            host="localhost",
-            port=9201,  # Using port 9201 to avoid conflict with OpenSearch on 9200
-            username="",
-            password="",
-            use_ssl=False,
-            verify_certs=False,
-            timeout=30,
-            max_retries=3,
-            retry_on_timeout=True,
-        )
-        cls.elasticsearch_index_config = ElasticsearchIndexConfig(
-            books_index="test_books",
-            mappings_file_path="src/infrastructure/settings/elasticsearch_mappings.json",
-            number_of_shards=1,
-            number_of_replicas=0,  # No replicas for testing
-            max_result_window=10000,
-            refresh_interval="1s",
-        )
+        cls.elasticsearch_config = ElasticsearchConfig()
+        cls.elasticsearch_index_config = ElasticsearchIndexConfig()
 
         # Create real Elasticsearch client for tests
         cls.elasticsearch_client = ElasticsearchClient(cls.elasticsearch_config)
