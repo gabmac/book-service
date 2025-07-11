@@ -107,13 +107,6 @@ class TestGetBookByFilter(BookRepositoryConftest):
         # Assert - Should return empty list
         self.assertEqual(results, [])
 
-    def test_no_filter_returns_all(self):
-        # Act - Call with no filter
-        results = self.book_repository.get_book_by_filter(filter=None)
-
-        # Assert - Should return all books
-        self.validate_book([self.book1, self.book2, self.book3], results)
-
     def test_empty_filter_returns_all(self):
         # Act - Call with empty filter
         empty_filter = BookSearchFilter()

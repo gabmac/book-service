@@ -1,9 +1,8 @@
-import json
 from datetime import date
 
-from src.domain.entities.book import Book
 from tests.integration.book.conftest import BookViewConfTest
 
+from src.domain.entities.book import Book
 from src.domain.enums.book_type import BookType
 
 
@@ -117,8 +116,8 @@ class TestFilterBook(BookViewConfTest):
         response_book = Book.model_validate(response_data[0])
 
         # And the response should list books that match all filters
-        self.validate_book([response_book],[self.stored_book1])
-        
+        self.validate_book([response_book], [self.stored_book1])
+
     def test_filter_book_no_results(self):
 
         # Scenario: Filter books with no matches

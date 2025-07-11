@@ -38,10 +38,23 @@ class BookFilter(BaseDto):
     editor: Optional[str] = Field(description="Book editor", default=None)
     edition: Optional[int] = Field(description="Book edition", default=None)
     type: Optional[BookType] = Field(description="Book type", default=None)
-    author_name: Optional[str] = Field(description="Author name", default=None)
-    publish_date: Optional[date] = Field(description="Book publish date", default=None)
-    book_category_name: Optional[str] = Field(
-        description="Book category name",
+    publish_date_from: Optional[date] = Field(
+        description="Publish date from",
+        default=None,
+    )
+    publish_date_to: Optional[date] = Field(description="Publish date to", default=None)
+
+    # Full-text search
+    text_query: Optional[str] = Field(
+        description="Full-text search query",
+        default=None,
+    )
+    title_query: Optional[str] = Field(
+        description="Search in book titles",
+        default=None,
+    )
+    summary_query: Optional[str] = Field(
+        description="Search in book summaries",
         default=None,
     )
 

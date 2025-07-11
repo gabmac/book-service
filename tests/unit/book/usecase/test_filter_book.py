@@ -71,7 +71,14 @@ class TestFilterBook(BookUseCaseConftest):
         result = self.filter_book.execute(None)
 
         # Assert
-        self.mock_book_repository.get_book_by_filter.assert_called_once_with(None)
+        self.mock_book_repository.get_book_by_filter.assert_called_once_with(
+            BookSearchFilter(
+                page=1,
+                size=10,
+                sort_by="created_at",
+                sort_order="desc",
+            ),
+        )
         self.assertEqual(result, all_books)
 
     def test_execute_no_results(self):

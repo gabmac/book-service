@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
 from src.domain.entities.book import Book, BookSearchFilter
@@ -21,7 +21,7 @@ class BookRepositoryPort(ABC):
     @abstractmethod
     def get_book_by_filter(
         self,
-        filter: Optional[BookSearchFilter] = None,
+        filter: BookSearchFilter,
     ) -> List[Book]:
         pass
 

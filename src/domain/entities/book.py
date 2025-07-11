@@ -81,10 +81,10 @@ class BookSearchFilter(BaseEntity):
     size: int = Field(description="Page size", default=10)
 
     # Sorting
-    sort_by: Optional[str] = Field(description="Sort field", default=None)
+    sort_by: Optional[str] = Field(description="Sort field", default="created_at")
     sort_order: Optional[str] = Field(
         description="Sort order (asc/desc)",
-        default="asc",
+        default="desc",
     )
 
     # Advanced options
