@@ -101,7 +101,7 @@ class ElasticsearchIndexConfig(BaseSettings):
     )
     mappings_file_path: str = Field(
         description="Path to the JSON file containing Elasticsearch mappings",
-        default="src/infrastructure/settings/elasticsearch_mappings.json",
+        default="",
     )
     number_of_shards: int = Field(
         description="Number of primary shards for the index",

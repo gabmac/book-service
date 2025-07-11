@@ -430,11 +430,7 @@ class BookRepository(BookRepositoryPort):
         self,
         filter: BookSearchFilter,
     ) -> List[Book]:
-        # Convert BookFilter to BookSearchFilter if needed
 
-        filter = filter if filter and filter.model_dump(exclude_unset=True, exclude_none=True) else None  # type: ignore
-
-        # Try Elasticsearch first if client is available
         return self._search_books_elasticsearch(filter)
 
     def _search_books_elasticsearch(self, filter: BookSearchFilter) -> List[Book]:

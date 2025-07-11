@@ -30,3 +30,7 @@ os.environ["ELASTICSEARCH_VERIFY_CERTS"] = "false"
 os.environ["ELASTICSEARCH_TIMEOUT"] = "30"
 os.environ["ELASTICSEARCH_MAX_RETRIES"] = "3"
 os.environ["ELASTICSEARCH_RETRY_ON_TIMEOUT"] = "true"
+os.environ["ELASTICSEARCH_INDEX_BOOKS_INDEX"] = "test_books"
+os.environ["ELASTICSEARCH_INDEX_MAPPING_FILE_PATH"] = (
+    "src/infrastructure/settings/elasticsearch_mappings.json"
+)
