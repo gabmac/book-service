@@ -115,7 +115,7 @@ class Initializer:
         self.api_router.include_router(self.get_book_by_id_view.router)  # type: ignore
 
         self.filter_book_use_case = FilterBook(book_repository=book_repository)
-        self.filter_book_view = FilterBookView(self.filter_book_use_case)  # type: ignore
+        self.filter_book_view = FilterBookView(self.filter_book_use_case)
         self.api_router.include_router(self.filter_book_view.router)  # type: ignore
 
         self.author_producer = AuthorProducerAdapter(producer=producer)

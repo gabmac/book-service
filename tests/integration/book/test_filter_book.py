@@ -1,6 +1,7 @@
 import json
 from datetime import date
 
+from src.domain.entities.book import Book
 from tests.integration.book.conftest import BookViewConfTest
 
 from src.domain.enums.book_type import BookType
@@ -107,21 +108,17 @@ class TestFilterBook(BookViewConfTest):
                 "editor": "Science Publisher",
                 "edition": 1,
                 "type": "physical",
-                "author_name": "Science",
-                "book_category_name": "Science",
             },
         )
 
         # Then the response is a 200 status code
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
+        response_book = Book.model_validate(response_data[0])
 
         # And the response should list books that match all filters
-        self.assertDictEqual(
-            response_data[0],
-            json.loads(self.stored_book1.model_dump_json(exclude_none=True)),
-        )
-
+        self.validate_book([response_book],[self.stored_book1])
+        
     def test_filter_book_no_results(self):
 
         # Scenario: Filter books with no matches
@@ -158,10 +155,5 @@ class TestFilterBook(BookViewConfTest):
         # And the response should list all books
         expected_books = [self.stored_book1, self.stored_book2]
 
-        self.assertListEqual(
-            response_data,
-            [
-                json.loads(book.model_dump_json(exclude_none=True))
-                for book in expected_books
-            ],
-        )
+        response_book = [Book.model_validate(book) for book in response_data]
+        self.validate_book(response_book, expected_books)

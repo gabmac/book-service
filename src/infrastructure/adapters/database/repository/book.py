@@ -169,27 +169,17 @@ class BookRepository(BookRepositoryPort):
     ) -> BookSearchFilter:
         """Convert BookFilter DTO to BookSearchFilter entity"""
         if filter is None:
-            if not filter:
-                # Default search - return all books with pagination
-                return BookSearchFilter(
-                    page=1,
-                    size=10,
-                    sort_by="created_at",
-                    sort_order="desc",
-                )
+            # Default search - return all books with pagination
+            return BookSearchFilter(
+                page=1,
+                size=10,
+                sort_by="created_at",
+                sort_order="desc",
+            )
 
-        return BookSearchFilter(
-            isbn_code=filter.isbn_code,
-            editor=filter.editor,
-            edition=filter.edition,
-            type=filter.type,
-            publish_date_from=filter.publish_date_from,
-            publish_date_to=filter.publish_date_to,
-            author_name=filter.author_name,
-            category_title=filter.category_title,
-            page=1,
-            size=10,
-        )
+
+        # This method is no longer needed since conversion happens in the usecase
+        return filter
 
     def _build_elasticsearch_query(self, filter: BookSearchFilter) -> Dict[str, Any]:
         """Build Elasticsearch query from BookSearchFilter"""
@@ -209,6 +199,27 @@ class BookRepository(BookRepositoryPort):
             query["bool"]["must"].append({"range": {"publish_date": date_range}})
 
         # Full-text search queries
+        
+        if filter.isbn_code:
+            # Use case-insensitive match for isbn_code (like ILIKE in SQL)
+            query["bool"]["must"].append({
+                "wildcard": {
+                    "isbn_code": {
+                        "value": f"*{filter.isbn_code}*",
+                        "case_insensitive": True,
+                    }
+                }
+            })
+        if filter.editor:
+            # Use case-insensitive match for editor (like ILIKE in SQL)
+            query["bool"]["must"].append({
+                "wildcard": {
+                    "editor": {
+                        "value": f"*{filter.editor}*",
+                        "case_insensitive": True,
+                    }
+                }
+            })
         if filter.text_query:
             query["bool"]["must"].append(
                 {
@@ -441,7 +452,6 @@ class BookRepository(BookRepositoryPort):
 
         # Try Elasticsearch first if client is available
         return self._search_books_elasticsearch(filter)
-
     def _search_books_elasticsearch(self, filter: BookSearchFilter) -> List[Book]:
         """Search books using Elasticsearch"""
         if not self.es_client:

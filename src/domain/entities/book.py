@@ -94,4 +94,4 @@ class BookSearchFilter(BaseEntity):
         default=None,
     )
 
-    _basic_filters = {"isbn_code", "editor", "edition", "type"}
+    _basic_filters = {"edition", "type"}
