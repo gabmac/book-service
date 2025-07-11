@@ -32,12 +32,17 @@ Once the application is running with `make build-run-application`, you can acces
   - Test API endpoints directly from the browser
   - View all available routes and schemas
 
+- **🔍 Elasticsearch**: [http://localhost:9201](http://localhost:9201)
+  - Advanced search engine for book data queries
+  - Full-text search, fuzzy matching, and complex aggregations
+  - RESTful API for direct query execution
+
 - **📊 OpenSearch Dashboard**: [http://localhost:5601](http://localhost:5601)
   - Log analytics and monitoring interface
   - Search and visualize application logs
   - Create custom dashboards and alerts
 
-- **🔍 RabbitMQ Management**: [http://localhost:15672](http://localhost:15672)
+- **🐰 RabbitMQ Management**: [http://localhost:15672](http://localhost:15672)
   - Message queue monitoring and management
   - Default credentials: `kalo` / `kalo`
 
@@ -80,9 +85,19 @@ The Book Service is built on a modern Python technology stack that emphasizes **
 - **Settings Management**: Environment-based configuration with validation
 - **Documentation Generation**: Automatic schema generation for API documentation
 
+### Elasticsearch (Search Engine)
+
+**Elasticsearch** serves as the advanced search engine for book data:
+
+- **Full-Text Search**: Multi-field search across titles, summaries, authors, and categories
+- **Fuzzy Matching**: Typo-tolerant search with configurable fuzziness levels
+- **Nested Queries**: Complex searches within nested document structures
+- **Real-Time Indexing**: Near real-time search capabilities with 1-second refresh interval
+- **Scalable Architecture**: Horizontal scaling with sharding and replication support
+
 ## Database Schema
 
-The system uses a PostgreSQL database with a well-structured relational schema designed for scalability and data integrity. All entities inherit from a base model with common audit fields (id, created_at, updated_at, created_by, updated_by).
+The system uses a **dual-database architecture** combining PostgreSQL for transactional operations and Elasticsearch for advanced search capabilities. PostgreSQL serves as the source of truth with a well-structured relational schema designed for scalability and data integrity. All entities inherit from a base model with common audit fields (id, created_at, updated_at, created_by, updated_by).
 
 ```mermaid
 erDiagram
@@ -256,61 +271,6 @@ graph TD
 ### Document Structure
 
 Elasticsearch stores denormalized book documents with all related data embedded as nested objects, enabling complex queries without joins:
-
-```json
-{
-  "id": "book-uuid",
-  "isbn_code": "978-0123456789",
-  "editor": "Penguin Books",
-  "edition": 2,
-  "type": "FICTION",
-  "publish_date": "2023-01-15",
-  "authors": [
-    {
-      "id": "author-uuid",
-      "name": "Jane Doe",
-      "created_at": "2023-01-01T00:00:00.000Z"
-    }
-  ],
-  "book_data": [
-    {
-      "id": "book-data-uuid",
-      "title": "The Great Adventure",
-      "summary": "An epic tale of courage and discovery...",
-      "language": "en"
-    },
-    {
-      "id": "book-data-uuid-2",
-      "title": "La Gran Aventura",
-      "summary": "Una historia épica de valor y descubrimiento...",
-      "language": "es"
-    }
-  ],
-  "book_categories": [
-    {
-      "id": "category-uuid",
-      "title": "Adventure Fiction",
-      "description": "Stories of adventure and exploration"
-    }
-  ],
-  "physical_exemplars": [
-    {
-      "id": "exemplar-uuid",
-      "available": true,
-      "room": 101,
-      "floor": 2,
-      "bookshelf": 5,
-      "branch": {
-        "id": "branch-uuid",
-        "name": "Central Library"
-      },
-      "location": {
-        "full_location": "Central Library - Floor 2, Room 101, Bookshelf 5"
-      }
-    }
-  ]
-}
-```
 
 ### Search Capabilities
 
