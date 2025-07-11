@@ -204,9 +204,251 @@ erDiagram
 - **Indexed Fields**: Strategic indexing on frequently queried fields (author names, book titles, foreign keys)
 - **Data Integrity**: Foreign key constraints maintain referential integrity across all relationships
 
+## Elasticsearch Search Engine
+
+The Book Service leverages **Elasticsearch** as a powerful search engine for complex book data queries, providing advanced full-text search, fuzzy matching, and aggregation capabilities. This dual-database architecture separates transactional operations (PostgreSQL) from search operations (Elasticsearch) for optimal performance.
+
+### Search Engine Architecture
+
+```mermaid
+graph TD
+    %% Data Flow
+    Client[Client Applications]
+    API[Book Service API]
+    Consumer[Book Service Consumer]
+
+    %% Data Sources
+    PostgreSQL[(PostgreSQL<br/>Source of Truth)]
+    Elasticsearch[(Elasticsearch<br/>Search Engine)]
+
+    %% Data Flow
+    Client -->|Search Requests| API
+    API -->|Complex Queries| Elasticsearch
+    API -->|Simple CRUD| PostgreSQL
+
+    Consumer -->|Write Operations| PostgreSQL
+    Consumer -->|Index Documents| Elasticsearch
+
+    PostgreSQL -->|Data Sync| Consumer
+
+    %% Data Structure
+    subgraph Elasticsearch Document Structure
+        BookDoc[Book Document]
+        BookDoc --> Authors[Nested Authors]
+        BookDoc --> BookData[Nested Book Data]
+        BookDoc --> Categories[Nested Categories]
+        BookDoc --> PhysicalExemplars[Nested Physical Exemplars]
+        BookDoc --> Branches[Nested Branches]
+    end
+
+    %% Styling
+    classDef database fill:#f3e5f5
+    classDef search fill:#fff8e1
+    classDef application fill:#e1f5fe
+    classDef external fill:#fce4ec
+
+    class PostgreSQL database
+    class Elasticsearch search
+    class API,Consumer application
+    class Client external
+```
+
+### Document Structure
+
+Elasticsearch stores denormalized book documents with all related data embedded as nested objects, enabling complex queries without joins:
+
+```json
+{
+  "id": "book-uuid",
+  "isbn_code": "978-0123456789",
+  "editor": "Penguin Books",
+  "edition": 2,
+  "type": "FICTION",
+  "publish_date": "2023-01-15",
+  "authors": [
+    {
+      "id": "author-uuid",
+      "name": "Jane Doe",
+      "created_at": "2023-01-01T00:00:00.000Z"
+    }
+  ],
+  "book_data": [
+    {
+      "id": "book-data-uuid",
+      "title": "The Great Adventure",
+      "summary": "An epic tale of courage and discovery...",
+      "language": "en"
+    },
+    {
+      "id": "book-data-uuid-2",
+      "title": "La Gran Aventura",
+      "summary": "Una historia épica de valor y descubrimiento...",
+      "language": "es"
+    }
+  ],
+  "book_categories": [
+    {
+      "id": "category-uuid",
+      "title": "Adventure Fiction",
+      "description": "Stories of adventure and exploration"
+    }
+  ],
+  "physical_exemplars": [
+    {
+      "id": "exemplar-uuid",
+      "available": true,
+      "room": 101,
+      "floor": 2,
+      "bookshelf": 5,
+      "branch": {
+        "id": "branch-uuid",
+        "name": "Central Library"
+      },
+      "location": {
+        "full_location": "Central Library - Floor 2, Room 101, Bookshelf 5"
+      }
+    }
+  ]
+}
+```
+
+### Search Capabilities
+
+#### **Full-Text Search**
+- **Multi-field Search**: Search across titles, summaries, author names, and categories
+- **Relevance Scoring**: Advanced scoring algorithms prioritize most relevant results
+- **Language Analysis**: Standard analyzer with English stopwords for better search quality
+
+#### **Fuzzy Matching**
+- **Typo Tolerance**: Automatic correction of spelling mistakes in search queries
+- **Configurable Fuzziness**: AUTO fuzziness adapts to query term length
+- **Phonetic Matching**: Similar-sounding terms return relevant results
+
+#### **Advanced Query Types**
+- **Nested Queries**: Search within nested objects (authors, book data, categories)
+- **Range Queries**: Date ranges, edition numbers, and numeric fields
+- **Boolean Queries**: Complex combinations with AND/OR/NOT logic
+- **Term Queries**: Exact matches on keyword fields (ISBN, type, language)
+
+#### **Search Examples**
+
+**Multi-language Title Search**:
+```json
+{
+  "query": {
+    "nested": {
+      "path": "book_data",
+      "query": {
+        "match": {
+          "book_data.title": {
+            "query": "adventure",
+            "fuzziness": "AUTO"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+**Author and Category Search**:
+```json
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "nested": {
+            "path": "authors",
+            "query": {
+              "match": {
+                "authors.name": "Jane Doe"
+              }
+            }
+          }
+        },
+        {
+          "nested": {
+            "path": "book_categories",
+            "query": {
+              "match": {
+                "book_categories.title": "Fiction"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+**Available Books by Location**:
+```json
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "nested": {
+            "path": "physical_exemplars",
+            "query": {
+              "bool": {
+                "must": [
+                  {"term": {"physical_exemplars.available": true}},
+                  {"term": {"physical_exemplars.branch.name.keyword": "Central Library"}}
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+### Performance Optimizations
+
+#### **Index Configuration**
+- **Single Shard**: Optimized for moderate data volumes with fast queries
+- **Refresh Interval**: 1-second refresh for near real-time search
+- **Result Window**: 10,000 maximum results for deep pagination
+- **Memory Settings**: 512MB heap size for containerized deployment
+
+#### **Mapping Optimizations**
+- **Keyword Fields**: Dual mapping (text + keyword) for flexible querying
+- **Nested Objects**: Efficient storage and querying of related data
+- **Date Formats**: Strict date-time format for consistent date handling
+- **Analyzer Configuration**: Standard analyzer with English stopwords
+
+### Data Synchronization
+
+#### **Event-Driven Updates**
+- **Real-time Sync**: Book changes trigger immediate Elasticsearch updates
+- **Atomic Operations**: Updates are transactional across PostgreSQL and Elasticsearch
+- **Error Handling**: Failed indexing operations are logged and retried
+
+#### **Consistency Strategy**
+- **PostgreSQL as Source of Truth**: All writes go to PostgreSQL first
+- **Eventual Consistency**: Elasticsearch reflects PostgreSQL state with minimal delay
+- **Conflict Resolution**: PostgreSQL data takes precedence in case of conflicts
+
+### Monitoring and Maintenance
+
+#### **Health Monitoring**
+- **Cluster Health**: Automatic health checks every 10 seconds
+- **Index Statistics**: Document count, storage size, and query performance
+- **Connection Resilience**: Automatic reconnection on connection failures
+
+#### **Configuration Management**
+- **Environment Variables**: Configurable connection settings and index parameters
+- **Index Templates**: Consistent mapping and settings across environments
+- **Backup Strategy**: Index snapshots for data recovery and migration
+
 ## Integration Architecture
 
-The Book Service implements a robust microservices architecture with comprehensive logging, monitoring, and data replication capabilities. The system is designed for high availability, scalability, and observability.
+The Book Service implements a robust microservices architecture with comprehensive logging, monitoring, data replication, and advanced search capabilities. The system is designed for high availability, scalability, and observability with dual search engines for different purposes.
 
 ```mermaid
 graph TD
@@ -223,6 +465,9 @@ graph TD
     %% Database Layer
     PostgresMaster[(PostgreSQL Master<br/>Port: 5432)]
     PostgresSlave[(PostgreSQL Slave<br/>Port: 5433)]
+
+    %% Search Engine Layer
+    Elasticsearch[(Elasticsearch<br/>Port: 9201)]
 
     %% Logging Infrastructure
     Logstash[Logstash<br/>TCP: 5000<br/>HTTP: 8080]
@@ -241,8 +486,15 @@ graph TD
     Consumer -->|Write Operations| PostgresMaster
     Consumer -->|Read Operations| PostgresSlave
 
+    %% Application to Search Engine
+    API -->|Search Queries<br/>Full-text & Fuzzy| Elasticsearch
+    Consumer -->|Index Documents| Elasticsearch
+
     %% Database Replication
     PostgresMaster -->|Streaming Replication| PostgresSlave
+
+    %% Data Synchronization
+    Consumer -->|Sync Book Data| Elasticsearch
 
     %% Logging Flow
     API -->|Structured Logs<br/>TCP/JSON| Logstash
@@ -260,6 +512,7 @@ graph TD
         RabbitMQ
         PostgresMaster
         PostgresSlave
+        Elasticsearch
         Logstash
         OpenSearch
         Dashboard
@@ -270,12 +523,14 @@ graph TD
     classDef database fill:#f3e5f5
     classDef messaging fill:#fff3e0
     classDef logging fill:#e8f5e8
+    classDef search fill:#fff8e1
     classDef external fill:#fce4ec
 
     class API,Consumer application
     class PostgresMaster,PostgresSlave database
     class RabbitMQ messaging
     class Logstash,OpenSearch,Dashboard logging
+    class Elasticsearch search
     class Client external
 ```
 
@@ -290,6 +545,10 @@ graph TD
 - **PostgreSQL Master**: Primary database for all write operations and data consistency
 - **PostgreSQL Slave**: Read replica for load distribution and improved read performance
 - **Streaming Replication**: Real-time data synchronization between master and slave
+
+#### Search Engine Layer
+- **Elasticsearch**: Advanced search engine for book data with full-text search, fuzzy matching, and complex queries
+- **Dual-Purpose Architecture**: Elasticsearch for book search, OpenSearch for log analytics
 
 #### Message Broker
 - **RabbitMQ**: AMQP message broker handling asynchronous communication between services
