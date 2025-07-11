@@ -1,6 +1,5 @@
-from uuid import uuid4
-
 from tests.unit.author.repository.conftest import AuthorRepositoryConftest
+from uuid6 import uuid7
 
 from src.application.exceptions import NotFoundException
 
@@ -24,4 +23,4 @@ class TestDeleteAuthor(AuthorRepositoryConftest):
 
         # Act - Attempt to delete non-existent author (should not raise error)
         with self.assertRaises(NotFoundException):
-            self.author_repository.get_author_by_id(id=uuid4())
+            self.author_repository.get_author_by_id(id=uuid7())

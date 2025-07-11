@@ -1,6 +1,5 @@
-from uuid import uuid4
-
 from tests.unit.book_category.repository.conftest import BookCategoryRepositoryConftest
+from uuid6 import uuid7
 
 from src.application.exceptions import NotFoundException
 
@@ -22,7 +21,7 @@ class TestGetBookCategoryById(BookCategoryRepositoryConftest):
 
     def test_get_non_existent_book_category(self):
         # Arrange - Generate a random UUID that doesn't exist
-        non_existent_id = uuid4()
+        non_existent_id = uuid7()
 
         # Act & Assert - Should raise NotFoundException
         with self.assertRaises(NotFoundException) as context:

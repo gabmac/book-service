@@ -1,6 +1,5 @@
-from uuid import uuid4
-
 from tests.unit.book.usecase.conftest import BookUseCaseConftest
+from uuid6 import uuid7
 
 from src.application.usecase.book.delete_book import DeleteBook
 from src.domain.entities.base import DeletionEntity
@@ -16,7 +15,7 @@ class TestDeleteBook(BookUseCaseConftest):
 
     def test_execute_successful_deletion(self):
         # Arrange
-        book_id = uuid4()
+        book_id = uuid7()
         deletion_entity = DeletionEntity(id=str(book_id))
 
         # Mock repository response

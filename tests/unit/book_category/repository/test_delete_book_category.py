@@ -1,6 +1,5 @@
-from uuid import uuid4
-
 from tests.unit.book_category.repository.conftest import BookCategoryRepositoryConftest
+from uuid6 import uuid7
 
 
 class TestDeleteBookCategory(BookCategoryRepositoryConftest):
@@ -16,4 +15,4 @@ class TestDeleteBookCategory(BookCategoryRepositoryConftest):
     def test_delete_non_existent_book_category(self):
         # Arrange - Generate a random UUID that doesn't exist
 
-        self.book_category_repository.delete_book_category(id=uuid4())
+        self.book_category_repository.delete_book_category(id=uuid7())

@@ -1,6 +1,5 @@
-from uuid import uuid4
-
 from tests.unit.book.usecase.conftest import BookUseCaseConftest
+from uuid6 import uuid7
 
 from src.application.exceptions import NotFoundException
 from src.application.usecase.book.get_book_by_id import GetBookById
@@ -36,7 +35,7 @@ class TestGetBookById(BookUseCaseConftest):
 
     def test_execute_non_existent_book(self):
         # Arrange
-        non_existent_id = uuid4()
+        non_existent_id = uuid7()
 
         # Mock repository response - book not found
         self.mock_book_repository.get_book_by_id.side_effect = NotFoundException(

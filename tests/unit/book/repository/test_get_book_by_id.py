@@ -1,6 +1,5 @@
-from uuid import uuid4
-
 from tests.unit.book.repository.conftest import BookRepositoryConftest
+from uuid6 import uuid7
 
 from src.application.exceptions import NotFoundException
 
@@ -69,7 +68,7 @@ class TestGetBookById(BookRepositoryConftest):
 
     def test_get_non_existent_book(self):
         # Arrange - Generate a random UUID that doesn't exist
-        non_existent_id = uuid4()
+        non_existent_id = uuid7()
 
         # Act & Assert - Should raise NotFoundException
         with self.assertRaises(NotFoundException) as context:

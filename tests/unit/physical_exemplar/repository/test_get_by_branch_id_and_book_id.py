@@ -1,8 +1,7 @@
-import uuid
-
 from tests.unit.physical_exemplar.repository.conftest import (
     PhysicalExemplarRepositoryConftest,
 )
+from uuid6 import uuid7
 
 from src.application.exceptions import NotFoundException
 
@@ -77,6 +76,6 @@ class TestGetByBranchIdAndBookId(PhysicalExemplarRepositoryConftest):
         # Arrange
         with self.assertRaises(NotFoundException):
             self.physical_exemplar_repository.get_physical_exemplar_by_book_and_branch(
-                branch_id=uuid.uuid4(),
-                book_id=uuid.uuid4(),
+                branch_id=uuid7(),
+                book_id=uuid7(),
             )

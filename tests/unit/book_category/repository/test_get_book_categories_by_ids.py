@@ -1,7 +1,7 @@
 from typing import List
-from uuid import uuid4
 
 from tests.unit.book_category.repository.conftest import BookCategoryRepositoryConftest
+from uuid6 import uuid7
 
 
 class TestGetBookCategoriesByIds(BookCategoryRepositoryConftest):
@@ -31,7 +31,7 @@ class TestGetBookCategoriesByIds(BookCategoryRepositoryConftest):
 
     def test_get_no_existing_book_categories(self):
         # Arrange - Generate non-existent IDs
-        non_existent_ids = [uuid4()]
+        non_existent_ids = [uuid7()]
 
         # Act - Request with non-existing IDs
         results = self.book_category_repository.get_book_categories_by_ids(

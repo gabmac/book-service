@@ -1,6 +1,5 @@
-from uuid import uuid4
-
 from tests.unit.book.usecase.conftest import BookUseCaseConftest
+from uuid6 import uuid7
 
 from src.application.usecase.book.delete_book_publish import DeleteBookPublish
 
@@ -15,7 +14,7 @@ class TestDeleteBookPublish(BookUseCaseConftest):
 
     def test_execute_successful_publish(self):
         # Arrange
-        book_id = uuid4()
+        book_id = uuid7()
 
         # Mock producer response
         self.mock_book_producer.delete_book.return_value = None

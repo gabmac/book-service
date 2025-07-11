@@ -1,8 +1,9 @@
 from datetime import date, datetime, timezone
 from typing import List, Optional
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from pydantic.fields import Field
+from uuid6 import uuid7
 
 from src.domain.entities.author import Author
 from src.domain.entities.base import BaseEntity
@@ -12,7 +13,7 @@ from src.domain.enums.book_type import BookType
 
 
 class Book(BaseEntity):
-    id: UUID = Field(default_factory=uuid4, description="Book ID")
+    id: UUID = Field(default_factory=uuid7, description="Book ID")
     isbn_code: str = Field(description="Book ISBN code")
     editor: str = Field(description="Book editor")
     edition: int = Field(description="Book edition")

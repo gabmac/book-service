@@ -1,9 +1,9 @@
 from contextvars import ContextVar
-from uuid import uuid4
 
 from fastapi import Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
+from uuid6 import uuid7
 
 
 class RequestContextsMiddleware(BaseHTTPMiddleware):
@@ -22,12 +22,12 @@ class RequestContextsMiddleware(BaseHTTPMiddleware):
         call_next: RequestResponseEndpoint,
     ) -> Response:
         correlation_id = (
-            str(uuid4())
+            str(uuid7())
             if request.headers.get("X-Correlation-ID") is None
-            else f'{request.headers.get("X-Correlation-ID")}-{str(uuid4())}'
+            else f'{request.headers.get("X-Correlation-ID")}-{str(uuid7())}'
         )
         correlation_id = self._correlation_id_ctx_var.set(correlation_id)  # type: ignore
-        request_id = self._request_id_ctx_var.set(str(uuid4()))
+        request_id = self._request_id_ctx_var.set(str(uuid7()))
 
         response = await call_next(request)
         response.headers["X-Correlation-ID"] = self._correlation_id_ctx_var.get()

@@ -1,6 +1,5 @@
-from uuid import uuid4
-
 from tests.unit.book.repository.conftest import BookRepositoryConftest
+from uuid6 import uuid7
 
 
 class TestDeleteBook(BookRepositoryConftest):
@@ -43,4 +42,4 @@ class TestDeleteBook(BookRepositoryConftest):
         # Arrange - Generate a random UUID that doesn't exist
 
         # Act - Should not raise error for non-existent book
-        self.book_repository.delete_book(id=str(uuid4()))
+        self.book_repository.delete_book(id=str(uuid7()))

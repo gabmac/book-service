@@ -1,7 +1,7 @@
 from typing import List
-from uuid import uuid4
 
 from tests.unit.author.repository.conftest import AuthorRepositoryConftest
+from uuid6 import uuid7
 
 
 class TestGetAuthorsByIds(AuthorRepositoryConftest):
@@ -48,10 +48,10 @@ class TestGetAuthorsByIds(AuthorRepositoryConftest):
 
     def test_get_no_existing_authors(self):
         # Arrange - Generate non-existent IDs
-        non_existent_ids = [uuid4()]
+        non_existent_ids = [uuid7()]
 
         # Act - Request with non-existing IDs
-        results = self.author_repository.get_authors_by_ids(ids=non_existent_ids)
+        results = self.author_repository.get_authors_by_ids(ids=non_existent_ids)  # type: ignore
 
         # Assert - Should return empty list
         self.assertEqual(results, [])

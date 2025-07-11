@@ -1,13 +1,14 @@
 from datetime import datetime, timezone
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from pydantic import Field
+from uuid6 import uuid7
 
 from src.domain.entities.base import BaseEntity
 
 
 class BookData(BaseEntity):
-    id: UUID = Field(description="Book data id", default_factory=uuid4)
+    id: UUID = Field(description="Book data id", default_factory=uuid7)
     summary: str | None = Field(description="Book summary", default=None)
     title: str = Field(description="Book title")
     language: str = Field(description="Book language")

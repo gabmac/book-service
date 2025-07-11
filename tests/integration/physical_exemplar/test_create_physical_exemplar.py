@@ -218,10 +218,10 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
     def test_create_physical_exemplar_branch_not_found(self):
         # Scenario: Try to create a physical exemplar with a non-existent branch
 
-        import uuid
+        from uuid6 import uuid7
 
         body = self.physical_exemplar_create_model_factory.build()
-        non_existent_branch_id = uuid.uuid4()
+        non_existent_branch_id = uuid7()
         response = self.client.put(
             f"api/physical_exemplar/branch/{non_existent_branch_id}/book/{self.stored_book.id}/",
             json=body.model_dump(),
@@ -234,10 +234,10 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
     def test_create_physical_exemplar_book_not_found(self):
         # Scenario: Try to create a physical exemplar with a non-existent book
 
-        import uuid
+        from uuid6 import uuid7
 
         body = self.physical_exemplar_create_model_factory.build()
-        non_existent_book_id = uuid.uuid4()
+        non_existent_book_id = uuid7()
         response = self.client.put(
             f"api/physical_exemplar/branch/{self.stored_branch.id}/book/{non_existent_book_id}/",
             json=body.model_dump(),

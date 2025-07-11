@@ -1,7 +1,7 @@
 import json
-import uuid
 
 from tests.integration.book.conftest import BookViewConfTest
+from uuid6 import uuid7
 
 
 class TestGetBookById(BookViewConfTest):
@@ -66,7 +66,8 @@ class TestGetBookById(BookViewConfTest):
         # Scenario: Attempt to get a book that doesn't exist
 
         # Given a book ID that doesn't exist
-        non_existent_id = str(uuid.uuid4())
+
+        non_existent_id = str(uuid7())
 
         # When a request is made to get the book by ID
         response = self.client.get(f"api/book/{non_existent_id}")

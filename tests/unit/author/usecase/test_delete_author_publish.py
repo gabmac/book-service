@@ -1,6 +1,5 @@
-from uuid import uuid4
-
 from tests.unit.author.usecase.conftest import AuthorUseCaseConftest
+from uuid6 import uuid7
 
 from src.application.usecase.author.delete_author_publish import DeleteAuthorPublish
 
@@ -21,7 +20,7 @@ class TestDeleteAuthorPublish(AuthorUseCaseConftest):
 
     def test_execute_successful_delete(self):
         # Arrange
-        author_id = uuid4()
+        author_id = uuid7()
 
         # Act
         result = self.delete_author_publish.execute(author_id)

@@ -25,6 +25,7 @@ aio-pika = "^9.5.5"
 dotenv = "^0.9.9"
 httpx = "^0.28.1"
 elasticsearch = "8.15.1"
+uuid6 = "^2025.0.1"
 
 
 [tool.poetry.group.code-smells.dependencies]

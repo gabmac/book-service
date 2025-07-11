@@ -1,13 +1,14 @@
 from datetime import datetime, timezone
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from pydantic import Field
+from uuid6 import uuid7
 
 from src.domain.entities.base import BaseEntity
 
 
 class Branch(BaseEntity):
-    id: UUID = Field(description="Branch id", default_factory=uuid4)
+    id: UUID = Field(description="Branch id", default_factory=uuid7)
     name: str = Field(description="Branch name")
     created_by: str = Field(description="Branch creator")
     updated_by: str = Field(description="Branch updater")

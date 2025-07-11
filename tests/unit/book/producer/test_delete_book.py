@@ -1,7 +1,7 @@
 import json
-from uuid import uuid4
 
 from tests.unit.book.producer.conftest import BookProducerConftest
+from uuid6 import uuid7
 
 from src.application.dto.producer import Message
 
@@ -10,7 +10,7 @@ class TestDeleteBook(BookProducerConftest):
 
     def test_delete_book(self):
         # Arrange
-        book_id = uuid4()
+        book_id = uuid7()
 
         # Act
         self.book_producer.delete_book(id=book_id)
