@@ -8,3 +8,10 @@ class PhysicalExemplarProducerPort(BaseProducerPort, ABC):
     @abstractmethod
     def upsert_physical_exemplar(self, physical_exemplar: PhysicalExemplar) -> None:
         pass
+
+    @abstractmethod
+    def notify_external_physical_exemplar_upsert(
+        self,
+        physical_exemplar: PhysicalExemplar,
+    ) -> None:
+        pass

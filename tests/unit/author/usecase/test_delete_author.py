@@ -11,6 +11,7 @@ class TestDeleteAuthor(AuthorUseCaseConftest):
         super().setUp()
         self.delete_author = DeleteAuthor(
             author_repository=self.mock_author_repository,
+            author_producer=self.mock_author_producer,
         )
         self.mock_author_repository.delete_author.return_value = None
         self.mock_author_repository.delete_author.side_effect = None

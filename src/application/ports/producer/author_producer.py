@@ -13,3 +13,11 @@ class AuthorProducerPort(BaseProducerPort, ABC):
     @abstractmethod
     def delete_author(self, id: UUID) -> None:
         pass
+
+    @abstractmethod
+    def notify_external_author_upsert(self, author: Author) -> None:
+        pass
+
+    @abstractmethod
+    def notify_external_author_deletion(self, id: UUID) -> None:
+        pass

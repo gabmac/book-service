@@ -11,6 +11,7 @@ class TestDeleteBook(BookUseCaseConftest):
         super().setUp()
         self.delete_book = DeleteBook(
             book_repository=self.mock_book_repository,
+            book_producer=self.mock_book_producer,
         )
 
     def test_execute_successful_deletion(self):

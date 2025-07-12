@@ -13,6 +13,7 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarUseCaseConftest):
         super().setUp()
         self.upsert_physical_exemplar = UpsertPhysicalExemplar(
             repository=self.mock_physical_exemplar_repository,
+            physical_exemplar_producer=self.mock_physical_exemplar_producer,
         )
         self.mock_physical_exemplar_repository.upsert_physical_exemplar.return_value = (
             None

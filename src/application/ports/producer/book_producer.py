@@ -13,3 +13,11 @@ class BookProducerPort(BaseProducerPort, ABC):
     @abstractmethod
     def delete_book(self, id: UUID) -> None:
         pass
+
+    @abstractmethod
+    def notify_external_book_upsert(self, book: Book) -> None:
+        pass
+
+    @abstractmethod
+    def notify_external_book_deletion(self, id: UUID) -> None:
+        pass

@@ -10,6 +10,7 @@ class TestUpsertAuthor(AuthorUseCaseConftest):
         super().setUp()
         self.upsert_author = UpsertAuthor(
             author_repository=self.mock_author_repository,
+            author_producer=self.mock_author_producer,
         )
         self.mock_author_repository.get_author_by_id.return_value = None
         self.mock_author_repository.get_author_by_id.side_effect = None

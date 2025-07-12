@@ -26,3 +26,19 @@ class AuthorProducerAdapter(AuthorProducerPort):
                 message=json.dumps({"id": str(id)}),
             ),
         )
+
+    def notify_external_author_upsert(self, author: Author) -> None:
+        self.producer.publish(
+            message=Message(
+                queue_name="external.author.upsert",
+                message=author.model_dump_json(),
+            ),
+        )
+
+    def notify_external_author_deletion(self, id: UUID) -> None:
+        self.producer.publish(
+            message=Message(
+                queue_name="external.author.deletion",
+                message=json.dumps({"id": str(id)}),
+            ),
+        )

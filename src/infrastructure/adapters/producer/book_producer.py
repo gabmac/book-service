@@ -26,3 +26,19 @@ class BookProducerAdapter(BookProducerPort):
                 message=json.dumps({"id": str(id)}),
             ),
         )
+
+    def notify_external_book_upsert(self, book: Book) -> None:
+        self.producer.publish(
+            message=Message(
+                queue_name="external.book.upsert",
+                message=book.model_dump_json(),
+            ),
+        )
+
+    def notify_external_book_deletion(self, id: UUID) -> None:
+        self.producer.publish(
+            message=Message(
+                queue_name="external.book.deletion",
+                message=json.dumps({"id": str(id)}),
+            ),
+        )

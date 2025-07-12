@@ -1,11 +1,13 @@
 import json
 import logging
+from contextvars import ContextVar
 from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, DispatchFunction
 from starlette.types import ASGIApp
+from uuid6 import uuid7
 
 from src.infrastructure.settings.config import LogstashConfig
 
@@ -52,6 +54,13 @@ class RequestContextLogMiddleware(BaseHTTPMiddleware):
         else:
             body = str(request_body.decode())
 
+        cid = ContextVar(
+            "CID",
+            default="",
+        )
+        cidvalue = f"{cid.get()}-{str(uuid7())}"
+        cid.set(cidvalue)
+
         document = {
             "@timestamp": datetime.now(timezone.utc).isoformat(),
             "method": str(request.method),
@@ -64,6 +73,7 @@ class RequestContextLogMiddleware(BaseHTTPMiddleware):
             "response-code": str(response_code),
             "response-headers": str(response_headers),
             "response-content": str(response_content),
+            "CID": cidvalue,
         }
 
         logger = logging.getLogger(self.config.loggername)

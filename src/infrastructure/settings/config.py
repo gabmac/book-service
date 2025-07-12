@@ -148,6 +148,16 @@ class ProducerConfig(BaseSettings):
             "physical_exemplar.upsert",
         },
     )
+    external_queues: Set[str] = Field(
+        description="External queues",
+        default={
+            "external.book.upsert",
+            "external.book.deletion",
+            "external.author.upsert",
+            "external.author.deletion",
+            "external.physical_exemplar.upsert",
+        },
+    )
 
 
 class DatabaseConfig(BaseSettings):

@@ -10,10 +10,12 @@ from src.infrastructure.settings.config import (
 
 if __name__ == "__main__":
     logstash_config = LogstashConfig()
+    config = SystemConfig()
     handler = LogStash(
         logstash_config.host,
         logstash_config.port,
         logstash_config.loggername,
+        config.environment,
     )
     handler.logstash_init()
     cont = 0
@@ -22,8 +24,8 @@ if __name__ == "__main__":
             handler.logger.info("Starting consumer")  # type: ignore
             consumer = Consumer(
                 config=ProducerConfig(),
+                system_config=config,
                 logstash_config=logstash_config,
-                system_config=SystemConfig(),
             )
             break
         except Exception:

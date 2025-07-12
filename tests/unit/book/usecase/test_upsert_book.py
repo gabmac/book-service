@@ -11,6 +11,7 @@ class TestUpsertBook(BookUseCaseConftest):
         super().setUp()
         self.upsert_book = UpsertBook(
             book_repository=self.mock_book_repository,
+            book_producer=self.mock_book_producer,
         )
         self.mock_book_repository.get_book_by_id.return_value = None
         self.mock_book_repository.get_book_by_id.side_effect = None

@@ -1,5 +1,6 @@
 import json
 import logging
+from contextvars import ContextVar
 from datetime import datetime, timezone
 
 from pika import BlockingConnection, ConnectionParameters
@@ -7,6 +8,7 @@ from pika.adapters.blocking_connection import BlockingChannel
 from pika.credentials import PlainCredentials
 from pika.exceptions import ChannelClosedByBroker
 from pika.exchange_type import ExchangeType
+from uuid6 import uuid7
 
 from src.application.dto.producer import Message
 from src.application.usecase.author.delete_author import DeleteAuthor
@@ -39,6 +41,12 @@ from src.infrastructure.adapters.database.repository.branch import BranchReposit
 from src.infrastructure.adapters.database.repository.physical_exemplar import (
     PhysicalExemplarRepository,
 )
+from src.infrastructure.adapters.entrypoints.producer import Producer
+from src.infrastructure.adapters.producer.author_producer import AuthorProducerAdapter
+from src.infrastructure.adapters.producer.book_producer import BookProducerAdapter
+from src.infrastructure.adapters.producer.physical_exemplar_producer import (
+    PhysicalExemplarProducerAdapter,
+)
 from src.infrastructure.settings.config import (
     DatabaseConfig,
     ElasticsearchConfig,
@@ -70,21 +78,31 @@ book_category_repository = BookCategoryRepository(db=db)
 branch_repository = BranchRepository(db=db)
 physical_exemplar_repository = PhysicalExemplarRepository(db=db)
 
+# Initialize producer for external notifications
+producer_config = ProducerConfig()
+logstash_config = LogstashConfig()
+producer = Producer(config=producer_config, logstash_config=logstash_config)
+
+# Initialize producer adapters
+book_producer = BookProducerAdapter(producer=producer)
+author_producer = AuthorProducerAdapter(producer=producer)
+physical_exemplar_producer = PhysicalExemplarProducerAdapter(producer=producer)
+
 callables = {
     "book.upsert": {
-        "usecase": UpsertBook(book_repository),
+        "usecase": UpsertBook(book_repository, book_producer),
         "entity": Book,
     },
     "author.upsert": {
-        "usecase": UpsertAuthor(author_repository),
+        "usecase": UpsertAuthor(author_repository, author_producer),
         "entity": Author,
     },
     "book.deletion": {
-        "usecase": DeleteBook(book_repository),
+        "usecase": DeleteBook(book_repository, book_producer),
         "entity": DeletionEntity,
     },
     "author.deletion": {
-        "usecase": DeleteAuthor(author_repository),
+        "usecase": DeleteAuthor(author_repository, author_producer),
         "entity": DeletionEntity,
     },
     "book_category.upsert": {
@@ -96,7 +114,10 @@ callables = {
         "entity": Branch,
     },
     "physical_exemplar.upsert": {
-        "usecase": UpsertPhysicalExemplar(physical_exemplar_repository),
+        "usecase": UpsertPhysicalExemplar(
+            physical_exemplar_repository,
+            physical_exemplar_producer,
+        ),
         "entity": PhysicalExemplar,
     },
 }
@@ -122,6 +143,11 @@ class Consumer:
         def callback(ch, method, properties, body) -> None:  # type: ignore
             dict_str = body.decode("UTF-8")
             dict_json = json.loads(dict_str)
+            cid = ContextVar(
+                "CID",
+                default="",
+            )
+            cidvalue = f"{cid.get()}-{str(uuid7())}"
             cls.logger.info(
                 json.dumps(
                     {
@@ -130,9 +156,11 @@ class Consumer:
                         "routing_key": method.routing_key,
                         "exchange": "book-service-exchange",
                         "body": dict_json,
+                        "CID": cidvalue,
                     },
                 ),
             )
+            cid.set(cidvalue)
             body = Message.model_validate(dict_json)
             try:
                 entity = callables[method.routing_key]["entity"].model_validate(  # type: ignore
@@ -141,7 +169,18 @@ class Consumer:
                 callables[method.routing_key]["usecase"].execute(entity)  # type: ignore
                 ch.basic_ack(delivery_tag=method.delivery_tag)
             except Exception as e:
-                cls.logger.error(f"Error processing message: {e}")
+                cidvalue += f"-{str(uuid7())}"
+                cid.set(cidvalue)
+                cls.logger.error(
+                    {
+                        "exception": f"Error processing message: {e}",
+                        "CID": cidvalue,
+                        "@timestamp": datetime.now(timezone.utc).isoformat(),
+                        "routing_key": method.routing_key,
+                        "exchange": "book-service-exchange",
+                        "body": dict_json,
+                    },
+                )
                 cls.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
                 raise e
 
@@ -212,7 +251,6 @@ class Consumer:
         Consume messages with a specific routing key from the main queue for testing.
         """
         queue_name = "book-service-queue"
-
         # Try to get one message from the queue
         for method, properties, body in cls.channel.consume(  # type: ignore
             queue=queue_name,
@@ -238,7 +276,3 @@ class Consumer:
                 except Exception as e:
                     cls.logger.error(f"Error processing message: {e}")
                     raise e
-            else:
-                # This message is not for us, requeue it
-                cls.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
-        cls.channel.cancel()

@@ -17,3 +17,14 @@ class PhysicalExemplarProducerAdapter(PhysicalExemplarProducerPort):
                 message=physical_exemplar.model_dump_json(),
             ),
         )
+
+    def notify_external_physical_exemplar_upsert(
+        self,
+        physical_exemplar: PhysicalExemplar,
+    ) -> None:
+        self.producer.publish(
+            message=Message(
+                queue_name="external.physical_exemplar.upsert",
+                message=physical_exemplar.model_dump_json(),
+            ),
+        )

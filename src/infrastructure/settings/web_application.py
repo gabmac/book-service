@@ -109,10 +109,12 @@ class AppConfig:
 
 def init_api() -> FastAPI:
     logstash_config = LogstashConfig()
+    config = SystemConfig()
     logstash_logger = LogStash(
         host=logstash_config.host,
         port=logstash_config.port,
         loggername=logstash_config.loggername,
+        environment=config.environment,
     )
 
     db_config = DatabaseConfig()
@@ -148,7 +150,7 @@ def init_api() -> FastAPI:
         router=initializer.api_router,
         logstash=logstash_config,
         logstash_logger=logstash_logger,
-        config=SystemConfig(),
+        config=config,
         db=db,
         producer=producer,
     ).start_application()

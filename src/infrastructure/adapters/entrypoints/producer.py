@@ -1,11 +1,13 @@
 import json
 import logging
+from contextvars import ContextVar
 from datetime import datetime, timezone
 
 from pika import BlockingConnection, ConnectionParameters
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.credentials import PlainCredentials
 from pika.exchange_type import ExchangeType
+from uuid6 import uuid7
 
 from src.application.dto.producer import Message
 from src.infrastructure.settings.config import LogstashConfig, ProducerConfig
@@ -35,14 +37,22 @@ class Producer:
 
     @classmethod
     def publish(cls, message: Message) -> None:
+        cid = ContextVar(
+            "CID",
+            default="",
+        )
+        cidvalue = f"{cid.get()}-{str(uuid7())}"
+        cid.set(cidvalue)
         document = {
             "@timestamp": datetime.now(timezone.utc).isoformat(),
-            "@queue_name": message.queue_name,
-            "@message": message.message,
-            "@exchange": "book-service-exchange",
-            "@routing_key": message.queue_name,
-            "@producer_out": True,
+            "queue_name": message.queue_name,
+            "message": message.message,
+            "exchange": "book-service-exchange",
+            "routing_key": message.queue_name,
+            "producer_out": True,
+            "CID": cidvalue,
         }
+        cid.set(cidvalue)
         cls.logger.info(json.dumps(document))
         cls.channel.basic_publish(
             exchange="book-service-exchange",
@@ -54,6 +64,7 @@ class Producer:
                 {
                     "@producer_in": True,
                     "@timestamp": datetime.now(timezone.utc).isoformat(),
+                    "CID": cidvalue,
                 },
             ),
         )

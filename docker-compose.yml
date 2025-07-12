@@ -25,8 +25,6 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
-    logging:
-      driver: none
 
   postgres-slave:
     image: bitnami/postgresql:latest
@@ -56,8 +54,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    logging:
-      driver: none
 
   rabbitmq:
     image: rabbitmq:management-alpine
@@ -78,8 +74,30 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
-    logging:
-      driver: none
+
+  alembic:
+    container_name: alembic
+    build:
+      context: .
+      dockerfile: ./Dockerfile.alembic
+    image: book-service-alembic:${TESTE_VERSION:-latest}
+    volumes:
+    - .:/code
+    environment:
+    - DATABASE_HOST=postgres
+    - DATABASE_PORT=5432
+    - DATABASE_SLAVE_HOST=postgres-slave
+    - DATABASE_SLAVE_PORT=5432
+    - DATABASE_USER=postgres
+    - DATABASE_PASSWORD=123456
+    - DATABASE_NAME=book
+    networks:
+    - os-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
 
   api:
     container_name: api
@@ -134,6 +152,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
   consumer:
     container_name: consumer
@@ -186,6 +206,8 @@ services:
       postgres:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
 
 
@@ -272,7 +294,7 @@ services:
         soft: 65536
         hard: 65536
     ports:
-    - 9201:9200    # Using different port to avoid conflict with OpenSearch
+    - 9201:9200
     - 9301:9300
     networks:
     - os-net
@@ -280,21 +302,18 @@ services:
       test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
       interval: 10s
       timeout: 30s
-      retries: 3
-    logging:
-      driver: none
+      retries: 5
 
 volumes:
   rabbitmq-lib:
     driver: local
   rabbitmq-log:
     driver: local
-  opensearch-data1:
-  db-data:
-    name: db-data
   postgresql_master_data:
     driver: local
   elasticsearch-data:
+    driver: local
+  opensearch-data1:
     driver: local
 
 networks:
