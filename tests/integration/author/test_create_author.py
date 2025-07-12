@@ -23,7 +23,7 @@ class TestCreateAuthor(AuthorViewConfTest):
 
         # And the message is consumed from the queue
         self.consumer.consume("author.upsert")
-        stored_authors = self.author_repository.get_author_by_id(
+        stored_authors = self.author_read_repository.get_author_by_id(
             response_body.author.id,
         )
 

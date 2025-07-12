@@ -11,13 +11,15 @@ class TestGetBranchByFilter(BranchRepositoryConftest):
         branch2 = self.branch_model_factory.build(name="Secondary Branch")
         branch3 = self.branch_model_factory.build(name="Main Office")
 
-        self.branch_repository.upsert_branch(branch=branch1)
-        self.branch_repository.upsert_branch(branch=branch2)
-        self.branch_repository.upsert_branch(branch=branch3)
+        self.branch_write_repository.upsert_branch(branch=branch1)
+        self.branch_write_repository.upsert_branch(branch=branch2)
+        self.branch_write_repository.upsert_branch(branch=branch3)
 
         # Act - Filter by name containing "Main"
         filter_criteria = BranchFilter(name="Main")
-        results = self.branch_repository.get_branch_by_filter(filter=filter_criteria)
+        results = self.branch_read_repository.get_branch_by_filter(
+            filter=filter_criteria,
+        )
 
         # Assert
         self.assertEqual(
@@ -30,12 +32,14 @@ class TestGetBranchByFilter(BranchRepositoryConftest):
         branch1 = self.branch_model_factory.build(name="Main Branch")
         branch2 = self.branch_model_factory.build(name="Secondary Branch")
 
-        self.branch_repository.upsert_branch(branch=branch1)
-        self.branch_repository.upsert_branch(branch=branch2)
+        self.branch_write_repository.upsert_branch(branch=branch1)
+        self.branch_write_repository.upsert_branch(branch=branch2)
 
         # Act - Filter by name that doesn't exist
         filter_criteria = BranchFilter(name="NonExistentBranch")
-        results = self.branch_repository.get_branch_by_filter(filter=filter_criteria)
+        results = self.branch_read_repository.get_branch_by_filter(
+            filter=filter_criteria,
+        )
 
         # Assert - Should return empty list
         self.assertEqual(results, [])
@@ -45,12 +49,12 @@ class TestGetBranchByFilter(BranchRepositoryConftest):
         branch1 = self.branch_model_factory.build()
         branch2 = self.branch_model_factory.build()
 
-        self.branch_repository.upsert_branch(branch=branch1)
-        self.branch_repository.upsert_branch(branch=branch2)
+        self.branch_write_repository.upsert_branch(branch=branch1)
+        self.branch_write_repository.upsert_branch(branch=branch2)
 
         # Act - Call with filter that has no name
         empty_filter = BranchFilter(name=None)
-        results = self.branch_repository.get_branch_by_filter(filter=empty_filter)
+        results = self.branch_read_repository.get_branch_by_filter(filter=empty_filter)
 
         # Assert - Should return all branches
         self.assertEqual(

@@ -24,7 +24,7 @@ class TestCreateBookCategory(BookCategoryViewConfTest):
         # And the message is consumed from the queue
         self.consumer.consume("book_category.upsert")
         stored_book_categories = (
-            self.book_category_repository.get_book_category_by_filter(
+            self.book_category_read_repository.get_book_category_by_filter(
                 BookCategoryFilter(),
             )
         )

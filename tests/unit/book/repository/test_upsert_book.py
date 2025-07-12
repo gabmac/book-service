@@ -17,20 +17,20 @@ class TestUpsertBook(BookRepositoryConftest):
         self.book_data3 = self.book_data_model_factory.build()
         self.book_data4 = self.book_data_model_factory.build()
 
-        self.author_repository.upsert_author(author=self.author1)
-        self.author_repository.upsert_author(author=self.author2)
-        self.author_repository.upsert_author(author=self.author3)
-        self.author_repository.upsert_author(author=self.author4)
-        self.book_category_repository.upsert_book_category(
+        self.author_write_repository.upsert_author(author=self.author1)
+        self.author_write_repository.upsert_author(author=self.author2)
+        self.author_write_repository.upsert_author(author=self.author3)
+        self.author_write_repository.upsert_author(author=self.author4)
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category1,
         )
-        self.book_category_repository.upsert_book_category(
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category2,
         )
-        self.book_category_repository.upsert_book_category(
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category3,
         )
-        self.book_category_repository.upsert_book_category(
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category4,
         )
 
@@ -46,7 +46,7 @@ class TestUpsertBook(BookRepositoryConftest):
         )
 
         # Act
-        result = self.book_repository.upsert_book(book=book)
+        result = self.book_write_repository.upsert_book(book=book)
         self.validate_book([result], [book])
 
     def test_update_book_with_authors_categories_and_data(self):
@@ -62,7 +62,7 @@ class TestUpsertBook(BookRepositoryConftest):
         )
 
         # Act
-        self.book_repository.upsert_book(book=book)
+        self.book_write_repository.upsert_book(book=book)
 
         book_data = [self.book_data_model_factory.build() for _ in range(2)]
         book = self.book_model_factory.build(
@@ -73,5 +73,5 @@ class TestUpsertBook(BookRepositoryConftest):
         )
 
         # Act - Update the book editor, authors, categories, and book data
-        result = self.book_repository.upsert_book(book=book)
+        result = self.book_write_repository.upsert_book(book=book)
         self.validate_book([result], [book])

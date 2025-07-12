@@ -23,8 +23,8 @@ class TestGetPhysicalExemplar(PhysicalExemplarViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_author = self.author_repository.upsert_author(author)
-        self.stored_category = self.book_category_repository.upsert_book_category(
+        self.stored_author = self.author_write_repository.upsert_author(author)
+        self.stored_category = self.book_category_write_repository.upsert_book_category(
             category,
         )
 
@@ -47,7 +47,7 @@ class TestGetPhysicalExemplar(PhysicalExemplarViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_book = self.book_repository.upsert_book(book)
+        self.stored_book = self.book_write_repository.upsert_book(book)
 
         # Create branch
         branch = self.branch_model_factory.build(
@@ -56,7 +56,7 @@ class TestGetPhysicalExemplar(PhysicalExemplarViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_branch = self.branch_repository.upsert_branch(branch)
+        self.stored_branch = self.branch_write_repository.upsert_branch(branch)
 
         # Create physical exemplar
         physical_exemplar = self.physical_exemplar_model_factory.build(
@@ -73,7 +73,7 @@ class TestGetPhysicalExemplar(PhysicalExemplarViewConfTest):
         )
 
         self.stored_physical_exemplar = (
-            self.physical_exemplar_repository.upsert_physical_exemplar(
+            self.physical_exemplar_write_repository.upsert_physical_exemplar(
                 physical_exemplar,
             )
         )
@@ -168,14 +168,16 @@ class TestGetPhysicalExemplar(PhysicalExemplarViewConfTest):
             created_by="test_user",
             updated_by="test_user",
         )
-        stored_another_book = self.book_repository.upsert_book(another_book)
+        stored_another_book = self.book_write_repository.upsert_book(another_book)
 
         another_branch = self.branch_model_factory.build(
             name="Another Branch",
             created_by="test_user",
             updated_by="test_user",
         )
-        stored_another_branch = self.branch_repository.upsert_branch(another_branch)
+        stored_another_branch = self.branch_write_repository.upsert_branch(
+            another_branch,
+        )
 
         # When a request is made to get the physical exemplar by existing book and branch ID
         response = self.client.get(

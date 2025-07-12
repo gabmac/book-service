@@ -21,14 +21,33 @@ from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.elasticsearch.client import (
     ElasticsearchClient,
 )
-from src.infrastructure.adapters.database.repository.author import AuthorRepository
-from src.infrastructure.adapters.database.repository.book import BookRepository
-from src.infrastructure.adapters.database.repository.book_category import (
-    BookCategoryRepository,
+from src.infrastructure.adapters.database.repository.author_read import (
+    AuthorReadRepository,
 )
-from src.infrastructure.adapters.database.repository.branch import BranchRepository
-from src.infrastructure.adapters.database.repository.physical_exemplar import (
-    PhysicalExemplarRepository,
+from src.infrastructure.adapters.database.repository.author_write import (
+    AuthorWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.book_category_read import (
+    BookCategoryReadRepository,
+)
+from src.infrastructure.adapters.database.repository.book_category_write import (
+    BookCategoryWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.book_read import BookReadRepository
+from src.infrastructure.adapters.database.repository.book_write import (
+    BookWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.branch_read import (
+    BranchReadRepository,
+)
+from src.infrastructure.adapters.database.repository.branch_write import (
+    BranchWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.physical_exemplar_read import (
+    PhysicalExemplarReadRepository,
+)
+from src.infrastructure.adapters.database.repository.physical_exemplar_write import (
+    PhysicalExemplarWriteRepository,
 )
 from src.infrastructure.settings.config import (
     ElasticsearchConfig,
@@ -285,22 +304,42 @@ class BaseRepositoryConfTest(BasePostgresRepositoryConfTest, BaseElasticsearchCo
     def setUpClass(cls) -> None:
         super().setUpClass()
 
-        # Initialize repositories with both PostgreSQL and Elasticsearch
-        cls.book_repository = BookRepository(db=cls.db, elasticsearch_client=cls.elasticsearch_client)  # type: ignore
+        # Initialize read repositories with both PostgreSQL and Elasticsearch
+        cls.book_read_repository = BookReadRepository(db=cls.db, elasticsearch_client=cls.elasticsearch_client)  # type: ignore
+        cls.book_write_repository = BookWriteRepository(db=cls.db, elasticsearch_client=cls.elasticsearch_client)  # type: ignore
         # Override the Elasticsearch index name for tests
-        cls.book_repository.es_index = cls.elasticsearch_index_config.books_index
+        cls.book_read_repository.es_index = cls.elasticsearch_index_config.books_index
+        cls.book_write_repository.es_index = cls.elasticsearch_index_config.books_index
 
-        cls.author_repository = AuthorRepository(db=cls.db)  # type: ignore
-        cls.branch_repository = BranchRepository(db=cls.db)  # type: ignore
-        cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
-        cls.physical_exemplar_repository = PhysicalExemplarRepository(db=cls.db)  # type: ignore
+        cls.author_read_repository = AuthorReadRepository(db=cls.db)  # type: ignore
+        cls.author_write_repository = AuthorWriteRepository(db=cls.db)  # type: ignore
+        cls.branch_read_repository = BranchReadRepository(db=cls.db)  # type: ignore
+        cls.branch_write_repository = BranchWriteRepository(db=cls.db)  # type: ignore
+        cls.book_category_read_repository = BookCategoryReadRepository(db=cls.db)  # type: ignore
+        cls.book_category_write_repository = BookCategoryWriteRepository(db=cls.db)  # type: ignore
+        cls.physical_exemplar_read_repository = PhysicalExemplarReadRepository(db=cls.db)  # type: ignore
+        cls.physical_exemplar_write_repository = PhysicalExemplarWriteRepository(db=cls.db)  # type: ignore
 
 
 class BaseUseCaseConfTest(BaseConfTest):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
-        # Mock the repository dependencies
+        # Mock the read repository dependencies
+        cls.mock_book_read_repository = Mock()
+        cls.mock_author_read_repository = Mock()
+        cls.mock_book_category_read_repository = Mock()
+        cls.mock_branch_read_repository = Mock()
+        cls.mock_physical_exemplar_read_repository = Mock()
+
+        # Mock the write repository dependencies
+        cls.mock_book_write_repository = Mock()
+        cls.mock_author_write_repository = Mock()
+        cls.mock_book_category_write_repository = Mock()
+        cls.mock_branch_write_repository = Mock()
+        cls.mock_physical_exemplar_write_repository = Mock()
+
+        # Keep the original mocks for backward compatibility during migration
         cls.mock_book_repository = Mock()
         cls.mock_author_repository = Mock()
         cls.mock_book_category_repository = Mock()
@@ -316,12 +355,28 @@ class BaseUseCaseConfTest(BaseConfTest):
 
     def tearDown(self):
         super().tearDown()
-        # Reset mocks for each test
+        # Reset read repository mocks for each test
+        self.mock_book_read_repository.reset_mock()
+        self.mock_author_read_repository.reset_mock()
+        self.mock_book_category_read_repository.reset_mock()
+        self.mock_branch_read_repository.reset_mock()
+        self.mock_physical_exemplar_read_repository.reset_mock()
+
+        # Reset write repository mocks for each test
+        self.mock_book_write_repository.reset_mock()
+        self.mock_author_write_repository.reset_mock()
+        self.mock_book_category_write_repository.reset_mock()
+        self.mock_branch_write_repository.reset_mock()
+        self.mock_physical_exemplar_write_repository.reset_mock()
+
+        # Reset original mocks for backward compatibility
         self.mock_book_repository.reset_mock()
         self.mock_author_repository.reset_mock()
         self.mock_book_category_repository.reset_mock()
         self.mock_branch_repository.reset_mock()
         self.mock_physical_exemplar_repository.reset_mock()
+
+        # Reset producer mocks
         self.mock_book_producer.reset_mock()
         self.mock_author_producer.reset_mock()
         self.mock_book_category_producer.reset_mock()

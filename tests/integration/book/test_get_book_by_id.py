@@ -21,8 +21,8 @@ class TestGetBookById(BookViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_author = self.author_repository.upsert_author(author)
-        self.stored_category = self.book_category_repository.upsert_book_category(
+        self.stored_author = self.author_write_repository.upsert_author(author)
+        self.stored_category = self.book_category_write_repository.upsert_book_category(
             category,
         )
 
@@ -45,7 +45,7 @@ class TestGetBookById(BookViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_book = self.book_repository.upsert_book(book)
+        self.stored_book = self.book_write_repository.upsert_book(book)
 
     def test_get_book_by_id_success(self):
         # Scenario: Successfully get a book by ID

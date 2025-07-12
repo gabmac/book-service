@@ -13,10 +13,33 @@ from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.elasticsearch.client import (
     ElasticsearchClient,
 )
-from src.infrastructure.adapters.database.repository.author import AuthorRepository
-from src.infrastructure.adapters.database.repository.book import BookRepository
-from src.infrastructure.adapters.database.repository.book_category import (
-    BookCategoryRepository,
+from src.infrastructure.adapters.database.repository.author_read import (
+    AuthorReadRepository,
+)
+from src.infrastructure.adapters.database.repository.author_write import (
+    AuthorWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.book_category_read import (
+    BookCategoryReadRepository,
+)
+from src.infrastructure.adapters.database.repository.book_category_write import (
+    BookCategoryWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.book_read import BookReadRepository
+from src.infrastructure.adapters.database.repository.book_write import (
+    BookWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.branch_read import (
+    BranchReadRepository,
+)
+from src.infrastructure.adapters.database.repository.branch_write import (
+    BranchWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.physical_exemplar_read import (
+    PhysicalExemplarReadRepository,
+)
+from src.infrastructure.adapters.database.repository.physical_exemplar_write import (
+    PhysicalExemplarWriteRepository,
 )
 from src.infrastructure.adapters.entrypoints.api.router import Initializer
 from src.infrastructure.adapters.entrypoints.producer import Producer
@@ -135,15 +158,36 @@ def init_api() -> FastAPI:
     elasticsearch_config = ElasticsearchConfig()
     elasticsearch_client = ElasticsearchClient(elasticsearch_config)
 
-    book_repository = BookRepository(db=db, elasticsearch_client=elasticsearch_client)
-    author_repository = AuthorRepository(db=db)
-    book_category_repository = BookCategoryRepository(db=db)
+    # Initialize read repositories (optimized for queries)
+    book_read_repository = BookReadRepository(
+        db=db,
+        elasticsearch_client=elasticsearch_client,
+    )
+    book_write_repository = BookWriteRepository(
+        db=db,
+        elasticsearch_client=elasticsearch_client,
+    )
+    author_read_repository = AuthorReadRepository(db=db)
+    author_write_repository = AuthorWriteRepository(db=db)
+    book_category_read_repository = BookCategoryReadRepository(db=db)
+    book_category_write_repository = BookCategoryWriteRepository(db=db)
+    branch_read_repository = BranchReadRepository(db=db)
+    branch_write_repository = BranchWriteRepository(db=db)
+    physical_exemplar_read_repository = PhysicalExemplarReadRepository(db=db)
+    physical_exemplar_write_repository = PhysicalExemplarWriteRepository(db=db)
 
     initializer = Initializer(
         producer=producer,
-        book_repository=book_repository,
-        author_repository=author_repository,
-        book_category_repository=book_category_repository,
+        book_read_repository=book_read_repository,
+        book_write_repository=book_write_repository,
+        author_read_repository=author_read_repository,
+        author_write_repository=author_write_repository,
+        book_category_read_repository=book_category_read_repository,
+        book_category_write_repository=book_category_write_repository,
+        branch_read_repository=branch_read_repository,
+        branch_write_repository=branch_write_repository,
+        physical_exemplar_read_repository=physical_exemplar_read_repository,
+        physical_exemplar_write_repository=physical_exemplar_write_repository,
     )
 
     return AppConfig(

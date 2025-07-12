@@ -23,14 +23,33 @@ from src.application.usecase.physical_exemplar.get_physical_exemplar_by_book_and
 from src.application.usecase.physical_exemplar.upsert_physical_exemplar_produce import (
     UpsertPhysicalExemplarProduce,
 )
-from src.infrastructure.adapters.database.repository.author import AuthorRepository
-from src.infrastructure.adapters.database.repository.book import BookRepository
-from src.infrastructure.adapters.database.repository.book_category import (
-    BookCategoryRepository,
+from src.infrastructure.adapters.database.repository.author_read import (
+    AuthorReadRepository,
 )
-from src.infrastructure.adapters.database.repository.branch import BranchRepository
-from src.infrastructure.adapters.database.repository.physical_exemplar import (
-    PhysicalExemplarRepository,
+from src.infrastructure.adapters.database.repository.author_write import (
+    AuthorWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.book_category_read import (
+    BookCategoryReadRepository,
+)
+from src.infrastructure.adapters.database.repository.book_category_write import (
+    BookCategoryWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.book_read import BookReadRepository
+from src.infrastructure.adapters.database.repository.book_write import (
+    BookWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.branch_read import (
+    BranchReadRepository,
+)
+from src.infrastructure.adapters.database.repository.branch_write import (
+    BranchWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.physical_exemplar_read import (
+    PhysicalExemplarReadRepository,
+)
+from src.infrastructure.adapters.database.repository.physical_exemplar_write import (
+    PhysicalExemplarWriteRepository,
 )
 from src.infrastructure.adapters.entrypoints.api.monitoring import (
     router as monitoring_router,
@@ -99,9 +118,16 @@ class Initializer:
     def __init__(
         self,
         producer: Producer,
-        book_repository: BookRepository,
-        author_repository: AuthorRepository,
-        book_category_repository: BookCategoryRepository,
+        book_read_repository: BookReadRepository,
+        book_write_repository: BookWriteRepository,
+        author_read_repository: AuthorReadRepository,
+        author_write_repository: AuthorWriteRepository,
+        book_category_read_repository: BookCategoryReadRepository,
+        book_category_write_repository: BookCategoryWriteRepository,
+        branch_read_repository: BranchReadRepository,
+        branch_write_repository: BranchWriteRepository,
+        physical_exemplar_read_repository: PhysicalExemplarReadRepository,
+        physical_exemplar_write_repository: PhysicalExemplarWriteRepository,
     ):
         self.api_router = APIRouter(prefix="/api")
         self.api_router.include_router(monitoring_router)
@@ -110,17 +136,17 @@ class Initializer:
 
         self.upsert_book_use_case = UpsertBookProduce(
             producer=self.book_producer,
-            author_repository=author_repository,
-            book_category_repository=book_category_repository,
+            author_repository=author_read_repository,
+            book_category_repository=book_category_read_repository,
         )
         self.publish_create_book_view = PublishCreateBookView(self.upsert_book_use_case)
         self.api_router.include_router(self.publish_create_book_view.router)  # type: ignore
 
-        self.get_book_by_id_use_case = GetBookById(book_repository=book_repository)
+        self.get_book_by_id_use_case = GetBookById(book_repository=book_read_repository)
         self.get_book_by_id_view = GetBookView(self.get_book_by_id_use_case)
         self.api_router.include_router(self.get_book_by_id_view.router)  # type: ignore
 
-        self.filter_book_use_case = FilterBook(book_repository=book_repository)
+        self.filter_book_use_case = FilterBook(book_repository=book_read_repository)
         self.filter_book_view = FilterBookView(self.filter_book_use_case)
         self.api_router.include_router(self.filter_book_view.router)  # type: ignore
 
@@ -133,12 +159,14 @@ class Initializer:
         self.api_router.include_router(self.publish_create_author_view.router)  # type: ignore
 
         self.get_author_by_id_use_case = GetAuthorById(
-            author_repository=author_repository,
+            author_repository=author_read_repository,
         )
         self.get_author_by_id_view = GetAuthorView(self.get_author_by_id_use_case)
         self.api_router.include_router(self.get_author_by_id_view.router)  # type: ignore
 
-        self.filter_author_use_case = FilterAuthor(author_repository=author_repository)
+        self.filter_author_use_case = FilterAuthor(
+            author_repository=author_read_repository,
+        )
         self.filter_author_view = FilterAuthorView(self.filter_author_use_case)
         self.api_router.include_router(self.filter_author_view.router)  # type: ignore
 
@@ -149,10 +177,12 @@ class Initializer:
         )
         self.api_router.include_router(self.publish_update_author_view.router)  # type: ignore
 
-        self.get_book_by_id_use_case = GetBookById(book_repository=book_repository)
+        self.get_book_by_id_use_case_for_update = GetBookById(
+            book_repository=book_read_repository,
+        )
         self.publish_update_book_view = PublishUpdateBookView(
             self.upsert_book_use_case,
-            self.get_book_by_id_use_case,
+            self.get_book_by_id_use_case_for_update,
         )
         self.api_router.include_router(self.publish_update_book_view.router)  # type: ignore
 
@@ -176,7 +206,7 @@ class Initializer:
 
         self.create_book_category_use_case = CreateBookCategoryProduce(
             book_category_producer=self.book_category_producer,
-            repository=book_category_repository,
+            repository=book_category_read_repository,
         )
         self.publish_create_book_category_view = UpsertBookCategoryPublishView(
             self.create_book_category_use_case,
@@ -184,39 +214,35 @@ class Initializer:
         self.api_router.include_router(self.publish_create_book_category_view.router)  # type: ignore
 
         self.filter_book_category_use_case = FilterBookCategory(
-            repository=book_category_repository,
+            repository=book_category_read_repository,
         )
         self.filter_book_category_view = FilterBookCategoryView(
             self.filter_book_category_use_case,
         )
         self.api_router.include_router(self.filter_book_category_view.router)  # type: ignore
 
-        self.branch_repository = BranchRepository(db=book_repository.db)
-        self.filter_branch_use_case = FilterBranch(repository=self.branch_repository)
+        self.filter_branch_use_case = FilterBranch(repository=branch_read_repository)
         self.filter_branch_view = FilterBranchView(self.filter_branch_use_case)
         self.api_router.include_router(self.filter_branch_view.router)  # type: ignore
 
         self.branch_producer = BranchProducerAdapter(producer=producer)
         self.upsert_branch_use_case = UpsertBranchProduce(
             branch_producer=self.branch_producer,
-            repository=self.branch_repository,
+            repository=branch_read_repository,
         )
         self.publish_create_branch_view = PublishCreateBranchView(
             self.upsert_branch_use_case,
         )
         self.api_router.include_router(self.publish_create_branch_view.router)  # type: ignore
 
-        self.physical_exemplar_repository = PhysicalExemplarRepository(
-            db=book_repository.db,
-        )
         self.physical_exemplar_producer = PhysicalExemplarProducerAdapter(
             producer=producer,
         )
         self.upsert_physical_exemplar_use_case = UpsertPhysicalExemplarProduce(
             physical_exemplar_producer=self.physical_exemplar_producer,
-            repository=self.physical_exemplar_repository,
-            book_repository=book_repository,
-            branch_repository=self.branch_repository,
+            repository=physical_exemplar_read_repository,
+            book_repository=book_read_repository,
+            branch_repository=branch_read_repository,
         )
         self.publish_create_physical_exemplar_view = PublishCreatePhysicalExemplarView(
             self.upsert_physical_exemplar_use_case,
@@ -224,7 +250,7 @@ class Initializer:
         self.api_router.include_router(self.publish_create_physical_exemplar_view.router)  # type: ignore
 
         self.get_physical_exemplar_use_case = GetPhysicalExemplarByBookAndBranch(
-            repository=self.physical_exemplar_repository,
+            repository=physical_exemplar_read_repository,
         )
         self.get_physical_exemplar_view = GetPhysicalExemplarView(
             self.get_physical_exemplar_use_case,

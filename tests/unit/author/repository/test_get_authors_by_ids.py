@@ -12,13 +12,13 @@ class TestGetAuthorsByIds(AuthorRepositoryConftest):
         author2 = self.author_model_factory.build()
         author3 = self.author_model_factory.build()
 
-        self.author_repository.upsert_author(author=author1)
-        self.author_repository.upsert_author(author=author2)
-        self.author_repository.upsert_author(author=author3)
+        self.author_write_repository.upsert_author(author=author1)
+        self.author_write_repository.upsert_author(author=author2)
+        self.author_write_repository.upsert_author(author=author3)
 
         # Act - Retrieve authors by their IDs
         ids = [author1.id, author2.id, author3.id]
-        results = self.author_repository.get_authors_by_ids(ids=ids)
+        results = self.author_read_repository.get_authors_by_ids(ids=ids)
 
         # Assert - Should return all three authors
         self.assertEqual(
@@ -32,13 +32,13 @@ class TestGetAuthorsByIds(AuthorRepositoryConftest):
         author2 = self.author_model_factory.build()
         author3 = self.author_model_factory.build()
 
-        self.author_repository.upsert_author(author=author1)
-        self.author_repository.upsert_author(author=author2)
-        self.author_repository.upsert_author(author=author3)
+        self.author_write_repository.upsert_author(author=author1)
+        self.author_write_repository.upsert_author(author=author2)
+        self.author_write_repository.upsert_author(author=author3)
 
         # Act - Request with mix of existing and non-existing IDs
         ids = [author1.id, author2.id]
-        results = self.author_repository.get_authors_by_ids(ids=ids)
+        results = self.author_read_repository.get_authors_by_ids(ids=ids)
 
         # Assert - Should return only the existing authors
         self.assertEqual(
@@ -51,7 +51,7 @@ class TestGetAuthorsByIds(AuthorRepositoryConftest):
         non_existent_ids = [uuid7()]
 
         # Act - Request with non-existing IDs
-        results = self.author_repository.get_authors_by_ids(ids=non_existent_ids)  # type: ignore
+        results = self.author_read_repository.get_authors_by_ids(ids=non_existent_ids)  # type: ignore
 
         # Assert - Should return empty list
         self.assertEqual(results, [])
@@ -61,7 +61,7 @@ class TestGetAuthorsByIds(AuthorRepositoryConftest):
         empty_ids: List = []
 
         # Act - Request with empty IDs list
-        results = self.author_repository.get_authors_by_ids(ids=empty_ids)
+        results = self.author_read_repository.get_authors_by_ids(ids=empty_ids)
 
         # Assert - Should return empty list
         self.assertEqual(results, [])

@@ -24,9 +24,9 @@ class TestFilterAuthor(AuthorViewConfTest):
         )
 
         # Store authors in database
-        self.stored_author1 = self.author_repository.upsert_author(author1)
-        self.stored_author2 = self.author_repository.upsert_author(author2)
-        self.stored_author3 = self.author_repository.upsert_author(author3)
+        self.stored_author1 = self.author_write_repository.upsert_author(author1)
+        self.stored_author2 = self.author_write_repository.upsert_author(author2)
+        self.stored_author3 = self.author_write_repository.upsert_author(author3)
 
     def test_filter_author_with_filter(self):
 

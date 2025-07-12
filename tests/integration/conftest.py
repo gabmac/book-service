@@ -6,14 +6,33 @@ from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.elasticsearch.client import (
     ElasticsearchClient,
 )
-from src.infrastructure.adapters.database.repository.author import AuthorRepository
-from src.infrastructure.adapters.database.repository.book import BookRepository
-from src.infrastructure.adapters.database.repository.book_category import (
-    BookCategoryRepository,
+from src.infrastructure.adapters.database.repository.author_read import (
+    AuthorReadRepository,
 )
-from src.infrastructure.adapters.database.repository.branch import BranchRepository
-from src.infrastructure.adapters.database.repository.physical_exemplar import (
-    PhysicalExemplarRepository,
+from src.infrastructure.adapters.database.repository.author_write import (
+    AuthorWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.book_category_read import (
+    BookCategoryReadRepository,
+)
+from src.infrastructure.adapters.database.repository.book_category_write import (
+    BookCategoryWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.book_read import BookReadRepository
+from src.infrastructure.adapters.database.repository.book_write import (
+    BookWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.branch_read import (
+    BranchReadRepository,
+)
+from src.infrastructure.adapters.database.repository.branch_write import (
+    BranchWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.physical_exemplar_read import (
+    PhysicalExemplarReadRepository,
+)
+from src.infrastructure.adapters.database.repository.physical_exemplar_write import (
+    PhysicalExemplarWriteRepository,
 )
 from src.infrastructure.adapters.entrypoints.consumer import Consumer
 from src.infrastructure.settings.config import (
@@ -51,11 +70,16 @@ class BaseViewConfTest(BaseConfTest):
 
         # Create real Elasticsearch client for tests
         cls.elasticsearch_client = ElasticsearchClient(cls.elasticsearch_config)
-        cls.author_repository = AuthorRepository(db=cls.db)  # type: ignore
-        cls.book_repository = BookRepository(db=cls.db, elasticsearch_client=cls.elasticsearch_client)  # type: ignore
-        cls.branch_repository = BranchRepository(db=cls.db)  # type: ignore
-        cls.book_category_repository = BookCategoryRepository(db=cls.db)  # type: ignore
-        cls.physical_exemplar_repository = PhysicalExemplarRepository(db=cls.db)  # type: ignore
+        cls.author_read_repository = AuthorReadRepository(db=cls.db)  # type: ignore
+        cls.author_write_repository = AuthorWriteRepository(db=cls.db)  # type: ignore
+        cls.book_read_repository = BookReadRepository(db=cls.db, elasticsearch_client=cls.elasticsearch_client)  # type: ignore
+        cls.book_write_repository = BookWriteRepository(db=cls.db, elasticsearch_client=cls.elasticsearch_client)  # type: ignore
+        cls.branch_read_repository = BranchReadRepository(db=cls.db)  # type: ignore
+        cls.branch_write_repository = BranchWriteRepository(db=cls.db)  # type: ignore
+        cls.book_category_read_repository = BookCategoryReadRepository(db=cls.db)  # type: ignore
+        cls.book_category_write_repository = BookCategoryWriteRepository(db=cls.db)  # type: ignore
+        cls.physical_exemplar_read_repository = PhysicalExemplarReadRepository(db=cls.db)  # type: ignore
+        cls.physical_exemplar_write_repository = PhysicalExemplarWriteRepository(db=cls.db)  # type: ignore
 
         cls.producer_config = ProducerConfig()
         cls.logstash_config = LogstashConfig()

@@ -24,18 +24,18 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
         self.branch2 = self.branch_model_factory.build()
 
         # Save dependencies
-        self.author_repository.upsert_author(author=self.author1)
-        self.author_repository.upsert_author(author=self.author2)
+        self.author_write_repository.upsert_author(author=self.author1)
+        self.author_write_repository.upsert_author(author=self.author2)
 
-        self.book_category_repository.upsert_book_category(
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category1,
         )
-        self.book_category_repository.upsert_book_category(
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category2,
         )
 
-        self.branch_repository.upsert_branch(branch=self.branch1)
-        self.branch_repository.upsert_branch(branch=self.branch2)
+        self.branch_write_repository.upsert_branch(branch=self.branch1)
+        self.branch_write_repository.upsert_branch(branch=self.branch2)
 
         # Create books with relationships
         authors = [self.author1, self.author2]
@@ -56,8 +56,8 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
         )
 
         # Save books
-        self.book_repository.upsert_book(book=self.book1)
-        self.book_repository.upsert_book(book=self.book2)
+        self.book_write_repository.upsert_book(book=self.book1)
+        self.book_write_repository.upsert_book(book=self.book2)
 
     def test_new_physical_exemplar(self):
         # Arrange
@@ -73,7 +73,7 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
         )
 
         # Act
-        result = self.physical_exemplar_repository.upsert_physical_exemplar(
+        result = self.physical_exemplar_write_repository.upsert_physical_exemplar(
             physical_exemplar=physical_exemplar,
         )
 
@@ -103,11 +103,11 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
             bookshelf=3,
         )
 
-        self.physical_exemplar_repository.upsert_physical_exemplar(
+        self.physical_exemplar_write_repository.upsert_physical_exemplar(
             physical_exemplar=physical_exemplar,
         )
 
-        result = self.physical_exemplar_repository.upsert_physical_exemplar(
+        result = self.physical_exemplar_write_repository.upsert_physical_exemplar(
             physical_exemplar=physical_exemplar,
         )
 

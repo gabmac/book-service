@@ -14,14 +14,20 @@ class TestGetBookCategoriesByIds(BookCategoryRepositoryConftest):
         cls.category2 = cls.book_category_model_factory.build()
         cls.category3 = cls.book_category_model_factory.build()
 
-        cls.book_category_repository.upsert_book_category(book_category=cls.category1)
-        cls.book_category_repository.upsert_book_category(book_category=cls.category2)
-        cls.book_category_repository.upsert_book_category(book_category=cls.category3)
+        cls.book_category_write_repository.upsert_book_category(
+            book_category=cls.category1,
+        )
+        cls.book_category_write_repository.upsert_book_category(
+            book_category=cls.category2,
+        )
+        cls.book_category_write_repository.upsert_book_category(
+            book_category=cls.category3,
+        )
 
     def test_get_existing_book_categories(self):
         # Act - Request with only some existing IDs
         ids = [self.category1.id, self.category2.id]
-        results = self.book_category_repository.get_book_categories_by_ids(ids=ids)
+        results = self.book_category_read_repository.get_book_categories_by_ids(ids=ids)
 
         # Assert - Should return only the requested book categories
         self.assertEqual(
@@ -34,7 +40,7 @@ class TestGetBookCategoriesByIds(BookCategoryRepositoryConftest):
         non_existent_ids = [uuid7()]
 
         # Act - Request with non-existing IDs
-        results = self.book_category_repository.get_book_categories_by_ids(
+        results = self.book_category_read_repository.get_book_categories_by_ids(
             ids=non_existent_ids,
         )
 
@@ -46,7 +52,7 @@ class TestGetBookCategoriesByIds(BookCategoryRepositoryConftest):
         empty_ids: List = []
 
         # Act - Request with empty IDs list
-        results = self.book_category_repository.get_book_categories_by_ids(
+        results = self.book_category_read_repository.get_book_categories_by_ids(
             ids=empty_ids,
         )
 

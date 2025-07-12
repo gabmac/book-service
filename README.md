@@ -363,10 +363,10 @@ graph TD
     API -->|Publish Messages| RabbitMQ
     Consumer -->|Consume Messages| RabbitMQ
 
-    %% Application to Database
-    API -->|Read Operations| PostgresSlave
-    Consumer -->|Write Operations| PostgresMaster
-    Consumer -->|Read Operations| PostgresSlave
+    %% Application to Database (CQRS Pattern)
+    API -->|Read Operations<br/>(Read Repositories)| PostgresSlave
+    Consumer -->|Write Operations<br/>(Write Repositories)| PostgresMaster
+    Consumer -->|Read Operations<br/>(Read Repositories)| PostgresSlave
 
     %% Application to Search Engine
     API -->|Search Queries<br/>Full-text & Fuzzy| Elasticsearch
@@ -427,6 +427,7 @@ graph TD
 - **PostgreSQL Master**: Primary database for all write operations and data consistency
 - **PostgreSQL Slave**: Read replica for load distribution and improved read performance
 - **Streaming Replication**: Real-time data synchronization between master and slave
+- **CQRS Implementation**: Separate read and write repositories optimize database usage
 
 #### Search Engine Layer
 - **Elasticsearch**: Advanced search engine for book data with full-text search, fuzzy matching, and complex queries
@@ -720,7 +721,9 @@ Orchestrates business operations and defines application-specific logic.
 
 - **Use Cases**: Single-purpose business operations (UpsertBook, FilterAuthor, DeleteBook)
 - **Ports**: Abstract interfaces defining contracts with external systems
-  - **Repository Ports**: Data access contracts (BookRepositoryPort, AuthorRepositoryPort)
+  - **Repository Ports**: Data access contracts following CQRS pattern
+    - **Read Ports**: Optimized for query operations (BookReadRepositoryPort, AuthorReadRepositoryPort)
+    - **Write Ports**: Optimized for command operations (BookWriteRepositoryPort, AuthorWriteRepositoryPort)
   - **Producer Ports**: Message publishing contracts (BookProducerPort, AuthorProducerPort)
 - **DTOs**: Data transfer objects for external communication
 - **Application Services**: Coordinate between use cases and external systems
@@ -730,6 +733,8 @@ Implements technical details and external system integrations.
 
 - **Entry Points**: External interfaces (API routes, message consumers)
 - **Repository Implementations**: Concrete data access implementations using SQLModel/PostgreSQL
+  - **Read Repositories**: Optimized for query performance using slave database connections
+  - **Write Repositories**: Optimized for command operations using master database connections
 - **Producer Implementations**: Message publishing implementations using RabbitMQ
 - **External Services**: Database connections, message brokers, logging systems
 - **Configuration**: Application settings and dependency injection
@@ -748,13 +753,42 @@ All modifications flow through message queues:
 - **Interface Segregation**: Focused, cohesive port interfaces
 - **Dependency Inversion**: High-level modules depend on abstractions
 
+### CQRS (Command Query Responsibility Segregation)
+
+The repository layer implements **CQRS pattern** for enhanced scalability and performance:
+
+#### **Read Repositories** (`*ReadRepository`)
+- **Purpose**: Optimized for query operations and data retrieval
+- **Database Connection**: Uses slave database connections for load distribution
+- **Characteristics**:
+  - Read-only operations (get_by_id, get_by_filter, search)
+  - Optimized for query performance
+  - Can leverage read replicas and caching
+  - Separate from write concerns
+
+#### **Write Repositories** (`*WriteRepository`)
+- **Purpose**: Optimized for command operations and data persistence
+- **Database Connection**: Uses master database connections for consistency
+- **Characteristics**:
+  - Write operations (upsert, delete, create)
+  - Transactional consistency
+  - Data integrity enforcement
+  - Separate from read concerns
+
+#### **CQRS Benefits**
+- **Performance Optimization**: Different optimizations for reads vs writes
+- **Scalability**: Independent scaling of read and write operations
+- **Database Load Distribution**: Reads use slave, writes use master
+- **Flexibility**: Different data models for queries vs commands
+- **Fault Isolation**: Read failures don't affect write operations
+
 ### Benefits
 
 - **Testability**: Easy mocking through port interfaces
 - **Maintainability**: Clear separation of concerns and responsibilities
 - **Flexibility**: Swappable implementations without business logic changes
 - **Independence**: Domain logic isolated from external framework dependencies
-- **Scalability**: Event-driven architecture enables horizontal scaling
+- **Scalability**: Event-driven architecture and CQRS pattern enable horizontal scaling
 
 ### System Architecture Overview
 
@@ -880,9 +914,11 @@ graph TB
 - This enables easy testing and swapping of implementations
 
 **💾 Data Management**
-- **Repository Implementations** handle data persistence to **Database**
-- **Search Engine** provides advanced querying capabilities
+- **Read Repositories** handle optimized query operations using slave database connections
+- **Write Repositories** handle data persistence and modifications using master database connections
+- **Search Engine** provides advanced querying capabilities with full-text search
 - Data synchronization occurs between database and search engine
+- **CQRS Pattern** enables independent scaling and optimization of read vs write operations
 
 **🔍 Cross-Cutting Concerns**
 - **Logging System** captures events from all layers for monitoring and debugging

@@ -32,14 +32,33 @@ from src.infrastructure.adapters.database.db.session import DatabaseSettings
 from src.infrastructure.adapters.database.elasticsearch.client import (
     ElasticsearchClient,
 )
-from src.infrastructure.adapters.database.repository.author import AuthorRepository
-from src.infrastructure.adapters.database.repository.book import BookRepository
-from src.infrastructure.adapters.database.repository.book_category import (
-    BookCategoryRepository,
+from src.infrastructure.adapters.database.repository.author_read import (
+    AuthorReadRepository,
 )
-from src.infrastructure.adapters.database.repository.branch import BranchRepository
-from src.infrastructure.adapters.database.repository.physical_exemplar import (
-    PhysicalExemplarRepository,
+from src.infrastructure.adapters.database.repository.author_write import (
+    AuthorWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.book_category_read import (
+    BookCategoryReadRepository,
+)
+from src.infrastructure.adapters.database.repository.book_category_write import (
+    BookCategoryWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.book_read import BookReadRepository
+from src.infrastructure.adapters.database.repository.book_write import (
+    BookWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.branch_read import (
+    BranchReadRepository,
+)
+from src.infrastructure.adapters.database.repository.branch_write import (
+    BranchWriteRepository,
+)
+from src.infrastructure.adapters.database.repository.physical_exemplar_read import (
+    PhysicalExemplarReadRepository,
+)
+from src.infrastructure.adapters.database.repository.physical_exemplar_write import (
+    PhysicalExemplarWriteRepository,
 )
 from src.infrastructure.adapters.entrypoints.producer import Producer
 from src.infrastructure.adapters.producer.author_producer import AuthorProducerAdapter
@@ -72,11 +91,23 @@ db = DatabaseSettings(
 elasticsearch_config = ElasticsearchConfig()
 elasticsearch_client = ElasticsearchClient(elasticsearch_config)
 
-book_repository = BookRepository(db=db, elasticsearch_client=elasticsearch_client)
-author_repository = AuthorRepository(db=db)
-book_category_repository = BookCategoryRepository(db=db)
-branch_repository = BranchRepository(db=db)
-physical_exemplar_repository = PhysicalExemplarRepository(db=db)
+# Initialize read and write repositories
+book_read_repository = BookReadRepository(
+    db=db,
+    elasticsearch_client=elasticsearch_client,
+)
+book_write_repository = BookWriteRepository(
+    db=db,
+    elasticsearch_client=elasticsearch_client,
+)
+author_read_repository = AuthorReadRepository(db=db)
+author_write_repository = AuthorWriteRepository(db=db)
+book_category_read_repository = BookCategoryReadRepository(db=db)
+book_category_write_repository = BookCategoryWriteRepository(db=db)
+branch_read_repository = BranchReadRepository(db=db)
+branch_write_repository = BranchWriteRepository(db=db)
+physical_exemplar_read_repository = PhysicalExemplarReadRepository(db=db)
+physical_exemplar_write_repository = PhysicalExemplarWriteRepository(db=db)
 
 # Initialize producer for external notifications
 producer_config = ProducerConfig()
@@ -90,32 +121,40 @@ physical_exemplar_producer = PhysicalExemplarProducerAdapter(producer=producer)
 
 callables = {
     "book.upsert": {
-        "usecase": UpsertBook(book_repository, book_producer),
+        "usecase": UpsertBook(
+            book_read_repository,
+            book_write_repository,
+            book_producer,
+        ),
         "entity": Book,
     },
     "author.upsert": {
-        "usecase": UpsertAuthor(author_repository, author_producer),
+        "usecase": UpsertAuthor(
+            author_read_repository,
+            author_write_repository,
+            author_producer,
+        ),
         "entity": Author,
     },
     "book.deletion": {
-        "usecase": DeleteBook(book_repository, book_producer),
+        "usecase": DeleteBook(book_write_repository, book_producer),
         "entity": DeletionEntity,
     },
     "author.deletion": {
-        "usecase": DeleteAuthor(author_repository, author_producer),
+        "usecase": DeleteAuthor(author_write_repository, author_producer),
         "entity": DeletionEntity,
     },
     "book_category.upsert": {
-        "usecase": UpsertBookCategory(book_category_repository),
+        "usecase": UpsertBookCategory(book_category_write_repository),
         "entity": BookCategory,
     },
     "branch.upsert": {
-        "usecase": UpsertBranch(branch_repository),
+        "usecase": UpsertBranch(branch_write_repository),
         "entity": Branch,
     },
     "physical_exemplar.upsert": {
         "usecase": UpsertPhysicalExemplar(
-            physical_exemplar_repository,
+            physical_exemplar_write_repository,
             physical_exemplar_producer,
         ),
         "entity": PhysicalExemplar,

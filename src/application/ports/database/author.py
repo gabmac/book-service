@@ -6,13 +6,9 @@ from src.domain.entities.author import Author, AuthorFilter
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
 
 
-class AuthorRepositoryPort(ABC):
+class AuthorReadRepositoryPort(ABC):
     def __init__(self, db: DatabaseSettings) -> None:
         self.db = db
-
-    @abstractmethod
-    def upsert_author(self, author: Author) -> Author:
-        pass
 
     @abstractmethod
     def get_author_by_id(self, id: UUID) -> Author:
@@ -27,6 +23,15 @@ class AuthorRepositoryPort(ABC):
 
     @abstractmethod
     def get_authors_by_ids(self, ids: List[UUID]) -> List[Author]:
+        pass
+
+
+class AuthorWriteRepositoryPort(ABC):
+    def __init__(self, db: DatabaseSettings) -> None:
+        self.db = db
+
+    @abstractmethod
+    def upsert_author(self, author: Author) -> Author:
         pass
 
     @abstractmethod

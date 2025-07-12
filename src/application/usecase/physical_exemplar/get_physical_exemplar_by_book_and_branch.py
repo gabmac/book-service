@@ -1,13 +1,13 @@
 from uuid import UUID
 
 from src.application.ports.database.physical_exemplar import (
-    PhysicalExemplarRepositoryPort,
+    PhysicalExemplarReadRepositoryPort,
 )
 from src.domain.entities.physical_exemplar import PhysicalExemplar
 
 
 class GetPhysicalExemplarByBookAndBranch:
-    def __init__(self, repository: PhysicalExemplarRepositoryPort):
+    def __init__(self, repository: PhysicalExemplarReadRepositoryPort):
         self.repository = repository
 
     def execute(self, book_id: UUID, branch_id: UUID) -> PhysicalExemplar:

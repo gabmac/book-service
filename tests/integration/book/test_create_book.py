@@ -19,8 +19,8 @@ class TestCreateBook(BookViewConfTest):
             created_by="test_user",
             updated_by="test_user",
         )
-        self.stored_author1 = self.author_repository.upsert_author(self.author1)
-        self.stored_author2 = self.author_repository.upsert_author(self.author2)
+        self.stored_author1 = self.author_write_repository.upsert_author(self.author1)
+        self.stored_author2 = self.author_write_repository.upsert_author(self.author2)
 
         # Common book categories for tests
         self.category1 = self.book_category_model_factory.build(
@@ -35,11 +35,15 @@ class TestCreateBook(BookViewConfTest):
             created_by="test_user",
             updated_by="test_user",
         )
-        self.stored_category1 = self.book_category_repository.upsert_book_category(
-            self.category1,
+        self.stored_category1 = (
+            self.book_category_write_repository.upsert_book_category(
+                self.category1,
+            )
         )
-        self.stored_category2 = self.book_category_repository.upsert_book_category(
-            self.category2,
+        self.stored_category2 = (
+            self.book_category_write_repository.upsert_book_category(
+                self.category2,
+            )
         )
 
     def test_create_book_success(self):
@@ -62,7 +66,7 @@ class TestCreateBook(BookViewConfTest):
 
         # And the book is created in the database
         # (simulate the consumer processing, then check the book exists)
-        created_book = self.book_repository.get_book_by_id(response_body.book.id)
+        created_book = self.book_read_repository.get_book_by_id(response_body.book.id)
 
         exclude_book = {
             "book_data",

@@ -23,7 +23,7 @@ class TestCreateBranch(BranchViewConfTest):
 
         # And the message is consumed from the queue
         self.consumer.consume("branch.upsert")
-        store_branch = self.branch_repository.get_branch_by_filter(BranchFilter())
+        store_branch = self.branch_read_repository.get_branch_by_filter(BranchFilter())
 
         # And the branch is stored in the database
         exclude_fields = {"created_at", "updated_at"}

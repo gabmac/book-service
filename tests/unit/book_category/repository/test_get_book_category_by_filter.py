@@ -20,9 +20,15 @@ class TestGetBookCategoryByFilter(BookCategoryRepositoryConftest):
             description="Books about space",
         )
 
-        self.book_category_repository.upsert_book_category(book_category=self.category1)
-        self.book_category_repository.upsert_book_category(book_category=self.category2)
-        self.book_category_repository.upsert_book_category(book_category=self.category3)
+        self.book_category_write_repository.upsert_book_category(
+            book_category=self.category1,
+        )
+        self.book_category_write_repository.upsert_book_category(
+            book_category=self.category2,
+        )
+        self.book_category_write_repository.upsert_book_category(
+            book_category=self.category3,
+        )
 
     def test_filter_by_title_and_description(self):
         # Arrange - Create and save book categories
@@ -32,7 +38,7 @@ class TestGetBookCategoryByFilter(BookCategoryRepositoryConftest):
             title=self.category1.title,
             description=self.category1.description,
         )
-        results = self.book_category_repository.get_book_category_by_filter(
+        results = self.book_category_read_repository.get_book_category_by_filter(
             filter=filter_criteria,
         )
 
@@ -44,7 +50,7 @@ class TestGetBookCategoryByFilter(BookCategoryRepositoryConftest):
 
         # Act - Call with filter that has no criteria
         empty_filter = BookCategoryFilter(title=None, description=None)
-        results = self.book_category_repository.get_book_category_by_filter(
+        results = self.book_category_read_repository.get_book_category_by_filter(
             filter=empty_filter,
         )
 

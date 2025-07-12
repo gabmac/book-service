@@ -28,7 +28,7 @@ class TestGetBookByFilter(BookRepositoryConftest):
         self.book_data5 = self.book_data_model_factory.build()
         self.book_data6 = self.book_data_model_factory.build()
         [
-            self.author_repository.upsert_author(author=author)
+            self.author_write_repository.upsert_author(author=author)
             for author in [
                 self.author1,
                 self.author2,
@@ -40,7 +40,9 @@ class TestGetBookByFilter(BookRepositoryConftest):
         ]
 
         [
-            self.book_category_repository.upsert_book_category(book_category=category)
+            self.book_category_write_repository.upsert_book_category(
+                book_category=category,
+            )
             for category in [
                 self.book_category1,
                 self.book_category2,
@@ -78,9 +80,9 @@ class TestGetBookByFilter(BookRepositoryConftest):
             book_data=book_data3,
         )
 
-        self.book_repository.upsert_book(book=self.book1)
-        self.book_repository.upsert_book(book=self.book2)
-        self.book_repository.upsert_book(book=self.book3)
+        self.book_write_repository.upsert_book(book=self.book1)
+        self.book_write_repository.upsert_book(book=self.book2)
+        self.book_write_repository.upsert_book(book=self.book3)
 
     def test_comprehensive_search_filter(self):
         """Test BookSearchFilter with multiple filter criteria using both PostgreSQL and Elasticsearch"""
@@ -96,13 +98,13 @@ class TestGetBookByFilter(BookRepositoryConftest):
             sort_by="created_at",
             sort_order="desc",
         )
-        results = self.book_repository.get_book_by_filter(filter=search_filter)
+        results = self.book_read_repository.get_book_by_filter(filter=search_filter)
         self.validate_book([self.book1], results)
 
     def test_filter_not_found(self):
         # Act - Filter by non-existent ISBN
         filter_criteria = BookSearchFilter(isbn_code="978-0-000000-00-0")
-        results = self.book_repository.get_book_by_filter(filter=filter_criteria)
+        results = self.book_read_repository.get_book_by_filter(filter=filter_criteria)
 
         # Assert - Should return empty list
         self.assertEqual(results, [])
@@ -110,7 +112,7 @@ class TestGetBookByFilter(BookRepositoryConftest):
     def test_empty_filter_returns_all(self):
         # Act - Call with empty filter
         empty_filter = BookSearchFilter()
-        results = self.book_repository.get_book_by_filter(filter=empty_filter)
+        results = self.book_read_repository.get_book_by_filter(filter=empty_filter)
 
         # Assert - Should return all books
         self.validate_book([self.book1, self.book2, self.book3], results)

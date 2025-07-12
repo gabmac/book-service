@@ -27,14 +27,20 @@ class TestFilterBookCategory(BookCategoryViewConfTest):
         )
 
         # Store book categories in database
-        self.stored_category1 = self.book_category_repository.upsert_book_category(
-            book_category1,
+        self.stored_category1 = (
+            self.book_category_write_repository.upsert_book_category(
+                book_category1,
+            )
         )
-        self.stored_category2 = self.book_category_repository.upsert_book_category(
-            book_category2,
+        self.stored_category2 = (
+            self.book_category_write_repository.upsert_book_category(
+                book_category2,
+            )
         )
-        self.stored_category3 = self.book_category_repository.upsert_book_category(
-            book_category3,
+        self.stored_category3 = (
+            self.book_category_write_repository.upsert_book_category(
+                book_category3,
+            )
         )
 
     def test_filter_book_category_with_filters(self):

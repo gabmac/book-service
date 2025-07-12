@@ -23,8 +23,8 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_author = self.author_repository.upsert_author(author)
-        self.stored_category = self.book_category_repository.upsert_book_category(
+        self.stored_author = self.author_write_repository.upsert_author(author)
+        self.stored_category = self.book_category_write_repository.upsert_book_category(
             category,
         )
 
@@ -47,7 +47,7 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_book = self.book_repository.upsert_book(book)
+        self.stored_book = self.book_write_repository.upsert_book(book)
 
         # Create branch
         branch = self.branch_model_factory.build(
@@ -56,7 +56,7 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_branch = self.branch_repository.upsert_branch(branch)
+        self.stored_branch = self.branch_write_repository.upsert_branch(branch)
 
     def test_create_physical_exemplar(self):
         # Scenario: Create a physical exemplar
@@ -93,11 +93,9 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
         self.consumer.consume("physical_exemplar.upsert")
 
         # And the physical exemplar is stored in the database
-        stored_physical_exemplar = (
-            self.physical_exemplar_repository.get_physical_exemplar_by_book_and_branch(
-                book_id=self.stored_book.id,
-                branch_id=self.stored_branch.id,
-            )
+        stored_physical_exemplar = self.physical_exemplar_read_repository.get_physical_exemplar_by_book_and_branch(
+            book_id=self.stored_book.id,
+            branch_id=self.stored_branch.id,
         )
 
         physical_exemplar = PhysicalExemplar(
@@ -142,7 +140,9 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
             book=self.stored_book,
             branch=self.stored_branch,
         )
-        self.physical_exemplar_repository.upsert_physical_exemplar(physical_exemplar)
+        self.physical_exemplar_write_repository.upsert_physical_exemplar(
+            physical_exemplar,
+        )
 
         body = self.physical_exemplar_create_model_factory.build()
 
@@ -176,11 +176,9 @@ class TestCreatePhysicalExemplar(PhysicalExemplarViewConfTest):
         self.consumer.consume("physical_exemplar.upsert")
 
         # And only one physical exemplar exists in the database
-        stored_physical_exemplar = (
-            self.physical_exemplar_repository.get_physical_exemplar_by_book_and_branch(
-                book_id=self.stored_book.id,
-                branch_id=self.stored_branch.id,
-            )
+        stored_physical_exemplar = self.physical_exemplar_read_repository.get_physical_exemplar_by_book_and_branch(
+            book_id=self.stored_book.id,
+            branch_id=self.stored_branch.id,
         )
 
         physical_exemplar = PhysicalExemplar(

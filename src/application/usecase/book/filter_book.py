@@ -1,12 +1,12 @@
 from typing import List
 
 from src.application.dto.book_dto import BookFilter
-from src.application.ports.database.book import BookRepositoryPort
+from src.application.ports.database.book import BookReadRepositoryPort
 from src.domain.entities.book import Book, BookSearchFilter
 
 
 class FilterBook:
-    def __init__(self, book_repository: BookRepositoryPort):
+    def __init__(self, book_repository: BookReadRepositoryPort):
         self.book_repository = book_repository
 
     def execute(self, filter: BookFilter | None = None) -> List[Book]:

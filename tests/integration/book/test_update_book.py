@@ -22,11 +22,13 @@ class TestUpdateBook(BookViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_original_author = self.author_repository.upsert_author(
+        self.stored_original_author = self.author_write_repository.upsert_author(
             self.original_author,
         )
         self.stored_original_category = (
-            self.book_category_repository.upsert_book_category(self.original_category)
+            self.book_category_write_repository.upsert_book_category(
+                self.original_category,
+            )
         )
 
         # Create an existing book
@@ -47,7 +49,7 @@ class TestUpdateBook(BookViewConfTest):
             created_by="test_user",
             updated_by="test_user",
         )
-        self.stored_book = self.book_repository.upsert_book(existing_book)
+        self.stored_book = self.book_write_repository.upsert_book(existing_book)
 
         # Create new authors and categories for the update
         self.new_author = self.author_model_factory.build(
@@ -62,9 +64,13 @@ class TestUpdateBook(BookViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_new_author = self.author_repository.upsert_author(self.new_author)
-        self.stored_new_category = self.book_category_repository.upsert_book_category(
-            self.new_category,
+        self.stored_new_author = self.author_write_repository.upsert_author(
+            self.new_author,
+        )
+        self.stored_new_category = (
+            self.book_category_write_repository.upsert_book_category(
+                self.new_category,
+            )
         )
 
     def test_update_book_success(self):
@@ -93,7 +99,7 @@ class TestUpdateBook(BookViewConfTest):
 
         # And the book is updated in the database
         exclude_book = {"book_data", "updated_at", "created_at", "create"}
-        updated_book = self.book_repository.get_book_by_id(self.stored_book.id)
+        updated_book = self.book_read_repository.get_book_by_id(self.stored_book.id)
         self.assertDictEqual(
             json.loads(
                 response_body.book.model_dump_json(

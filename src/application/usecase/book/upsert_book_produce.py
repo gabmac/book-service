@@ -2,8 +2,8 @@ from typing import List
 from uuid import UUID
 
 from src.application.exceptions import NotFoundException
-from src.application.ports.database.author import AuthorRepositoryPort
-from src.application.ports.database.book_category import BookCategoryRepositoryPort
+from src.application.ports.database.author import AuthorReadRepositoryPort
+from src.application.ports.database.book_category import BookCategoryReadRepositoryPort
 from src.application.ports.producer.book_producer import BookProducerPort
 from src.domain.entities.author import Author
 from src.domain.entities.book import Book
@@ -14,8 +14,8 @@ class UpsertBookProduce:
     def __init__(
         self,
         producer: BookProducerPort,
-        author_repository: AuthorRepositoryPort,
-        book_category_repository: BookCategoryRepositoryPort,
+        author_repository: AuthorReadRepositoryPort,
+        book_category_repository: BookCategoryReadRepositoryPort,
     ):
         self.producer = producer
         self.author_repository = author_repository

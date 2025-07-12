@@ -11,13 +11,15 @@ class TestGetAuthorByFilter(AuthorRepositoryConftest):
         author2 = self.author_model_factory.build(name="Jane Smith")
         author3 = self.author_model_factory.build(name="John Smith")
 
-        self.author_repository.upsert_author(author=author1)
-        self.author_repository.upsert_author(author=author2)
-        self.author_repository.upsert_author(author=author3)
+        self.author_write_repository.upsert_author(author=author1)
+        self.author_write_repository.upsert_author(author=author2)
+        self.author_write_repository.upsert_author(author=author3)
 
         # Act - Filter by name similar to "John"
         filter_criteria = AuthorFilter(name="John")
-        results = self.author_repository.get_author_by_filter(filter=filter_criteria)
+        results = self.author_read_repository.get_author_by_filter(
+            filter=filter_criteria,
+        )
 
         self.assertEqual(
             results.sort(key=lambda x: x.name),
@@ -29,12 +31,14 @@ class TestGetAuthorByFilter(AuthorRepositoryConftest):
         author1 = self.author_model_factory.build(name="John Doe")
         author2 = self.author_model_factory.build(name="Jane Smith")
 
-        self.author_repository.upsert_author(author=author1)
-        self.author_repository.upsert_author(author=author2)
+        self.author_write_repository.upsert_author(author=author1)
+        self.author_write_repository.upsert_author(author=author2)
 
         # Act - Filter by name that doesn't exist
         filter_criteria = AuthorFilter(name="NonExistentAuthor")
-        results = self.author_repository.get_author_by_filter(filter=filter_criteria)
+        results = self.author_read_repository.get_author_by_filter(
+            filter=filter_criteria,
+        )
 
         # Assert - Should return empty list
         self.assertEqual(results, [])
@@ -45,12 +49,12 @@ class TestGetAuthorByFilter(AuthorRepositoryConftest):
         author2 = self.author_model_factory.build()
         author3 = self.author_model_factory.build()
 
-        self.author_repository.upsert_author(author=author1)
-        self.author_repository.upsert_author(author=author2)
-        self.author_repository.upsert_author(author=author3)
+        self.author_write_repository.upsert_author(author=author1)
+        self.author_write_repository.upsert_author(author=author2)
+        self.author_write_repository.upsert_author(author=author3)
 
         # Act - Call with no filter
-        results = self.author_repository.get_author_by_filter(filter=None)
+        results = self.author_read_repository.get_author_by_filter(filter=None)
 
         # Assert - Should return all authors
         self.assertGreaterEqual(len(results), 3)
@@ -60,12 +64,12 @@ class TestGetAuthorByFilter(AuthorRepositoryConftest):
         author1 = self.author_model_factory.build()
         author2 = self.author_model_factory.build()
 
-        self.author_repository.upsert_author(author=author1)
-        self.author_repository.upsert_author(author=author2)
+        self.author_write_repository.upsert_author(author=author1)
+        self.author_write_repository.upsert_author(author=author2)
 
         # Act - Call with empty filter
         empty_filter = AuthorFilter(name=None)
-        results = self.author_repository.get_author_by_filter(filter=empty_filter)
+        results = self.author_read_repository.get_author_by_filter(filter=empty_filter)
 
         # Assert - Should return all authors
         self.assertEqual(

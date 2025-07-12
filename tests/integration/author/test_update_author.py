@@ -17,7 +17,7 @@ class TestUpdateAuthor(AuthorViewConfTest):
             created_by="test_user",
             updated_by="test_user",
         )
-        stored_author = self.author_repository.upsert_author(existing_author)
+        stored_author = self.author_write_repository.upsert_author(existing_author)
 
         # When a request is made to update the author
         update_body = self.author_upsert_model_factory.build(
@@ -36,7 +36,7 @@ class TestUpdateAuthor(AuthorViewConfTest):
 
         # And the message is consumed from the queue
         self.consumer.consume("author.upsert")
-        updated_authors = self.author_repository.get_author_by_id(stored_author.id)
+        updated_authors = self.author_read_repository.get_author_by_id(stored_author.id)
 
         # And the author is updated in the database
         exclude_fields = {"created_at", "updated_at"}

@@ -36,13 +36,17 @@ class TestFilterBook(BookViewConfTest):
             updated_by="test_user",
         )
 
-        self.stored_author1 = self.author_repository.upsert_author(author1)
-        self.stored_author2 = self.author_repository.upsert_author(author2)
-        self.stored_category1 = self.book_category_repository.upsert_book_category(
-            category1,
+        self.stored_author1 = self.author_write_repository.upsert_author(author1)
+        self.stored_author2 = self.author_write_repository.upsert_author(author2)
+        self.stored_category1 = (
+            self.book_category_write_repository.upsert_book_category(
+                category1,
+            )
         )
-        self.stored_category2 = self.book_category_repository.upsert_book_category(
-            category2,
+        self.stored_category2 = (
+            self.book_category_write_repository.upsert_book_category(
+                category2,
+            )
         )
 
         # Create books with different properties
@@ -90,8 +94,8 @@ class TestFilterBook(BookViewConfTest):
         )
 
         # Store books in database
-        self.stored_book1 = self.book_repository.upsert_book(book1)
-        self.stored_book2 = self.book_repository.upsert_book(book2)
+        self.stored_book1 = self.book_write_repository.upsert_book(book1)
+        self.stored_book2 = self.book_write_repository.upsert_book(book2)
 
     def test_filter_book_with_multiple_filters(self):
 

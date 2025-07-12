@@ -9,10 +9,12 @@ class TestGetBookCategoryById(BookCategoryRepositoryConftest):
     def test_get_existing_book_category(self):
         # Arrange - Create and save a book category first
         book_category = self.book_category_model_factory.build()
-        self.book_category_repository.upsert_book_category(book_category=book_category)
+        self.book_category_write_repository.upsert_book_category(
+            book_category=book_category,
+        )
 
         # Act - Retrieve the book category by ID
-        result = self.book_category_repository.get_book_category_by_id(
+        result = self.book_category_read_repository.get_book_category_by_id(
             id=book_category.id,
         )
 
@@ -25,6 +27,8 @@ class TestGetBookCategoryById(BookCategoryRepositoryConftest):
 
         # Act & Assert - Should raise NotFoundException
         with self.assertRaises(NotFoundException) as context:
-            self.book_category_repository.get_book_category_by_id(id=non_existent_id)
+            self.book_category_read_repository.get_book_category_by_id(
+                id=non_existent_id,
+            )
 
         self.assertEqual(str(context.exception), "Book category not found")

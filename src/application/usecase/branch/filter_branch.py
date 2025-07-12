@@ -1,11 +1,11 @@
 from typing import List
 
-from src.application.ports.database.branch import BranchRepositoryPort
+from src.application.ports.database.branch import BranchReadRepositoryPort
 from src.domain.entities.branch import Branch, BranchFilter
 
 
 class FilterBranch:
-    def __init__(self, repository: BranchRepositoryPort):
+    def __init__(self, repository: BranchReadRepositoryPort):
         self.repository = repository
 
     def execute(self, filter: BranchFilter) -> List[Branch]:

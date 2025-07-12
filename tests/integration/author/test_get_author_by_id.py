@@ -16,7 +16,7 @@ class TestGetAuthorById(AuthorViewConfTest):
             created_by="test_user",
             updated_by="test_user",
         )
-        stored_author = self.author_repository.upsert_author(author)
+        stored_author = self.author_write_repository.upsert_author(author)
 
         # When a request is made to get the author by ID
         response = self.client.get(f"api/author/{stored_author.id}")

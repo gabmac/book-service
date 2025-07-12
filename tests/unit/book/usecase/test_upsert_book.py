@@ -10,18 +10,19 @@ class TestUpsertBook(BookUseCaseConftest):
     def setUp(self):
         super().setUp()
         self.upsert_book = UpsertBook(
-            book_repository=self.mock_book_repository,
+            book_read_repository=self.mock_book_read_repository,
+            book_write_repository=self.mock_book_write_repository,
             book_producer=self.mock_book_producer,
         )
-        self.mock_book_repository.get_book_by_id.return_value = None
-        self.mock_book_repository.get_book_by_id.side_effect = None
-        self.mock_book_repository.upsert_book.return_value = None
-        self.mock_book_repository.upsert_book.side_effect = None
+        self.mock_book_read_repository.get_book_by_id.return_value = None
+        self.mock_book_read_repository.get_book_by_id.side_effect = None
+        self.mock_book_write_repository.upsert_book.return_value = None
+        self.mock_book_write_repository.upsert_book.side_effect = None
 
     def tearDown(self) -> None:
         super().tearDown()
-        self.mock_book_repository.upsert_book.reset_mock()
-        self.mock_book_repository.get_book_by_id.reset_mock()
+        self.mock_book_write_repository.upsert_book.reset_mock()
+        self.mock_book_read_repository.get_book_by_id.reset_mock()
 
     def test_execute_new_book(self):
         # Arrange
@@ -31,17 +32,17 @@ class TestUpsertBook(BookUseCaseConftest):
         )
 
         # Mock repository responses - book doesn't exist
-        self.mock_book_repository.get_book_by_id.side_effect = NotFoundException(
+        self.mock_book_read_repository.get_book_by_id.side_effect = NotFoundException(
             "Book not found",
         )
-        self.mock_book_repository.upsert_book.return_value = book
+        self.mock_book_write_repository.upsert_book.return_value = book
 
         # Act
         result = self.upsert_book.execute(book)
 
         # Assert
-        self.mock_book_repository.get_book_by_id.assert_called_once_with(book.id)
-        self.mock_book_repository.upsert_book.assert_called_once_with(book)
+        self.mock_book_read_repository.get_book_by_id.assert_called_once_with(book.id)
+        self.mock_book_write_repository.upsert_book.assert_called_once_with(book)
         self.assertEqual(result, book)
 
     def test_execute_existing_book_update(self):
@@ -63,17 +64,17 @@ class TestUpsertBook(BookUseCaseConftest):
         expected_book.created_by = existing_book.created_by
 
         # Mock repository responses - book exists
-        self.mock_book_repository.get_book_by_id.return_value = existing_book
-        self.mock_book_repository.upsert_book.return_value = expected_book
+        self.mock_book_read_repository.get_book_by_id.return_value = existing_book
+        self.mock_book_write_repository.upsert_book.return_value = expected_book
 
         # Act
         result = self.upsert_book.execute(updated_book)
 
         # Assert
-        self.mock_book_repository.get_book_by_id.assert_called_once_with(
+        self.mock_book_read_repository.get_book_by_id.assert_called_once_with(
             updated_book.id,
         )
-        self.mock_book_repository.upsert_book.assert_called_once()
+        self.mock_book_write_repository.upsert_book.assert_called_once()
 
         # Verify that created_at and created_by were preserved
         self.assertEqual(

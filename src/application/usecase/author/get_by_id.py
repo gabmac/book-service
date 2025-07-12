@@ -1,11 +1,11 @@
 from uuid import UUID
 
-from src.application.ports.database.author import AuthorRepositoryPort
+from src.application.ports.database.author import AuthorReadRepositoryPort
 from src.domain.entities.author import Author
 
 
 class GetAuthorById:
-    def __init__(self, author_repository: AuthorRepositoryPort):
+    def __init__(self, author_repository: AuthorReadRepositoryPort):
         self.author_repository = author_repository
 
     def execute(self, id: UUID) -> Author:

@@ -5,16 +5,7 @@ from uuid import UUID
 from src.domain.entities.book_category import BookCategory, BookCategoryFilter
 
 
-class BookCategoryRepositoryPort(ABC):
-
-    @abstractmethod
-    def upsert_book_category(self, book_category: BookCategory) -> BookCategory:
-        pass
-
-    @abstractmethod
-    def delete_book_category(self, id: UUID) -> None:
-        pass
-
+class BookCategoryReadRepositoryPort(ABC):
     @abstractmethod
     def get_book_category_by_id(self, id: UUID) -> BookCategory:
         pass
@@ -32,4 +23,14 @@ class BookCategoryRepositoryPort(ABC):
 
     @abstractmethod
     def get_book_categories_by_ids(self, ids: List[UUID]) -> List[BookCategory]:
+        pass
+
+
+class BookCategoryWriteRepositoryPort(ABC):
+    @abstractmethod
+    def upsert_book_category(self, book_category: BookCategory) -> BookCategory:
+        pass
+
+    @abstractmethod
+    def delete_book_category(self, id: UUID) -> None:
         pass

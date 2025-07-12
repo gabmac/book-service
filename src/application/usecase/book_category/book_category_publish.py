@@ -1,5 +1,5 @@
 from src.application.exceptions import NotFoundException
-from src.application.ports.database.book_category import BookCategoryRepositoryPort
+from src.application.ports.database.book_category import BookCategoryReadRepositoryPort
 from src.application.ports.producer.book_category_producer import (
     BookCategoryProducerPort,
 )
@@ -10,7 +10,7 @@ class CreateBookCategoryProduce:
     def __init__(
         self,
         book_category_producer: BookCategoryProducerPort,
-        repository: BookCategoryRepositoryPort,
+        repository: BookCategoryReadRepositoryPort,
     ):
         self.book_category_producer = book_category_producer
         self.repository = repository

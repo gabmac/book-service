@@ -1,8 +1,8 @@
 from src.application.exceptions import NotFoundException
-from src.application.ports.database.book import BookRepositoryPort
-from src.application.ports.database.branch import BranchRepositoryPort
+from src.application.ports.database.book import BookReadRepositoryPort
+from src.application.ports.database.branch import BranchReadRepositoryPort
 from src.application.ports.database.physical_exemplar import (
-    PhysicalExemplarRepositoryPort,
+    PhysicalExemplarReadRepositoryPort,
 )
 from src.application.ports.producer.physical_exemplar_producer import (
     PhysicalExemplarProducerPort,
@@ -14,9 +14,9 @@ class UpsertPhysicalExemplarProduce:
     def __init__(
         self,
         physical_exemplar_producer: PhysicalExemplarProducerPort,
-        repository: PhysicalExemplarRepositoryPort,
-        book_repository: BookRepositoryPort,
-        branch_repository: BranchRepositoryPort,
+        repository: PhysicalExemplarReadRepositoryPort,
+        book_repository: BookReadRepositoryPort,
+        branch_repository: BranchReadRepositoryPort,
     ):
         self.physical_exemplar_producer = physical_exemplar_producer
         self.repository = repository

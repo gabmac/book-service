@@ -9,10 +9,10 @@ class TestGetAuthorById(AuthorRepositoryConftest):
     def test_get_existing_author(self):
         # Arrange - Create and save an author first
         author = self.author_model_factory.build()
-        self.author_repository.upsert_author(author=author)
+        self.author_write_repository.upsert_author(author=author)
 
         # Act - Retrieve the author by ID
-        result = self.author_repository.get_author_by_id(id=author.id)
+        result = self.author_read_repository.get_author_by_id(id=author.id)
 
         # Assert - Verify the author is returned correctly
         self.assertEqual(result, author)
@@ -23,6 +23,6 @@ class TestGetAuthorById(AuthorRepositoryConftest):
 
         # Act & Assert - Should raise NotFoundException
         with self.assertRaises(NotFoundException) as context:
-            self.author_repository.get_author_by_id(id=non_existent_id)
+            self.author_read_repository.get_author_by_id(id=non_existent_id)
 
             self.assertEqual(str(context.exception), "Author not found")

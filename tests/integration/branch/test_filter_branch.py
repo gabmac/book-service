@@ -26,9 +26,9 @@ class TestFilterBranch(BranchViewConfTest):
         )
 
         # Store branches in database
-        self.stored_branch1 = self.branch_repository.upsert_branch(branch1)
-        self.stored_branch2 = self.branch_repository.upsert_branch(branch2)
-        self.stored_branch3 = self.branch_repository.upsert_branch(branch3)
+        self.stored_branch1 = self.branch_write_repository.upsert_branch(branch1)
+        self.stored_branch2 = self.branch_write_repository.upsert_branch(branch2)
+        self.stored_branch3 = self.branch_write_repository.upsert_branch(branch3)
 
     def test_filter_branch_with_filter(self):
 
@@ -67,7 +67,7 @@ class TestFilterBranch(BranchViewConfTest):
             created_by="test_user",
             updated_by="test_user",
         )
-        self.branch_repository.upsert_branch(branch)
+        self.branch_write_repository.upsert_branch(branch)
 
         response = self.client.get("api/branch", params={"name": "NonExistent"})
 

@@ -15,12 +15,12 @@ class TestGetBookById(BookRepositoryConftest):
         self.book_data1 = self.book_data_model_factory.build()
         self.book_data2 = self.book_data_model_factory.build()
 
-        self.author_repository.upsert_author(author=self.author1)
-        self.author_repository.upsert_author(author=self.author2)
-        self.book_category_repository.upsert_book_category(
+        self.author_write_repository.upsert_author(author=self.author1)
+        self.author_write_repository.upsert_author(author=self.author2)
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category1,
         )
-        self.book_category_repository.upsert_book_category(
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category2,
         )
 
@@ -34,10 +34,10 @@ class TestGetBookById(BookRepositoryConftest):
         )
 
         # Act
-        self.book_repository.upsert_book(book=book)
+        self.book_write_repository.upsert_book(book=book)
 
         # Act - Retrieve the book by ID
-        result = self.book_repository.get_book_by_id(id=book.id)
+        result = self.book_read_repository.get_book_by_id(id=book.id)
 
         # Assert - Verify the book is returned correctly
         exclude_book = {"book_data", "category_ids", "author_ids"}
@@ -72,6 +72,6 @@ class TestGetBookById(BookRepositoryConftest):
 
         # Act & Assert - Should raise NotFoundException
         with self.assertRaises(NotFoundException) as context:
-            self.book_repository.get_book_by_id(id=non_existent_id)
+            self.book_read_repository.get_book_by_id(id=non_existent_id)
 
         self.assertEqual(str(context.exception), "Book not found")

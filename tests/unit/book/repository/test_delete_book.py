@@ -13,12 +13,12 @@ class TestDeleteBook(BookRepositoryConftest):
         self.book_data1 = self.book_data_model_factory.build()
         self.book_data2 = self.book_data_model_factory.build()
 
-        self.author_repository.upsert_author(author=self.author1)
-        self.author_repository.upsert_author(author=self.author2)
-        self.book_category_repository.upsert_book_category(
+        self.author_write_repository.upsert_author(author=self.author1)
+        self.author_write_repository.upsert_author(author=self.author2)
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category1,
         )
-        self.book_category_repository.upsert_book_category(
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category2,
         )
 
@@ -32,14 +32,14 @@ class TestDeleteBook(BookRepositoryConftest):
         )
 
         # Act
-        self.book_repository.upsert_book(book=book)
-        self.book_repository.upsert_book(book=book)
+        self.book_write_repository.upsert_book(book=book)
+        self.book_write_repository.upsert_book(book=book)
 
         # Act - Delete the book
-        self.book_repository.delete_book(id=str(book.id))
+        self.book_write_repository.delete_book(id=str(book.id))
 
     def test_delete_non_existent_book(self):
         # Arrange - Generate a random UUID that doesn't exist
 
         # Act - Should not raise error for non-existent book
-        self.book_repository.delete_book(id=str(uuid7()))
+        self.book_write_repository.delete_book(id=str(uuid7()))

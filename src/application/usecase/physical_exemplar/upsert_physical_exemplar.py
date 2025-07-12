@@ -1,5 +1,5 @@
 from src.application.ports.database.physical_exemplar import (
-    PhysicalExemplarRepositoryPort,
+    PhysicalExemplarWriteRepositoryPort,
 )
 from src.application.ports.producer.physical_exemplar_producer import (
     PhysicalExemplarProducerPort,
@@ -10,7 +10,7 @@ from src.domain.entities.physical_exemplar import PhysicalExemplar
 class UpsertPhysicalExemplar:
     def __init__(
         self,
-        repository: PhysicalExemplarRepositoryPort,
+        repository: PhysicalExemplarWriteRepositoryPort,
         physical_exemplar_producer: PhysicalExemplarProducerPort,
     ):
         self.repository = repository

@@ -25,13 +25,13 @@ class TestGetByBranchIdAndBookId(PhysicalExemplarRepositoryConftest):
         self.branch1 = self.branch_model_factory.build(name="Main Branch")
 
         # Save dependencies
-        self.author_repository.upsert_author(author=self.author1)
+        self.author_write_repository.upsert_author(author=self.author1)
 
-        self.book_category_repository.upsert_book_category(
+        self.book_category_write_repository.upsert_book_category(
             book_category=self.book_category1,
         )
 
-        self.branch_repository.upsert_branch(branch=self.branch1)
+        self.branch_write_repository.upsert_branch(branch=self.branch1)
 
         # Create books with specific attributes for filtering
         self.book1 = self.book_model_factory.build(
@@ -44,7 +44,7 @@ class TestGetByBranchIdAndBookId(PhysicalExemplarRepositoryConftest):
         )
 
         # Save books
-        self.book_repository.upsert_book(book=self.book1)
+        self.book_write_repository.upsert_book(book=self.book1)
 
         # Create physical exemplars in different branches
         self.physical_exemplar1_branch1 = self.physical_exemplar_model_factory.build(
@@ -56,17 +56,15 @@ class TestGetByBranchIdAndBookId(PhysicalExemplarRepositoryConftest):
             bookshelf=1,
         )
         # Save physical exemplars
-        self.physical_exemplar_repository.upsert_physical_exemplar(
+        self.physical_exemplar_write_repository.upsert_physical_exemplar(
             physical_exemplar=self.physical_exemplar1_branch1,
         )
 
     def test_get_by_branch_id_and_book_id(self):
         # Arrange
-        physical_exemplar = (
-            self.physical_exemplar_repository.get_physical_exemplar_by_book_and_branch(
-                branch_id=self.branch1.id,
-                book_id=self.book1.id,
-            )
+        physical_exemplar = self.physical_exemplar_read_repository.get_physical_exemplar_by_book_and_branch(
+            branch_id=self.branch1.id,
+            book_id=self.book1.id,
         )
 
         # Assert
@@ -75,7 +73,7 @@ class TestGetByBranchIdAndBookId(PhysicalExemplarRepositoryConftest):
     def test_get_by_branch_id_and_book_id_not_found(self):
         # Arrange
         with self.assertRaises(NotFoundException):
-            self.physical_exemplar_repository.get_physical_exemplar_by_book_and_branch(
+            self.physical_exemplar_read_repository.get_physical_exemplar_by_book_and_branch(
                 branch_id=uuid7(),
                 book_id=uuid7(),
             )
