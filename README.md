@@ -357,35 +357,35 @@ graph TD
     Dashboard[OpenSearch Dashboards<br/>Port: 5601]
 
     %% External Connections
-    Client -->|HTTP Requests| API
+    Client -->|"HTTP Requests"| API
 
     %% Application to Message Broker
-    API -->|Publish Messages| RabbitMQ
-    Consumer -->|Consume Messages| RabbitMQ
+    API -->|"Publish Messages"| RabbitMQ
+    Consumer -->|"Consume Messages"| RabbitMQ
 
     %% Application to Database (CQRS Pattern)
-    API -->|Read Operations<br/>(Read Repositories)| PostgresSlave
-    Consumer -->|Write Operations<br/>(Write Repositories)| PostgresMaster
-    Consumer -->|Read Operations<br/>(Read Repositories)| PostgresSlave
+    API -->|"Read Operations<br/>(Read Repositories)"| PostgresSlave
+    Consumer -->|"Write Operations<br/>(Write Repositories)"| PostgresMaster
+    Consumer -->|"Read Operations<br/>(Read Repositories)"| PostgresSlave
 
     %% Application to Search Engine
-    API -->|Search Queries<br/>Full-text & Fuzzy| Elasticsearch
-    Consumer -->|Index Documents| Elasticsearch
+    API -->|"Search Queries<br/>Full-text & Fuzzy"| Elasticsearch
+    Consumer -->|"Index Documents"| Elasticsearch
 
     %% Database Replication
-    PostgresMaster -->|Streaming Replication| PostgresSlave
+    PostgresMaster -->|"Streaming Replication"| PostgresSlave
 
     %% Data Synchronization
-    Consumer -->|Sync Book Data| Elasticsearch
+    Consumer -->|"Sync Book Data"| Elasticsearch
 
     %% Logging Flow
-    API -->|Structured Logs<br/>TCP/JSON| Logstash
-    Consumer -->|Structured Logs<br/>TCP/JSON| Logstash
-    Logstash -->|Index Logs| OpenSearch
+    API -->|"Structured Logs<br/>TCP/JSON"| Logstash
+    Consumer -->|"Structured Logs<br/>TCP/JSON"| Logstash
+    Logstash -->|"Index Logs"| OpenSearch
 
     %% Monitoring and Visualization
-    OpenSearch -->|Data Source| Dashboard
-    Dashboard -->|Log Analytics<br/>& Monitoring| Client
+    OpenSearch -->|"Data Source"| Dashboard
+    Dashboard -->|"Log Analytics<br/>& Monitoring"| Client
 
     %% Network
     subgraph Docker Network [os-net]
