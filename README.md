@@ -756,6 +756,139 @@ All modifications flow through message queues:
 - **Independence**: Domain logic isolated from external framework dependencies
 - **Scalability**: Event-driven architecture enables horizontal scaling
 
+### System Architecture Overview
+
+The following diagram illustrates how the design system components integrate with each other:
+
+```mermaid
+graph TB
+    %% External Layer
+    Client[External Clients]
+
+    %% Presentation Layer
+    subgraph Presentation [Presentation Layer]
+        API[REST API Gateway]
+        Routes[Route Controllers]
+    end
+
+    %% Application Layer
+    subgraph Application [Application Layer]
+        UseCases[Business Use Cases]
+        DTOs[Data Transfer Objects]
+        Ports[Application Ports]
+    end
+
+    %% Domain Layer
+    subgraph Domain [Domain Layer]
+        Entities[Domain Entities]
+        ValueObjects[Value Objects]
+        BusinessRules[Business Rules]
+    end
+
+    %% Message Layer
+    subgraph Messaging [Message Layer]
+        Publisher[Message Publisher]
+        Consumer[Message Consumer]
+        MessageBroker[Message Broker]
+    end
+
+    %% Infrastructure Layer
+    subgraph Infrastructure [Infrastructure Layer]
+        Repositories[Repository Implementations]
+        Database[Database Layer]
+        SearchEngine[Search Engine]
+        Logging[Logging System]
+        ExternalServices[External Services]
+    end
+
+    %% Flow Connections
+    Client -->|HTTP Requests| API
+    API --> Routes
+    Routes --> UseCases
+
+    %% Application Layer Interactions
+    UseCases --> DTOs
+    UseCases --> Ports
+    UseCases --> Entities
+    UseCases --> BusinessRules
+
+    %% Domain Layer Interactions
+    Entities --> ValueObjects
+    Entities --> BusinessRules
+
+    %% Port Implementations
+    Ports -.->|implements| Repositories
+    Ports -.->|implements| Publisher
+
+    %% Message Flow
+    Publisher --> MessageBroker
+    MessageBroker --> Consumer
+    Consumer --> UseCases
+
+    %% Data Flow
+    Repositories --> Database
+    Repositories --> SearchEngine
+
+    %% Cross-cutting Concerns
+    API --> Logging
+    Consumer --> Logging
+    Publisher --> Logging
+
+    %% External Integration
+    Consumer --> ExternalServices
+
+    %% Bidirectional Data Flow
+    Database <--> SearchEngine
+
+    %% Styling
+    classDef domain fill:#e8f5e8,stroke:#2e7d32,stroke-width:3px
+    classDef application fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    classDef infrastructure fill:#fff3e0,stroke:#f57c00,stroke-width:3px
+    classDef presentation fill:#fff8e1,stroke:#f9a825,stroke-width:3px
+    classDef messaging fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
+    classDef external fill:#fce4ec,stroke:#c2185b,stroke-width:3px
+
+    class Entities,ValueObjects,BusinessRules domain
+    class UseCases,DTOs,Ports application
+    class Repositories,Database,SearchEngine,Logging,ExternalServices infrastructure
+    class API,Routes presentation
+    class Publisher,Consumer,MessageBroker messaging
+    class Client external
+```
+
+#### **Core Integration Patterns**
+
+**🔄 Request Flow**
+- **External Clients** send requests to the **REST API Gateway**
+- **Route Controllers** handle HTTP concerns and delegate to **Business Use Cases**
+- **Use Cases** orchestrate business logic using **Domain Entities** and **Business Rules**
+
+**🎯 Clean Architecture Layers**
+- **Domain Layer** (innermost) - Contains pure business logic, independent of external concerns
+- **Application Layer** - Orchestrates business operations, defines contracts via **Ports**
+- **Infrastructure Layer** - Implements technical details and external system integrations
+- **Presentation Layer** - Handles external communication protocols
+
+**📨 Event-Driven Communication**
+- **Message Publisher** sends events to **Message Broker** for asynchronous processing
+- **Message Consumer** processes events and triggers **Use Cases** for data persistence
+- This pattern separates read operations (direct API) from write operations (via messaging)
+
+**🔌 Dependency Inversion**
+- **Application Ports** define contracts that **Infrastructure** components implement
+- **Use Cases** depend on abstractions, not concrete implementations
+- This enables easy testing and swapping of implementations
+
+**💾 Data Management**
+- **Repository Implementations** handle data persistence to **Database**
+- **Search Engine** provides advanced querying capabilities
+- Data synchronization occurs between database and search engine
+
+**🔍 Cross-Cutting Concerns**
+- **Logging System** captures events from all layers for monitoring and debugging
+- **External Services** integration happens through the messaging layer
+- **Data Transfer Objects** ensure clean data flow between layers
+
 ## Testing Strategy
 
 The Book Service implements a comprehensive testing strategy following the **Testing Pyramid** principles, with clear separation between **Unit Tests** and **Integration Tests**. The test suite ensures high code coverage, reliability, and maintainability across all architectural layers.
