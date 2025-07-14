@@ -9,7 +9,7 @@ class PhysicalExemplar(Base, table=True):
     """Physical book exemplar model."""
 
     __tablename__ = "physical_exemplar"  # type: ignore
-
+    version: int = Field(nullable=False, ge=1)
     available: bool = Field(nullable=False)
     room: int = Field(nullable=False)
     floor: int = Field(nullable=False)

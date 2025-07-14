@@ -2,6 +2,7 @@ from tests.unit.physical_exemplar.usecase.conftest import (
     PhysicalExemplarUseCaseConftest,
 )
 
+from src.application.exceptions import OptimisticLockException
 from src.application.usecase.physical_exemplar.upsert_physical_exemplar import (
     UpsertPhysicalExemplar,
 )
@@ -43,3 +44,21 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarUseCaseConftest):
             physical_exemplar,
         )
         self.assertEqual(result, physical_exemplar)
+
+    def test_execute_optimistic_lock_exception(self):
+        # Arrange
+        physical_exemplar = self.physical_exemplar_model_factory.build()
+
+        # Mock repository response
+        self.mock_physical_exemplar_repository.upsert_physical_exemplar.side_effect = (
+            OptimisticLockException
+        )
+
+        # Act
+        result = self.upsert_physical_exemplar.execute(physical_exemplar)
+
+        # Assert
+        self.mock_physical_exemplar_repository.upsert_physical_exemplar.assert_called_once_with(
+            physical_exemplar,
+        )
+        self.assertIsNone(result)

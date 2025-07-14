@@ -18,6 +18,7 @@ class PhysicalExemplarCreate(BaseDto):
 
 class PhysicalExemplarResponse(BaseDto):
     id: UUID = Field(description="Physical exemplar id")
+    version: int = Field(description="Version of the data for optimistic locking")
     available: bool = Field(description="Physical exemplar availability")
     room: int = Field(description="Physical exemplar room")
     floor: int = Field(description="Physical exemplar floor")

@@ -1,5 +1,6 @@
-from sqlmodel import select
+from sqlmodel import and_, select, update
 
+from src.application.exceptions import OptimisticLockException
 from src.application.ports.database.physical_exemplar import (
     PhysicalExemplarWriteRepositoryPort,
 )
@@ -28,19 +29,32 @@ class PhysicalExemplarWriteRepository(PhysicalExemplarWriteRepositoryPort):
             ).first()
 
             if existing:
-                # Update existing record
-                for k, v in physical_exemplar.model_dump().items():
-                    if k not in [
-                        "id",
-                        "created_at",
-                        "created_by",
-                        "branch_id",
-                        "book_id",
-                        "branch",
-                        "book",
-                    ]:  # Preserve creation metadata
-                        setattr(existing, k, v)
-                physical_exemplar_model = existing
+                statement = (
+                    update(PhysicalExemplarModel)
+                    .where(
+                        and_(
+                            PhysicalExemplarModel.id == physical_exemplar.id,
+                            PhysicalExemplarModel.version
+                            == physical_exemplar.version - 1,
+                        ),
+                    )
+                    .values(
+                        **physical_exemplar.model_dump(
+                            exclude={"book", "branch"},
+                            exclude_none=True,
+                            exclude_unset=True,
+                            mode="json",
+                        )
+                    )
+                )
+                result = session.exec(statement)  # type: ignore
+                if result.rowcount == 0:  # type: ignore
+                    raise OptimisticLockException(
+                        f"""Optimistic lock failed for physical exemplar {physical_exemplar.id}.
+                        Expected version {physical_exemplar.version - 1},
+                        but data may have been modified by another transaction.""",
+                    )
+                return physical_exemplar
             else:
                 # Create new record
                 physical_exemplar_model = PhysicalExemplarModel(
@@ -50,6 +64,7 @@ class PhysicalExemplarWriteRepository(PhysicalExemplarWriteRepositoryPort):
                     floor=physical_exemplar.floor,
                     bookshelf=physical_exemplar.bookshelf,
                     book_id=physical_exemplar.book_id,
+                    version=physical_exemplar.version,
                     branch_id=physical_exemplar.branch_id,
                     created_at=physical_exemplar.created_at,
                     created_by=physical_exemplar.created_by,

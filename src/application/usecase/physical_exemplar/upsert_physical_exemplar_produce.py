@@ -37,6 +37,7 @@ class UpsertPhysicalExemplarProduce:
             physical_exemplar.created_by = old_physical_exemplar.created_by
             physical_exemplar.created_at = old_physical_exemplar.created_at
             physical_exemplar.id = old_physical_exemplar.id
+            physical_exemplar.version = old_physical_exemplar.version + 1
         except NotFoundException:
             pass
 

@@ -11,6 +11,7 @@ from src.domain.entities.branch import Branch
 
 class PhysicalExemplar(BaseEntity):
     id: UUID = Field(description="Physical exemplar id", default_factory=uuid7)
+    version: int = Field(description="Version of the data for optimistic locking", ge=1)
     available: bool = Field(description="Physical exemplar availability")
     room: int = Field(description="Physical exemplar room", ge=1)
     floor: int = Field(description="Physical exemplar floor", ge=1)

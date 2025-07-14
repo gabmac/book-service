@@ -2,6 +2,8 @@ from tests.unit.physical_exemplar.repository.conftest import (
     PhysicalExemplarRepositoryConftest,
 )
 
+from src.application.exceptions import OptimisticLockException
+
 
 class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
 
@@ -103,12 +105,15 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
             bookshelf=3,
         )
 
+        updated_physical_exemplar = physical_exemplar.model_copy(deep=True)
+        updated_physical_exemplar.version = physical_exemplar.version + 1
+
         self.physical_exemplar_write_repository.upsert_physical_exemplar(
             physical_exemplar=physical_exemplar,
         )
 
         result = self.physical_exemplar_write_repository.upsert_physical_exemplar(
-            physical_exemplar=physical_exemplar,
+            physical_exemplar=updated_physical_exemplar,
         )
 
         # Assert
@@ -121,5 +126,30 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
         ]
         self.assertEqual(
             result.model_dump(exclude=exclude_fields),  # type: ignore
-            physical_exemplar.model_dump(exclude=exclude_fields),
+            updated_physical_exemplar.model_dump(exclude=exclude_fields),
         )
+
+    def test_update_physical_exemplar_with_optimistic_lock(self):
+        # Arrange - Create and save a physical exemplar first
+        physical_exemplar = self.physical_exemplar_model_factory.build(
+            book_id=self.book1.id,
+            branch_id=self.branch1.id,
+            book=self.book1,
+            branch=self.branch1,
+            available=True,
+            room=1,
+            floor=2,
+            bookshelf=3,
+        )
+
+        updated_physical_exemplar = physical_exemplar.model_copy(deep=True)
+        updated_physical_exemplar.version = physical_exemplar.version - 1
+
+        self.physical_exemplar_write_repository.upsert_physical_exemplar(
+            physical_exemplar=physical_exemplar,
+        )
+
+        with self.assertRaises(OptimisticLockException):
+            self.physical_exemplar_write_repository.upsert_physical_exemplar(
+                physical_exemplar=updated_physical_exemplar,
+            )

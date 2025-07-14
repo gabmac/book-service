@@ -1,3 +1,5 @@
+from typing import Optional
+from src.application.exceptions import OptimisticLockException
 from src.application.ports.database.physical_exemplar import (
     PhysicalExemplarWriteRepositoryPort,
 )
@@ -16,9 +18,14 @@ class UpsertPhysicalExemplar:
         self.repository = repository
         self.physical_exemplar_producer = physical_exemplar_producer
 
-    def execute(self, physical_exemplar: PhysicalExemplar) -> PhysicalExemplar:
+    def execute(self, physical_exemplar: PhysicalExemplar) -> Optional[PhysicalExemplar]:
         self.physical_exemplar_producer.notify_external_physical_exemplar_upsert(
             physical_exemplar,
         )
-        physical_exemplar = self.repository.upsert_physical_exemplar(physical_exemplar)
-        return physical_exemplar
+        try:
+            physical_exemplar = self.repository.upsert_physical_exemplar(
+                physical_exemplar,
+            )
+            return physical_exemplar
+        except OptimisticLockException:
+            pass

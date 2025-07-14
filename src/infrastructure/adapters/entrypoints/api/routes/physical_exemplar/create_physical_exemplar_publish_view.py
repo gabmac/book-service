@@ -43,6 +43,7 @@ class PublishCreatePhysicalExemplarView(PhysicalExemplarBasicRouter):
             available=payload.available,
             room=payload.room,
             floor=payload.floor,
+            version=1,
             bookshelf=payload.bookshelf,
             book_id=book_id,
             branch_id=branch_id,

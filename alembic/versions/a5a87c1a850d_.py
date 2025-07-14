@@ -141,6 +141,7 @@ def upgrade() -> None:
             CREATE TABLE physical_exemplar (
             id UUID NOT NULL,
             branch_id UUID NOT NULL,
+            version INTEGER NOT NULL,
             created_at TIMESTAMPTZ NOT NULL,
             created_by TEXT NOT NULL,
             updated_at TIMESTAMPTZ NOT NULL,
