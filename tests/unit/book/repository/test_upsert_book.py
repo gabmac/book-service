@@ -1,5 +1,7 @@
 from tests.unit.book.repository.conftest import BookRepositoryConftest
 
+from src.application.exceptions import OptimisticLockException
+
 
 class TestUpsertBook(BookRepositoryConftest):
     def setUp(self):
@@ -70,8 +72,37 @@ class TestUpsertBook(BookRepositoryConftest):
             authors=[self.author3, self.author4],
             book_categories=[self.book_category3, self.book_category4],
             book_data=book_data,
+            version=book.version + 1,
         )
 
         # Act - Update the book editor, authors, categories, and book data
         result = self.book_write_repository.upsert_book(book=book)
         self.validate_book([result], [book])
+
+    def test_optimistic_lock_exception(self):
+        # Arrange
+        authors = [self.author1, self.author2]
+        book_categories = [self.book_category1, self.book_category2]
+        book_data = [self.book_data1, self.book_data2]
+        book = self.book_model_factory.build(
+            authors=authors,
+            book_categories=book_categories,
+            book_data=book_data,
+            version=3,
+        )
+
+        # Act
+        self.book_write_repository.upsert_book(book=book)
+
+        book_data = [self.book_data_model_factory.build() for _ in range(2)]
+        book = self.book_model_factory.build(
+            id=book.id,
+            authors=[self.author3, self.author4],
+            book_categories=[self.book_category3, self.book_category4],
+            book_data=book_data,
+            version=book.version - 1,
+        )
+
+        # Assert - Should raise OptimisticLockException
+        with self.assertRaises(OptimisticLockException):
+            self.book_write_repository.upsert_book(book=book)

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: a5a87c1a850d
+Revision ID: fbf0c0272c9d
 Revises:
-Create Date: 2025-07-08 22:10:30.694053
+Create Date: 2025-07-13 21:29:13.769395
 
 """
 
@@ -13,7 +13,7 @@ from alembic import op
 from sqlmodel import AutoString
 
 # revision identifiers, used by Alembic.
-revision: str = "a5a87c1a850d"
+revision: str = "fbf0c0272c9d"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -40,6 +40,7 @@ def upgrade() -> None:
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.Column("updated_by", AutoString(), nullable=False),
         sa.Column("isbn_code", AutoString(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.Column("editor", AutoString(), nullable=False),
         sa.Column("edition", sa.Integer(), nullable=False),
         sa.Column(

@@ -21,14 +21,14 @@ class PhysicalExemplarWriteRepository(PhysicalExemplarWriteRepositoryPort):
     ) -> PhysicalExemplar:
         with self.db.get_session() as session:
             # First try to find by book_id and branch_id for idempotency
-            existing = session.exec(
+            physical_exemplar_model = session.exec(
                 select(PhysicalExemplarModel).where(
                     PhysicalExemplarModel.book_id == physical_exemplar.book_id,
                     PhysicalExemplarModel.branch_id == physical_exemplar.branch_id,
                 ),
             ).first()
 
-            if existing:
+            if physical_exemplar_model:
                 statement = (
                     update(PhysicalExemplarModel)
                     .where(
@@ -54,7 +54,6 @@ class PhysicalExemplarWriteRepository(PhysicalExemplarWriteRepositoryPort):
                         Expected version {physical_exemplar.version - 1},
                         but data may have been modified by another transaction.""",
                     )
-                return physical_exemplar
             else:
                 # Create new record
                 physical_exemplar_model = PhysicalExemplarModel(
@@ -72,7 +71,8 @@ class PhysicalExemplarWriteRepository(PhysicalExemplarWriteRepositoryPort):
                     updated_by=physical_exemplar.updated_by,
                 )
 
-            session.add(physical_exemplar_model)
+                session.add(physical_exemplar_model)
+
             session.flush()
             session.commit()
             session.refresh(physical_exemplar_model)

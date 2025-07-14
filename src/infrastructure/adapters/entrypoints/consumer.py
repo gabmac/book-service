@@ -122,7 +122,6 @@ physical_exemplar_producer = PhysicalExemplarProducerAdapter(producer=producer)
 callables = {
     "book.upsert": {
         "usecase": UpsertBook(
-            book_read_repository,
             book_write_repository,
             book_producer,
         ),

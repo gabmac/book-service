@@ -59,6 +59,7 @@ class PublishUpdateBookView(BookBasicRouter):
             editor=payload.editor,
             edition=payload.edition,
             type=payload.type,
+            version=old_book.version + 1,
             publish_date=payload.publish_date,
             author_ids=payload.author_ids,
             category_ids=payload.category_ids,

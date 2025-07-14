@@ -14,6 +14,7 @@ from src.domain.enums.book_type import BookType
 
 class Book(BaseEntity):
     id: UUID = Field(default_factory=uuid7, description="Book ID")
+    version: int = Field(description="Version of the data for optimistic locking", ge=1)
     isbn_code: str = Field(description="Book ISBN code")
     editor: str = Field(description="Book editor")
     edition: int = Field(description="Book edition")

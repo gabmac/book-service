@@ -13,6 +13,7 @@ from src.domain.enums.book_type import BookType
 
 class Book(BaseDto):
     isbn_code: str = Field(description="Book ISBN code")
+    version: int = Field(description="Version of the data for optimistic locking", ge=1)
     editor: str = Field(description="Book editor")
     edition: int = Field(description="Book edition", ge=1)
     type: BookType = Field(description="Book type")
@@ -61,6 +62,7 @@ class BookFilter(BaseDto):
 
 class BookResponse(BaseDto):
     id: UUID = Field(description="Book ID")
+    version: int = Field(description="Book version")
     isbn_code: str = Field(description="Book ISBN code")
     editor: str = Field(description="Book editor")
     edition: int = Field(description="Book edition")

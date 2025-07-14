@@ -33,7 +33,6 @@ class TestDeleteBook(BookRepositoryConftest):
 
         # Act
         self.book_write_repository.upsert_book(book=book)
-        self.book_write_repository.upsert_book(book=book)
 
         # Act - Delete the book
         self.book_write_repository.delete_book(id=str(book.id))

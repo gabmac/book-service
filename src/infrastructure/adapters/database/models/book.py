@@ -18,6 +18,7 @@ class Book(Base, table=True):
     """Book entity model."""
 
     isbn_code: str = Field(nullable=False)
+    version: int = Field(nullable=False, ge=1)
     editor: str = Field(nullable=False)
     edition: int = Field(nullable=False)
     type: BookType = Field(nullable=False)

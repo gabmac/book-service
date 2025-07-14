@@ -1,8 +1,9 @@
 from typing import Any, Dict
 
 from sqlalchemy.exc import NoResultFound
-from sqlmodel import delete, select
+from sqlmodel import and_, delete, select, update
 
+from src.application.exceptions import OptimisticLockException
 from src.application.ports.database.book import BookWriteRepositoryPort
 from src.domain.entities.book import Book
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
@@ -33,6 +34,7 @@ class BookWriteRepository(BookWriteRepositoryPort):
         """Convert Book entity to Elasticsearch document"""
         doc = {
             "id": str(book.id),
+            "version": book.version,
             "isbn_code": book.isbn_code,
             "editor": book.editor,
             "edition": book.edition,
@@ -143,19 +145,36 @@ class BookWriteRepository(BookWriteRepositoryPort):
             existing_book = session.get(BookModel, book.id)
             if existing_book:
                 # Update fields
-                for key, value in book.model_dump(
-                    exclude={
-                        "authors",
-                        "book_categories",
-                        "book_data",
-                        "physical_exemplars",
-                        "author_ids",
-                        "category_ids",
-                        "created_at",
-                        "created_by",
-                    },
-                ).items():
-                    setattr(existing_book, key, value)
+                statement = (
+                    update(BookModel)
+                    .where(
+                        and_(
+                            BookModel.id == book.id,
+                            BookModel.version == book.version - 1,
+                        ),
+                    )
+                    .values(
+                        **book.model_dump(
+                            exclude={
+                                "category_ids",
+                                "author_ids",
+                                "book_data",
+                                "book_categories",
+                                "authors",
+                            },
+                            exclude_none=True,
+                            exclude_unset=True,
+                            mode="json",
+                        )
+                    )
+                )
+                result = session.exec(statement)  # type: ignore
+                if result.rowcount == 0:
+                    raise OptimisticLockException(
+                        f"""Optimistic lock failed for book {book.id}.
+                        Expected version {book.version - 1},
+                        but data may have been modified by another transaction.""",
+                    )
             else:
                 existing_book = BookModel(
                     id=book.id,
@@ -163,13 +182,15 @@ class BookWriteRepository(BookWriteRepositoryPort):
                     editor=book.editor,
                     edition=book.edition,
                     type=book.type,
+                    version=book.version,
                     publish_date=book.publish_date,
                     created_by=book.created_by,
                     created_at=book.created_at,
                     updated_by=book.updated_by,
                     updated_at=book.updated_at,
                 )
-            session.add(existing_book)
+                session.add(existing_book)
+
             session.flush()
 
             session.exec(delete(AuthorBookLinkModel).where(AuthorBookLinkModel.book_id == book.id))  # type: ignore

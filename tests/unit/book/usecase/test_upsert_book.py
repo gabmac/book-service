@@ -1,8 +1,7 @@
 from tests.unit.book.usecase.conftest import BookUseCaseConftest
 
-from src.application.exceptions import NotFoundException
+from src.application.exceptions import OptimisticLockException
 from src.application.usecase.book.upsert_book import UpsertBook
-from src.domain.entities.book import Book
 
 
 class TestUpsertBook(BookUseCaseConftest):
@@ -10,74 +9,67 @@ class TestUpsertBook(BookUseCaseConftest):
     def setUp(self):
         super().setUp()
         self.upsert_book = UpsertBook(
-            book_read_repository=self.mock_book_read_repository,
             book_write_repository=self.mock_book_write_repository,
             book_producer=self.mock_book_producer,
         )
-        self.mock_book_read_repository.get_book_by_id.return_value = None
-        self.mock_book_read_repository.get_book_by_id.side_effect = None
         self.mock_book_write_repository.upsert_book.return_value = None
         self.mock_book_write_repository.upsert_book.side_effect = None
+        self.mock_book_producer.notify_external_book_upsert.return_value = None
+        self.mock_book_producer.notify_external_book_upsert.side_effect = None
 
     def tearDown(self) -> None:
         super().tearDown()
         self.mock_book_write_repository.upsert_book.reset_mock()
-        self.mock_book_read_repository.get_book_by_id.reset_mock()
+        self.mock_book_producer.notify_external_book_upsert.reset_mock()
 
-    def test_execute_new_book(self):
+    def test_execute_book_upsert(self):
         # Arrange
-        book = self.book_model_factory.build(
-            author_ids=None,
-            categories_id=None,
+        book = self.book_model_factory.build()
+        expected_book = self.book_model_factory.build(
+            id=book.id,
+            isbn_code=book.isbn_code,
+            editor=book.editor,
+            edition=book.edition,
+            type=book.type,
+            publish_date=book.publish_date,
+            book_data=book.book_data,
+            version=book.version,
+            authors=book.authors,
+            book_categories=book.book_categories,
+            author_ids=book.author_ids,
+            category_ids=book.category_ids,
+            created_by=book.created_by,
+            updated_by=book.updated_by,
+            created_at=book.created_at,
+            updated_at=book.updated_at,
         )
 
-        # Mock repository responses - book doesn't exist
-        self.mock_book_read_repository.get_book_by_id.side_effect = NotFoundException(
-            "Book not found",
-        )
-        self.mock_book_write_repository.upsert_book.return_value = book
+        # Mock repository responses
+        self.mock_book_write_repository.upsert_book.return_value = expected_book
 
         # Act
         result = self.upsert_book.execute(book)
 
         # Assert
-        self.mock_book_read_repository.get_book_by_id.assert_called_once_with(book.id)
+        self.mock_book_producer.notify_external_book_upsert.assert_called_once_with(
+            book,
+        )
         self.mock_book_write_repository.upsert_book.assert_called_once_with(book)
-        self.assertEqual(result, book)
+        self.assertEqual(result, expected_book)
 
-    def test_execute_existing_book_update(self):
+    def test_execute_book_upsert_optimistic_lock_exception(self):
         # Arrange
-
-        existing_book = self.book_model_factory.build(
-            author_ids=None,
-            categories_id=None,
+        book = self.book_model_factory.build()
+        self.mock_book_write_repository.upsert_book.side_effect = (
+            OptimisticLockException
         )
-
-        updated_book = self.book_model_factory.build(
-            id=existing_book.id,
-            author_ids=None,
-            categories_id=None,
-        )
-
-        expected_book = Book.model_validate(updated_book)
-        expected_book.created_at = existing_book.created_at
-        expected_book.created_by = existing_book.created_by
-
-        # Mock repository responses - book exists
-        self.mock_book_read_repository.get_book_by_id.return_value = existing_book
-        self.mock_book_write_repository.upsert_book.return_value = expected_book
 
         # Act
-        result = self.upsert_book.execute(updated_book)
+        result = self.upsert_book.execute(book)
 
         # Assert
-        self.mock_book_read_repository.get_book_by_id.assert_called_once_with(
-            updated_book.id,
+        self.assertIsNone(result)
+        self.mock_book_producer.notify_external_book_upsert.assert_called_once_with(
+            book,
         )
-        self.mock_book_write_repository.upsert_book.assert_called_once()
-
-        # Verify that created_at and created_by were preserved
-        self.assertEqual(
-            expected_book,
-            result,
-        )
+        self.mock_book_write_repository.upsert_book.assert_called_once_with(book)

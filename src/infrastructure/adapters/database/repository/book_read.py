@@ -33,6 +33,7 @@ class BookReadRepository(BookReadRepositoryPort):
         """Convert Book entity to Elasticsearch document"""
         doc = {
             "id": str(book.id),
+            "version": book.version,
             "isbn_code": book.isbn_code,
             "editor": book.editor,
             "edition": book.edition,
@@ -127,6 +128,7 @@ class BookReadRepository(BookReadRepositoryPort):
         book_data = {
             "id": UUID(doc["id"]),
             "isbn_code": doc.get("isbn_code", ""),
+            "version": doc.get("version", 1),
             "editor": doc.get("editor", ""),
             "edition": doc.get("edition", 1),
             "type": book_type,

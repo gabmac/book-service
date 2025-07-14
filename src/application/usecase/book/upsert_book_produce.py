@@ -3,6 +3,7 @@ from uuid import UUID
 
 from src.application.exceptions import NotFoundException
 from src.application.ports.database.author import AuthorReadRepositoryPort
+from src.application.ports.database.book import BookReadRepositoryPort
 from src.application.ports.database.book_category import BookCategoryReadRepositoryPort
 from src.application.ports.producer.book_producer import BookProducerPort
 from src.domain.entities.author import Author
@@ -16,14 +17,24 @@ class UpsertBookProduce:
         producer: BookProducerPort,
         author_repository: AuthorReadRepositoryPort,
         book_category_repository: BookCategoryReadRepositoryPort,
+        book_repository: BookReadRepositoryPort,
     ):
         self.producer = producer
         self.author_repository = author_repository
         self.book_category_repository = book_category_repository
+        self.book_repository = book_repository
 
     async def execute(self, payload: Book) -> Book:
         authors = self._validate_authors_exist(payload.author_ids)  # type: ignore
         book_categories = self._validate_book_categories_exist(payload.category_ids)  # type: ignore
+        try:
+            old_book = self.book_repository.get_book_by_id(payload.id)
+            payload.version = old_book.version + 1
+            payload.created_by = old_book.created_by
+            payload.created_at = old_book.created_at
+        except NotFoundException:
+            pass
+
         payload.author_ids = None
         payload.category_ids = None
         payload.authors = authors

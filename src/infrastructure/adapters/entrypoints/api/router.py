@@ -138,6 +138,7 @@ class Initializer:
             producer=self.book_producer,
             author_repository=author_read_repository,
             book_category_repository=book_category_read_repository,
+            book_repository=book_read_repository,
         )
         self.publish_create_book_view = PublishCreateBookView(self.upsert_book_use_case)
         self.api_router.include_router(self.publish_create_book_view.router)  # type: ignore
