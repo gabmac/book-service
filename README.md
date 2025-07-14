@@ -103,6 +103,7 @@ The system uses a **dual-database architecture** combining PostgreSQL for transa
 erDiagram
     AUTHOR {
         UUID id PK
+        int version
         string name
         datetime created_at
         datetime updated_at
@@ -112,6 +113,7 @@ erDiagram
 
     BOOK {
         UUID id PK
+        int version
         string isbn_code
         string editor
         int edition
@@ -125,6 +127,7 @@ erDiagram
 
     BOOK_CATEGORY {
         UUID id PK
+        int version
         string title
         string description
         datetime created_at
@@ -147,6 +150,7 @@ erDiagram
 
     BRANCH {
         UUID id PK
+        int version
         string name
         datetime created_at
         datetime updated_at
@@ -156,6 +160,7 @@ erDiagram
 
     PHYSICAL_EXEMPLAR {
         UUID id PK
+        int version
         boolean available
         int room
         int floor
@@ -218,6 +223,70 @@ erDiagram
 - **Cascade Deletion**: Physical exemplars and book data are automatically removed when parent books are deleted
 - **Indexed Fields**: Strategic indexing on frequently queried fields (author names, book titles, foreign keys)
 - **Data Integrity**: Foreign key constraints maintain referential integrity across all relationships
+- **Optimistic Locking**: Version fields prevent concurrent modification conflicts
+
+### Optimistic Locking
+
+The Book Service implements **optimistic locking** to handle concurrent modifications and prevent data corruption in multi-user environments. This pattern assumes that conflicts are rare and checks for conflicts only when data is being updated.
+
+#### **How It Works**
+
+Each core entity (`Author`, `Book`, `BookCategory`, `Branch`, `PhysicalExemplar`) includes a `version` field that:
+
+- **Starts at 1**: New entities begin with version 1
+- **Increments on Update**: Each successful update increments the version by 1
+- **Validates on Write**: Updates require the current version number to succeed
+
+#### **Implementation Pattern**
+
+```python
+# Update operation with optimistic locking
+statement = (
+    update(BookModel)
+    .where(
+        and_(
+            BookModel.id == book.id,
+            BookModel.version == book.version - 1,  # Check current version
+        ),
+    )
+    .values(**book.model_dump())
+)
+result = session.exec(statement)
+if result.rowcount == 0:
+    raise OptimisticLockException(
+        f"Optimistic lock failed for book {book.id}. "
+        f"Expected version {book.version - 1}, "
+        f"but data may have been modified by another transaction."
+    )
+```
+
+#### **Conflict Resolution**
+
+When a concurrent modification is detected:
+
+1. **Detection**: The version check fails during update
+2. **Exception**: `OptimisticLockException` is raised with descriptive message
+3. **Retry Logic**: Use cases may implement retry mechanisms if needed
+4. **User Feedback**: Applications can prompt users to refresh and retry
+
+#### **Benefits**
+
+- **Performance**: No locking overhead during reads
+- **Scalability**: Supports high-concurrency scenarios
+- **Data Integrity**: Prevents lost updates and inconsistent state
+- **User Experience**: Clear feedback when conflicts occur
+
+#### **Coverage**
+
+Optimistic locking is implemented for all core business entities:
+
+- **Author**: Version-controlled author information updates
+- **Book**: Version-controlled book metadata and relationships
+- **BookCategory**: Version-controlled category management
+- **Branch**: Version-controlled branch information
+- **PhysicalExemplar**: Version-controlled inventory tracking
+
+**Note**: Link tables (`AuthorBookLink`, `BookBookCategoryLink`) and `BookData` don't implement optimistic locking as they are managed through their parent entities' transactions.
 
 ## Elasticsearch Search Engine
 
