@@ -8,6 +8,7 @@ from src.application.dto.base import BaseDto, ProcessingResponse
 
 class BranchResponse(BaseDto):
     id: UUID = Field(description="Branch id")
+    version: int = Field(description="Branch version")
     name: str = Field(description="Branch name")
     created_at: datetime = Field(
         description="Branch creation date",

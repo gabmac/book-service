@@ -10,6 +10,7 @@ class Branch(Base, table=True):
     """Library branch entity model."""
 
     name: str = Field(nullable=False)
+    version: int = Field(nullable=False, ge=1)
     physical_exemplars: List[PhysicalExemplar] = Relationship(
         back_populates="branch",
         cascade_delete=True,

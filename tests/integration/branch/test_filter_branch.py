@@ -2,8 +2,6 @@ import json
 
 from tests.integration.branch.conftest import BranchViewConfTest
 
-from src.domain.entities.branch import Branch
-
 
 class TestFilterBranch(BranchViewConfTest):
 
@@ -61,12 +59,8 @@ class TestFilterBranch(BranchViewConfTest):
 
         # Given branches are stored in the database
 
-        # When a request is made to filter branches by name
-        branch = Branch(
-            name="Test Branch",
-            created_by="test_user",
-            updated_by="test_user",
-        )
+        # When a request is made to filter branches by name that doesn't exist
+        branch = self.branch_model_factory.build()
         self.branch_write_repository.upsert_branch(branch)
 
         response = self.client.get("api/branch", params={"name": "NonExistent"})

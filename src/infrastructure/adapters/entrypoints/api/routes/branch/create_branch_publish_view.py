@@ -30,6 +30,7 @@ class PublishCreateBranchView(BranchBasicRouter):
             name=payload.name,
             created_by=payload.user,
             updated_by=payload.user,
+            version=1,
         )
         branch = self.use_case.execute(branch)  # type: ignore
         return ProcessingBranch(branch=branch)

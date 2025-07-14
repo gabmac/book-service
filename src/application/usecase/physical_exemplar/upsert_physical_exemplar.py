@@ -32,4 +32,4 @@ class UpsertPhysicalExemplar:
             )
             return physical_exemplar
         except OptimisticLockException:
-            pass
+            return None

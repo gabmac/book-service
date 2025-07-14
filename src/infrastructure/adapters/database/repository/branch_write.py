@@ -1,5 +1,6 @@
-from sqlmodel import text
+from sqlmodel import and_, text, update
 
+from src.application.exceptions import OptimisticLockException
 from src.application.ports.database.branch import BranchWriteRepositoryPort
 from src.domain.entities.branch import Branch
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
@@ -14,13 +15,33 @@ class BranchWriteRepository(BranchWriteRepositoryPort):
         with self.db.get_session() as session:
             branch_model = session.get(BranchModel, branch.id)
             if branch_model:
-                for k, v in branch.model_dump().items():
-                    if k == "id":
-                        continue
-                    setattr(branch_model, k, v)
+                statement = (
+                    update(BranchModel)
+                    .where(
+                        and_(
+                            BranchModel.id == branch.id,
+                            BranchModel.version == branch.version - 1,
+                        ),
+                    )
+                    .values(
+                        **branch.model_dump(
+                            exclude_none=True,
+                            exclude_unset=True,
+                            mode="json",
+                        )
+                    )
+                )
+                result = session.exec(statement)  # type: ignore
+                if result.rowcount == 0:
+                    raise OptimisticLockException(
+                        f"""Optimistic lock failed for branch {branch.id}.
+                        Expected version {branch.version - 1},
+                        but data may have been modified by another transaction.""",
+                    )
             else:
                 branch_model = BranchModel.model_validate(branch)
                 session.add(branch_model)
+
             session.flush()
             session.commit()
             session.refresh(branch_model)

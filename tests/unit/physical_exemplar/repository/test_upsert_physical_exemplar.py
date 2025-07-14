@@ -140,6 +140,7 @@ class TestUpsertPhysicalExemplar(PhysicalExemplarRepositoryConftest):
             room=1,
             floor=2,
             bookshelf=3,
+            version=4,
         )
 
         updated_physical_exemplar = physical_exemplar.model_copy(deep=True)

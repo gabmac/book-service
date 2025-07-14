@@ -9,6 +9,7 @@ from src.domain.entities.base import BaseEntity
 
 class Branch(BaseEntity):
     id: UUID = Field(description="Branch id", default_factory=uuid7)
+    version: int = Field(description="Branch version", ge=1)
     name: str = Field(description="Branch name")
     created_by: str = Field(description="Branch creator")
     updated_by: str = Field(description="Branch updater")
