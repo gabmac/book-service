@@ -23,6 +23,7 @@ class CreateBookCategoryProduce:
             new_book_category = BookCategory(
                 id=old_book_category.id,
                 title=book_category.title,
+                version=old_book_category.version + 1,
                 description=book_category.description,
                 created_by=old_book_category.created_by,
                 created_at=old_book_category.created_at,

@@ -63,6 +63,7 @@ class TestCreateBookCategoryProduce(BookCategoryUseCaseConftest):
         updated_category.created_at = existing_category.created_at
         updated_category.id = existing_category.id
         updated_category.updated_at = existing_category.updated_at
+        updated_category.version = existing_category.version + 1
 
         # Mock repository response - category found (update)
         self.mock_book_category_repository.get_book_category_by_title.return_value = (

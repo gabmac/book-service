@@ -11,6 +11,7 @@ class BookCategory(Base, table=True):
 
     __tablename__ = "book_category"  # type: ignore
 
+    version: int = Field(nullable=False, ge=1)
     title: str = Field(
         nullable=False,
         index=True,

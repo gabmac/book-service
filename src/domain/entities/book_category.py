@@ -9,6 +9,7 @@ from src.domain.entities.base import BaseEntity
 
 class BookCategory(BaseEntity):
     id: UUID = Field(description="Book category id", default_factory=uuid7)
+    version: int = Field(description="Book category version", ge=1)
     title: str = Field(description="Book category title")
     description: str | None = Field(
         description="Book category description",

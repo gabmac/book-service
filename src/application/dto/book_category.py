@@ -17,6 +17,7 @@ class BookCategoryUpsert(BaseDto):
 
 class BookCategoryResponse(BaseDto):
     id: UUID = Field(description="Book category id")
+    version: int = Field(description="Book category version")
     title: str = Field(description="Book category title")
     description: str | None = Field(
         description="Book category description",

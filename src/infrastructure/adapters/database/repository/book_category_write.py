@@ -1,7 +1,8 @@
 from uuid import UUID
 
-from sqlmodel import select
+from sqlmodel import and_, select, update
 
+from src.application.exceptions import OptimisticLockException
 from src.application.ports.database.book_category import BookCategoryWriteRepositoryPort
 from src.domain.entities.book_category import BookCategory
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
@@ -18,10 +19,29 @@ class BookCategoryWriteRepository(BookCategoryWriteRepositoryPort):
         with self.db.get_session() as session:
             book_category_model = session.get(BookCategoryModel, book_category.id)
             if book_category_model:
-                for k, v in book_category.model_dump().items():
-                    if k == "id":
-                        continue
-                    setattr(book_category_model, k, v)
+                statement = (
+                    update(BookCategoryModel)
+                    .where(
+                        and_(
+                            BookCategoryModel.id == book_category.id,
+                            BookCategoryModel.version == book_category.version - 1,
+                        ),
+                    )
+                    .values(
+                        **book_category.model_dump(
+                            exclude_none=True,
+                            exclude_unset=True,
+                            mode="json",
+                        )
+                    )
+                )
+                result = session.exec(statement)  # type: ignore
+                if result.rowcount == 0:
+                    raise OptimisticLockException(
+                        f"""Optimistic lock failed for book category {book_category.id}.
+                        Expected version {book_category.version - 1},
+                        but data may have been modified by another transaction.""",
+                    )
             else:
                 book_category_model = BookCategoryModel.model_validate(book_category)
                 session.add(book_category_model)

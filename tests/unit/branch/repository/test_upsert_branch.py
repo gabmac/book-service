@@ -30,7 +30,7 @@ class TestUpsertBranch(BranchRepositoryConftest):
 
     def test_update_branch_with_optimistic_lock(self):
         # Arrange - Create and save a branch first
-        branch = self.branch_model_factory.build()
+        branch = self.branch_model_factory.build(version=4)
         self.branch_write_repository.upsert_branch(branch=branch)
 
         # Act - Update the branch name

@@ -30,6 +30,7 @@ class UpsertBookCategoryPublishView(BookCategoryBasicRouter):
     def _call_use_case(self, payload: BookCategoryUpsert) -> ProcessingBookCategory:
         new_book_category = BookCategory(
             title=payload.title,
+            version=1,
             description=payload.description,
             created_by=payload.user,
             updated_by=payload.user,

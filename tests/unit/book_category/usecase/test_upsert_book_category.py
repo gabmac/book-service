@@ -1,5 +1,6 @@
 from tests.unit.book_category.usecase.conftest import BookCategoryUseCaseConftest
 
+from src.application.exceptions import OptimisticLockException
 from src.application.usecase.book_category.upsert_book_category import (
     UpsertBookCategory,
 )
@@ -36,3 +37,16 @@ class TestUpsertBookCategory(BookCategoryUseCaseConftest):
             book_category,
         )
         self.assertEqual(result, book_category)
+
+    def test_execute_optimistic_lock_exception(self):
+        # Arrange
+        book_category = self.book_category_model_factory.build()
+        self.mock_book_category_repository.upsert_book_category.side_effect = (
+            OptimisticLockException
+        )
+
+        # Act
+        result = self.upsert_book_category.execute(book_category)
+
+        # Assert
+        self.assertIsNone(result)
