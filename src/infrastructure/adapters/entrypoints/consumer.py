@@ -129,7 +129,6 @@ callables = {
     },
     "author.upsert": {
         "usecase": UpsertAuthor(
-            author_read_repository,
             author_write_repository,
             author_producer,
         ),

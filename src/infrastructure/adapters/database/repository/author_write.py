@@ -1,6 +1,7 @@
 from sqlalchemy.exc import NoResultFound
-from sqlmodel import select
+from sqlmodel import and_, select, update
 
+from src.application.exceptions import OptimisticLockException
 from src.application.ports.database.author import AuthorWriteRepositoryPort
 from src.domain.entities.author import Author
 from src.infrastructure.adapters.database.db.session import DatabaseSettings
@@ -19,14 +20,29 @@ class AuthorWriteRepository(AuthorWriteRepositoryPort):
             ).first()
 
             if existing:
-                # Update existing record
-                for k, v in author.model_dump().items():
-                    if k not in [
-                        "id",
-                        "created_at",
-                        "created_by",
-                    ]:
-                        setattr(existing, k, v)
+                statement = (
+                    update(AuthorModel)
+                    .where(
+                        and_(
+                            AuthorModel.id == author.id,
+                            AuthorModel.version == author.version - 1,
+                        ),
+                    )
+                    .values(
+                        **author.model_dump(
+                            exclude_none=True,
+                            exclude_unset=True,
+                            mode="json",
+                        )
+                    )
+                )
+                result = session.exec(statement)  # type: ignore
+                if result.rowcount == 0:
+                    raise OptimisticLockException(
+                        f"""Optimistic lock failed for author {author.id}.
+                        Expected version {author.version - 1},
+                        but data may have been modified by another transaction.""",
+                    )
             else:
                 existing = AuthorModel.model_validate(author)
                 session.add(existing)

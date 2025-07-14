@@ -24,6 +24,7 @@ def upgrade() -> None:
     op.create_table(
         "author",
         sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("created_by", AutoString(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),

@@ -26,30 +26,15 @@ from src.application.usecase.physical_exemplar.upsert_physical_exemplar_produce 
 from src.infrastructure.adapters.database.repository.author_read import (
     AuthorReadRepository,
 )
-from src.infrastructure.adapters.database.repository.author_write import (
-    AuthorWriteRepository,
-)
 from src.infrastructure.adapters.database.repository.book_category_read import (
     BookCategoryReadRepository,
 )
-from src.infrastructure.adapters.database.repository.book_category_write import (
-    BookCategoryWriteRepository,
-)
 from src.infrastructure.adapters.database.repository.book_read import BookReadRepository
-from src.infrastructure.adapters.database.repository.book_write import (
-    BookWriteRepository,
-)
 from src.infrastructure.adapters.database.repository.branch_read import (
     BranchReadRepository,
 )
-from src.infrastructure.adapters.database.repository.branch_write import (
-    BranchWriteRepository,
-)
 from src.infrastructure.adapters.database.repository.physical_exemplar_read import (
     PhysicalExemplarReadRepository,
-)
-from src.infrastructure.adapters.database.repository.physical_exemplar_write import (
-    PhysicalExemplarWriteRepository,
 )
 from src.infrastructure.adapters.entrypoints.api.monitoring import (
     router as monitoring_router,
@@ -119,15 +104,10 @@ class Initializer:
         self,
         producer: Producer,
         book_read_repository: BookReadRepository,
-        book_write_repository: BookWriteRepository,
         author_read_repository: AuthorReadRepository,
-        author_write_repository: AuthorWriteRepository,
         book_category_read_repository: BookCategoryReadRepository,
-        book_category_write_repository: BookCategoryWriteRepository,
         branch_read_repository: BranchReadRepository,
-        branch_write_repository: BranchWriteRepository,
         physical_exemplar_read_repository: PhysicalExemplarReadRepository,
-        physical_exemplar_write_repository: PhysicalExemplarWriteRepository,
     ):
         self.api_router = APIRouter(prefix="/api")
         self.api_router.include_router(monitoring_router)
@@ -171,7 +151,10 @@ class Initializer:
         self.filter_author_view = FilterAuthorView(self.filter_author_use_case)
         self.api_router.include_router(self.filter_author_view.router)  # type: ignore
 
-        self.update_author_use_case = UpdateAuthorProduce(producer=self.author_producer)
+        self.update_author_use_case = UpdateAuthorProduce(
+            producer=self.author_producer,
+            author_read_repository=author_read_repository,
+        )
         self.publish_update_author_view = PublishUpdateAuthorView(
             self.update_author_use_case,
             self.get_author_by_id_use_case,

@@ -30,6 +30,7 @@ class PublishCreateAuthorView(AuthorBasicRouter):
             name=payload.name,
             created_by=payload.user,
             updated_by=payload.user,
+            version=1,
         )
         author = await self.use_case.execute(author)  # type: ignore
         return ProcessingAuthor(author=AuthorResponse.model_validate(author))  # type: ignore

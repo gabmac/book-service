@@ -18,6 +18,7 @@ class AuthorFilter(BaseDto):
 
 class AuthorResponse(BaseDto):
     id: UUID = Field(description="Author ID")
+    version: int = Field(description="Author version")
     name: str = Field(description="Author name")
     created_at: datetime = Field(description="Author creation date")
     updated_at: datetime = Field(description="Author update date")

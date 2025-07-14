@@ -12,6 +12,7 @@ class Author(BaseEntity):
     """Author entity model."""
 
     id: UUID = Field(description="Author ID", default_factory=uuid7)
+    version: int = Field(description="Author version", ge=1)
     name: str = Field(description="Author name")
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),

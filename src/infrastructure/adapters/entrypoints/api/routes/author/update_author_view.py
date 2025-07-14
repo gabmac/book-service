@@ -46,6 +46,7 @@ class PublishUpdateAuthorView(AuthorBasicRouter):
             updated_by=payload.user,
             created_at=existing_author.created_at,
             updated_at=existing_author.updated_at,
+            version=existing_author.version + 1,
         )
         author = await self.use_case.execute(author)  # type: ignore
         return ProcessingAuthor(author=AuthorResponse.model_validate(author))  # type: ignore

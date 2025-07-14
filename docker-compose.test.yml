@@ -109,81 +109,81 @@ services:
     logging:
       driver: none
 
-#   application:
-#     container_name: application-test
-#     build:
-#       context: .
-#       dockerfile: ./Dockerfile
-#       target: test
-#     image: book-service-test:${TESTE_VERSION:-latest}
-#     restart: always
-#     volumes:
-#     - .:/code
-#     environment:
-#     - SYSTEM_ENVIRONMENT=local
-#     - SYSTEM_HOST=0.0.0.0
-#     - SYSTEM_PORT=9000
-#     - DATABASE_HOST=postgres
-#     - DATABASE_PORT=5432
-#     - DATABASE_SLAVE_HOST=postgres-slave
-#     - DATABASE_SLAVE_PORT=5432
-#     - DATABASE_USER=postgres
-#     - DATABASE_PASSWORD=123456
-#     - DATABASE_NAME=book
-#     - LOGSTASH_HOST=logstash
-#     - LOGSTASH_PORT=5000
-#     - PRODUCER_LOCALHOST=rabbitmq
-#     - PRODUCER_USER=kalo
-#     - PRODUCER_PASSWORD=kalo
-#     - CONSUMER_LOCALHOST=rabbitmq
-#     - CONSUMER_USER=kalo
-#     - CONSUMER_PASSWORD=kalo
-#     - SYSTEM_EXECUTOR=api
-#     - SYSTEM_ENVIRONMENT=test
-#     - ELASTICSEARCH_HOST=elasticsearch
-#     - ELASTICSEARCH_PORT=9200
-#     - ELASTICSEARCH_USE_SSL=false
-#     - ELASTICSEARCH_VERIFY_CERTS=false
-#     - ELASTICSEARCH_TIMEOUT=30
-#     - ELASTICSEARCH_MAX_RETRIES=3
-#     - ELASTICSEARCH_RETRY_ON_TIMEOUT=true
-#     - ELASTICSEARCH_INDEX_BOOKS_INDEX=test_books
-#     - ELASTICSEARCH_INDEX_MAPPINGS_FILE_PATH=src/infrastructure/settings/elasticsearch_mappings.json
-#     - ELASTICSEARCH_INDEX_NUMBER_OF_SHARDS=10
-#     - ELASTICSEARCH_INDEX_NUMBER_OF_REPLICAS=10
-#     - ELASTICSEARCH_INDEX_MAX_RESULT_WINDOW=10000
-#     - ELASTICSEARCH_INDEX_REFRESH_INTERVAL=2s
-#     networks:
-#     - os-net
-#     depends_on:
-#       postgres:
-#         condition: service_healthy
-#       rabbitmq:
-#         condition: service_healthy
-#       elasticsearch:
-#         condition: service_healthy
+  application:
+    container_name: application-test
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: test
+    image: book-service-test:${TESTE_VERSION:-latest}
+    restart: always
+    volumes:
+    - .:/code
+    environment:
+    - SYSTEM_ENVIRONMENT=local
+    - SYSTEM_HOST=0.0.0.0
+    - SYSTEM_PORT=9000
+    - DATABASE_HOST=postgres
+    - DATABASE_PORT=5432
+    - DATABASE_SLAVE_HOST=postgres-slave
+    - DATABASE_SLAVE_PORT=5432
+    - DATABASE_USER=postgres
+    - DATABASE_PASSWORD=123456
+    - DATABASE_NAME=book
+    - LOGSTASH_HOST=logstash
+    - LOGSTASH_PORT=5000
+    - PRODUCER_LOCALHOST=rabbitmq
+    - PRODUCER_USER=kalo
+    - PRODUCER_PASSWORD=kalo
+    - CONSUMER_LOCALHOST=rabbitmq
+    - CONSUMER_USER=kalo
+    - CONSUMER_PASSWORD=kalo
+    - SYSTEM_EXECUTOR=api
+    - SYSTEM_ENVIRONMENT=test
+    - ELASTICSEARCH_HOST=elasticsearch
+    - ELASTICSEARCH_PORT=9200
+    - ELASTICSEARCH_USE_SSL=false
+    - ELASTICSEARCH_VERIFY_CERTS=false
+    - ELASTICSEARCH_TIMEOUT=30
+    - ELASTICSEARCH_MAX_RETRIES=3
+    - ELASTICSEARCH_RETRY_ON_TIMEOUT=true
+    - ELASTICSEARCH_INDEX_BOOKS_INDEX=test_books
+    - ELASTICSEARCH_INDEX_MAPPINGS_FILE_PATH=src/infrastructure/settings/elasticsearch_mappings.json
+    - ELASTICSEARCH_INDEX_NUMBER_OF_SHARDS=10
+    - ELASTICSEARCH_INDEX_NUMBER_OF_REPLICAS=10
+    - ELASTICSEARCH_INDEX_MAX_RESULT_WINDOW=10000
+    - ELASTICSEARCH_INDEX_REFRESH_INTERVAL=2s
+    networks:
+    - os-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
-#   alembic:
-#     container_name: alembic
-#     build:
-#       context: .
-#       dockerfile: ./Dockerfile.alembic
-#     image: book-service-alembic:${TESTE_VERSION:-latest}
-#     volumes:
-#     - .:/code
-#     environment:
-#     - DATABASE_HOST=postgres
-#     - DATABASE_PORT=5432
-#     - DATABASE_SLAVE_HOST=postgres-slave
-#     - DATABASE_SLAVE_PORT=5432
-#     - DATABASE_USER=postgres
-#     - DATABASE_PASSWORD=123456
-#     - DATABASE_NAME=book
-#     networks:
-#     - os-net
-#     depends_on:
-#       postgres:
-#         condition: service_healthy
+  alembic:
+    container_name: alembic
+    build:
+      context: .
+      dockerfile: ./Dockerfile.alembic
+    image: book-service-alembic:${TESTE_VERSION:-latest}
+    volumes:
+    - .:/code
+    environment:
+    - DATABASE_HOST=postgres
+    - DATABASE_PORT=5432
+    - DATABASE_SLAVE_HOST=postgres-slave
+    - DATABASE_SLAVE_PORT=5432
+    - DATABASE_USER=postgres
+    - DATABASE_PASSWORD=123456
+    - DATABASE_NAME=book
+    networks:
+    - os-net
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   rabbitmq-lib:
